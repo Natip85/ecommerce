@@ -1,0 +1,27 @@
+{
+  "name": "@ecommerce/api",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@ecommerce/auth": "workspace:*",
+    "@ecommerce/db": "workspace:*",
+    "@ecommerce/env": "workspace:*",
+    "@trpc/client": "catalog:",
+    "@trpc/server": "catalog:",
+    "dotenv": "catalog:",
+    "next": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@ecommerce/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

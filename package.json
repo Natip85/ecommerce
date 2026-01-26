@@ -1,0 +1,38 @@
+{
+  "name": "ecommerce",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "check-types": "turbo check-types",
+    "dev:native": "turbo -F native dev",
+    "dev:web": "turbo -F web dev",
+    "db:push": "turbo -F @ecommerce/db db:push",
+    "db:studio": "turbo -F @ecommerce/db db:studio",
+    "db:generate": "turbo -F @ecommerce/db db:generate",
+    "db:migrate": "turbo -F @ecommerce/db db:migrate",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@ecommerce/env": "workspace:*",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@ecommerce/config": "workspace:*",
+    "@types/node": "^22.13.14",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
+    "turbo": "^2.6.3",
+    "typescript": "catalog:"
+  },
+  "lint-staged": {
+    "**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,vue,astro,svelte}": ""
+  },
+  "packageManager": "pnpm@10.11.1"
+}
