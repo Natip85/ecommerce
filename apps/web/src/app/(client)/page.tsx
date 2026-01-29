@@ -5,6 +5,10 @@ import { Hero } from "@/features/landing-page/hero";
 import { Newsletter } from "@/features/landing-page/newsletter";
 import { Testimonial } from "@/features/landing-page/testimonials";
 
+// Skip static generation - render dynamically at request time
+// Required because layout components use nuqs/useSearchParams
+export const dynamic = "force-dynamic";
+
 export default function Home() {
   return (
     <div className="flex-1">

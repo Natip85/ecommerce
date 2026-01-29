@@ -3,6 +3,10 @@ import { Heart, Leaf, Sparkles, Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+// Skip static generation - render dynamically at request time
+// Required because layout components use nuqs/useSearchParams
+export const dynamic = "force-dynamic";
+
 const values = [
   {
     icon: Sparkles,
