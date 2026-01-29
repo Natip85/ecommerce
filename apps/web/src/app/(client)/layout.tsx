@@ -1,7 +1,10 @@
+import { Suspense } from "react";
+
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { GlobalSearch } from "@/features/global-search/global-search";
 import { Footer } from "@/features/landing-page/footer";
-import { ClientLayoutComponents } from "@/features/layout/client-layout-components";
 import { Header } from "@/features/nav/header";
+import { RightSidebarContainer } from "@/features/right-sidebars";
 import { HydrateClient } from "@/trpc/server";
 
 export default function ClientLayout({
@@ -17,7 +20,10 @@ export default function ClientLayout({
           {children}
           <Footer />
         </div>
-        <ClientLayoutComponents />
+        <RightSidebarContainer />
+        <Suspense>
+          <GlobalSearch />
+        </Suspense>
       </SidebarProvider>
     </HydrateClient>
   );
