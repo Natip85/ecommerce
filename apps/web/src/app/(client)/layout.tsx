@@ -1,27 +1,8 @@
-import dynamic from "next/dynamic";
-
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Footer } from "@/features/landing-page/footer";
+import { ClientLayoutComponents } from "@/features/layout/client-layout-components";
 import { Header } from "@/features/nav/header";
 import { HydrateClient } from "@/trpc/server";
-
-// Dynamically import components that use nuqs (useSearchParams)
-// with ssr: false to prevent static generation issues
-const RightSidebarContainer = dynamic(
-  () =>
-    import("@/features/right-sidebars").then(
-      (mod) => mod.RightSidebarContainer,
-    ),
-  { ssr: false },
-);
-
-const GlobalSearch = dynamic(
-  () =>
-    import("@/features/global-search/global-search").then(
-      (mod) => mod.GlobalSearch,
-    ),
-  { ssr: false },
-);
 
 export default function ClientLayout({
   children,
@@ -36,8 +17,7 @@ export default function ClientLayout({
           {children}
           <Footer />
         </div>
-        <RightSidebarContainer />
-        <GlobalSearch />
+        <ClientLayoutComponents />
       </SidebarProvider>
     </HydrateClient>
   );
