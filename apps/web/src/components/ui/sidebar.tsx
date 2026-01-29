@@ -412,12 +412,14 @@ function Sidebar({
   className,
   children,
   lightBg = false,
+  onMobileClose,
   ...props
 }: React.ComponentProps<"div"> & {
   side?: "left" | "right";
   variant?: "sidebar" | "floating" | "inset";
   collapsible?: "offcanvas" | "icon" | "none";
   lightBg?: boolean;
+  onMobileClose?: () => void;
 }) {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar(side);
 
@@ -446,22 +448,28 @@ function Sidebar({
 
   if (isMobile) {
     return (
-      <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
+      <Sheet
+        open={openMobile}
+        onOpenChange={(open) => {
+          setOpenMobile(open);
+          if (!open) {
+            onMobileClose?.();
+          }
+        }}
+        {...props}
+      >
         <SheetContent
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
           className={cn(
-            "bg-sidebar text-sidebar-foreground p-0 [&>button]:hidden",
+            "bg-background! text-foreground p-0 [&>button]:hidden",
             sideWidthVariants({ side }),
           )}
           style={
             {
               "--sidebar-left-width": SIDEBAR_WIDTH_MOBILE,
               "--sidebar-right-width": SIDEBAR_WIDTH_MOBILE,
-              "--sidebar": lightBg
-                ? "var(--color-neutral-300)"
-                : "var(--sidebar)",
             } as React.CSSProperties
           }
           side={side}

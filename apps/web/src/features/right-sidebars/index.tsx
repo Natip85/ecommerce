@@ -24,23 +24,34 @@ export const RightSidebarContainer = () => {
   const { sidebarParams, setSidebarParams } = useSidebarParams();
 
   const pathname = usePathname();
-  const { setOpen, open } = useSidebar("right");
+  const { setOpen, setOpenMobile, open, openMobile, isMobile } =
+    useSidebar("right");
 
   const hasSidebarParams = Object.values(sidebarParams).some(Boolean);
+  const isOpen = isMobile ? openMobile : open;
+
+  // Helper to set the correct sidebar state based on device
+  const setSidebarOpen = (value: boolean) => {
+    if (isMobile) {
+      setOpenMobile(value);
+    } else {
+      setOpen(value);
+    }
+  };
 
   // TODO: check if we can remove this now that we are not using cookies
   const checkSidebar = () => {
     // closing reasons
-    const noParams = !hasSidebarParams && open;
+    const noParams = !hasSidebarParams && isOpen;
     // staying open reasons
 
     const shouldClose = noParams;
 
     if (shouldClose) {
-      setOpen(false);
+      setSidebarOpen(false);
       void setSidebarParams(null);
-    } else if (hasSidebarParams && !open) {
-      setOpen(true);
+    } else if (hasSidebarParams && !isOpen) {
+      setSidebarOpen(true);
     }
   };
 
@@ -49,7 +60,7 @@ export const RightSidebarContainer = () => {
       checkSidebar();
     }, 100);
     return () => clearTimeout(timeoutId);
-  }, [pathname, open, hasSidebarParams]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [pathname, isOpen, hasSidebarParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Get the current active component key for animation
   const getActiveKey = () => {

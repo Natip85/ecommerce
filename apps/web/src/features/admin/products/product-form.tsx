@@ -898,8 +898,16 @@ export function ProductForm({ productId }: ProductFormProps) {
                               </FormControl>
                               <MultiSelectContent
                                 search={{
-                                  placeholder: "Search tags...",
+                                  placeholder: "Search or create tags...",
                                   emptyMessage: "No tags found.",
+                                }}
+                                creatable={{
+                                  formatCreateLabel: (value) => (
+                                    <span>
+                                      Create tag &quot;<strong>{value}</strong>
+                                      &quot;
+                                    </span>
+                                  ),
                                 }}
                               >
                                 <MultiSelectGroup heading="Tags">

@@ -43,8 +43,13 @@ export function Header() {
                 <span className="sr-only">Open menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[300px]">
-              <nav className="mt-8 flex flex-col gap-6">
+            <SheetContent side="left" className="w-[200px] p-3">
+              <Link href="/" className="flex items-center mt-2">
+                <span className="text-xl font-semibold tracking-tight text-foreground">
+                  Lumière
+                </span>
+              </Link>
+              <nav className="mt-6 flex flex-col gap-6">
                 {navigation.map((item) => (
                   <Link
                     key={item.name}

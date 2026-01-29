@@ -21,6 +21,7 @@ export const RightSidebar = ({
       collapsible="offcanvas"
       variant="sidebar"
       className={cn("border-border relative border-l", className)}
+      onMobileClose={onClose}
       {...props}
     >
       <SidebarTrigger

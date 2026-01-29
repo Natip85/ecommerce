@@ -4,6 +4,7 @@ import { History, LogOut, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { ModeToggle } from "@/components/mode-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -69,6 +70,7 @@ export function NavUser() {
                 {session.user.email}
               </span>
             </div>
+            <ModeToggle />
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

@@ -1,9 +1,10 @@
 "use client";
 
-import { Loader2, LogOut, User, ChevronRight  } from "lucide-react";
+import { Loader2, LogOut, User, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { ModeToggle } from "@/components/mode-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -85,7 +86,7 @@ export const AdminNavUser = () => {
                     {session?.user?.email}
                   </span>
                 </div>
-                {/* <ModeToggle /> */}
+                <ModeToggle />
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />

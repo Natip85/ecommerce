@@ -30,15 +30,24 @@ export const sidebarParamsSerializer = createSerializer(sidebarParamsParser)
 
 export const useSidebarParams = () => {
   const [sidebarParams, setSidebarParams] = useQueryStates(sidebarParamsParser)
-  const { setOpen } = useSidebar('right')
+  const { setOpen, setOpenMobile, isMobile } = useSidebar('right')
   const params = useParams()
   const paramsSmartListId = params.smartListId as string
   const aiSmartListId = params.aiSmartListId as string
 
+  // Helper to set the correct sidebar state based on device
+  const setSidebarOpen = (open: boolean) => {
+    if (isMobile) {
+      setOpenMobile(open)
+    } else {
+      setOpen(open)
+    }
+  }
+
   const toggleFilterOpen = (filter = 'new') => {
     void setSidebarParams((prev) => {
       const filterOpen = prev.filterOpen === filter ? null : filter
-      setOpen(!!filterOpen)
+      setSidebarOpen(!!filterOpen)
       return {
         ...emptySidebarParams,
         filterOpen,
@@ -49,7 +58,7 @@ export const useSidebarParams = () => {
   const toggleFilterSaving = () => {
     void setSidebarParams((prev) => {
       const filterSaving = !prev.filterSaving || null
-      setOpen(!!filterSaving)
+      setSidebarOpen(!!filterSaving)
       return {
         ...emptySidebarParams,
         filterSaving,
@@ -63,7 +72,7 @@ export const useSidebarParams = () => {
   const toggleDownloadList = (open?: boolean) => {
     void setSidebarParams((prev) => {
       const downloadList = open ?? (!prev.downloadList || null)
-      setOpen(!!downloadList)
+      setSidebarOpen(!!downloadList)
       return {
         ...emptySidebarParams,
         downloadList,
@@ -74,7 +83,7 @@ export const useSidebarParams = () => {
   const toggleInfoSidebarId = (id: string) => {
     void setSidebarParams((prev) => {
       const infoId = prev.infoId === id ? null : id
-      setOpen(!!infoId)
+      setSidebarOpen(!!infoId)
       return {
         ...emptySidebarParams,
         infoId,
@@ -85,7 +94,7 @@ export const useSidebarParams = () => {
   const setFilterOpenId = (newFilterOpen: string) => {
     void setSidebarParams((prev) => {
       const filterOpen = prev.filterOpen === newFilterOpen ? null : newFilterOpen
-      setOpen(!!filterOpen)
+      setSidebarOpen(!!filterOpen)
       return {
         ...emptySidebarParams,
         filterOpen,
@@ -94,7 +103,7 @@ export const useSidebarParams = () => {
   }
 
   const closeSidebar = () => {
-    setOpen(false)
+    setSidebarOpen(false)
     void setSidebarParams(null)
   }
 

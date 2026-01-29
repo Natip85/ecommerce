@@ -675,6 +675,57 @@ export const productRouter = createTRPCRouter({
     }),
 
   /**
+   * Delete a product
+   */
+  delete: protectedProcedure
+    .input(z.object({ productId: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.session.user.role !== "admin") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Admin access required",
+        });
+      }
+
+      // Check if product exists
+      const existing = await db.query.products.findFirst({
+        where: eq(products.id, input.productId),
+      });
+
+      if (!existing) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Product not found",
+        });
+      }
+
+      // Delete product (related data will be deleted via cascade)
+      await db.delete(products).where(eq(products.id, input.productId));
+
+      return { success: true };
+    }),
+
+  /**
+   * Delete multiple products
+   */
+  deleteMany: protectedProcedure
+    .input(z.object({ productIds: z.array(z.string().uuid()) }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.session.user.role !== "admin") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Admin access required",
+        });
+      }
+
+      for (const productId of input.productIds) {
+        await db.delete(products).where(eq(products.id, productId));
+      }
+
+      return { success: true, count: input.productIds.length };
+    }),
+
+  /**
    * Get the latest incomplete product (for resuming product creation)
    */
   getIncompleteProduct: protectedProcedure.query(async ({ ctx }) => {

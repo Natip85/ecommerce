@@ -11,7 +11,6 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTRPC } from "@/trpc";
@@ -27,11 +26,17 @@ export const ProductTableBulkActions = <TData extends { id: string }>({
 }: ProductTableBulkActionsProps<TData>) => {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  // const { mutateAsync: deleteMutation } = useMutation(
-  //   trpc.product.delete.mutationOptions(),
-  // );
 
-  const recipeIds = selectedRows.map((row) => row.original.id);
+  const { mutateAsync: deleteMany } = useMutation(
+    trpc.product.deleteMany.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries(trpc.product.list.pathFilter());
+        table.resetRowSelection();
+      },
+    }),
+  );
+
+  const productIds = selectedRows.map((row) => row.original.id);
 
   return (
     <DropdownMenu>
@@ -48,10 +53,7 @@ export const ProductTableBulkActions = <TData extends { id: string }>({
         <DropdownMenuGroup>
           <DropdownMenuItem
             onClick={async () => {
-              // await deleteMutation({ recipeIds });
-              await queryClient.invalidateQueries(
-                trpc.product.list.pathFilter(),
-              );
+              await deleteMany({ productIds });
             }}
             className="text-red-600"
           >

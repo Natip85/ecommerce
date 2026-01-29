@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckIcon, ChevronsUpDownIcon, XIcon } from "lucide-react";
+import { CheckIcon, ChevronsUpDownIcon, PlusIcon, XIcon } from "lucide-react";
 import {
   createContext,
   useCallback,
@@ -38,6 +38,8 @@ type MultiSelectContextType = {
   items: Map<string, ReactNode>;
   single: boolean;
   onItemAdded: (value: string, label: ReactNode) => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
 };
 const MultiSelectContext = createContext<MultiSelectContextType | null>(null);
 
@@ -60,6 +62,7 @@ export function MultiSelect({
   );
   const selectedValues = values ? new Set(values) : internalValues;
   const [items, setItems] = useState<Map<string, ReactNode>>(new Map());
+  const [searchQuery, setSearchQuery] = useState("");
 
   function toggleValue(value: string) {
     const getNewSet = (prev: Set<string>) => {
@@ -86,19 +89,29 @@ export function MultiSelect({
     });
   }, []);
 
+  // Reset search query when popover closes
+  const handleOpenChange = useCallback((newOpen: boolean) => {
+    setOpen(newOpen);
+    if (!newOpen) {
+      setSearchQuery("");
+    }
+  }, []);
+
   return (
     <MultiSelectContext
       value={{
         open,
-        setOpen,
+        setOpen: handleOpenChange,
         selectedValues,
         single,
         toggleValue,
         items,
         onItemAdded,
+        searchQuery,
+        setSearchQuery,
       }}
     >
-      <Popover open={open} onOpenChange={setOpen} modal={true}>
+      <Popover open={open} onOpenChange={handleOpenChange} modal={true}>
         {children}
       </Popover>
     </MultiSelectContext>
@@ -267,12 +280,60 @@ export function MultiSelectValue({
 export function MultiSelectContent({
   search = true,
   children,
+  creatable,
   ...props
 }: {
   search?: boolean | { placeholder?: string; emptyMessage?: string };
+  creatable?: {
+    onCreateOption?: (value: string) => void;
+    formatCreateLabel?: (inputValue: string) => ReactNode;
+  };
   children: ReactNode;
 } & Omit<ComponentPropsWithoutRef<typeof Command>, "children">) {
   const canSearch = typeof search === "object" ? true : search;
+  const {
+    searchQuery,
+    setSearchQuery,
+    items,
+    toggleValue,
+    onItemAdded,
+    single,
+    setOpen,
+  } = useMultiSelectContext();
+
+  // Check if the search query matches any existing item (case-insensitive)
+  const trimmedQuery = searchQuery.trim();
+  const queryMatchesExistingItem = trimmedQuery
+    ? Array.from(items.keys()).some(
+        (key) => key.toLowerCase() === trimmedQuery.toLowerCase(),
+      )
+    : true;
+
+  // Show create option when there's a query that doesn't match any existing item
+  const showCreateOption =
+    creatable && trimmedQuery && !queryMatchesExistingItem;
+
+  const handleCreateOption = () => {
+    if (!trimmedQuery) return;
+
+    // Add the new item to the items map
+    onItemAdded(trimmedQuery, trimmedQuery);
+
+    // Select the new value
+    toggleValue(trimmedQuery);
+
+    // Call the onCreateOption callback if provided
+    creatable?.onCreateOption?.(trimmedQuery);
+
+    // Clear search and close if single select
+    setSearchQuery("");
+    if (single) {
+      setOpen(false);
+    }
+  };
+
+  const formatCreateLabel =
+    creatable?.formatCreateLabel ?? ((value: string) => `Create "${value}"`);
 
   return (
     <>
@@ -288,15 +349,28 @@ export function MultiSelectContent({
               placeholder={
                 typeof search === "object" ? search.placeholder : undefined
               }
+              value={searchQuery}
+              onValueChange={setSearchQuery}
             />
           ) : (
             <button autoFocus className="sr-only" />
           )}
           <CommandList>
-            {canSearch && (
+            {canSearch && !showCreateOption && (
               <CommandEmpty>
                 {typeof search === "object" ? search.emptyMessage : undefined}
               </CommandEmpty>
+            )}
+            {showCreateOption && (
+              <CommandGroup>
+                <CommandItem
+                  onSelect={handleCreateOption}
+                  className="cursor-pointer"
+                >
+                  <PlusIcon className="mr-2 size-4" />
+                  {formatCreateLabel(trimmedQuery)}
+                </CommandItem>
+              </CommandGroup>
             )}
             {children}
           </CommandList>

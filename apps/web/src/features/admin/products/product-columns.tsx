@@ -1,35 +1,22 @@
 "use client";
 
-import {
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-  Package,
-  Eye,
-  EyeOff,
-} from "lucide-react";
+import { Package, Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
+
+import { TableActions } from "./table-actions";
 
 import type { RouterOutputs } from "@ecommerce/api";
 import type { ColumnDef } from "@tanstack/react-table";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+
 
 // Product type from the list query
 type Product = RouterOutputs["product"]["list"]["items"][number];
@@ -100,6 +87,9 @@ export const columns: ColumnDef<Product>[] = [
   // Select checkbox column
   {
     id: "select",
+    size: 40,
+    minSize: 40,
+    maxSize: 40,
     header: ({ table }) => (
       <Checkbox
         checked={
@@ -351,43 +341,7 @@ export const columns: ColumnDef<Product>[] = [
     id: "actions",
     header: () => <div></div>,
     cell: ({ row }) => {
-      const product = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-              <Link href={`/admin/products/${product.id}`}>
-                <Pencil className="mr-2 h-4 w-4" />
-                Edit
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="text-destructive focus:text-destructive"
-              onClick={(e) => {
-                e.stopPropagation();
-                // TODO: Implement delete functionality
-                console.log("Delete product:", product.id);
-              }}
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+      return <TableActions product={row.original} />;
     },
   },
 ];

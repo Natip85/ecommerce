@@ -115,6 +115,27 @@ export const DataTable = <TData, TValue>({
                       </TableHead>
                     );
                   }
+                  if (isSelectHeader) {
+                    return (
+                      <TableHead
+                        key={header.id}
+                        style={{
+                          width:
+                            header.column.getSize() !== 150
+                              ? header.column.getSize()
+                              : undefined,
+                          minWidth: header.column.columnDef.minSize,
+                          maxWidth: header.column.columnDef.maxSize,
+                        }}
+                        className='after:content-[" "] sticky left-0 z-30 bg-muted px-3 text-center after:absolute after:top-0 after:right-0 after:bottom-0 after:w-px after:bg-muted dark:after:bg-muted'
+                      >
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                      </TableHead>
+                    );
+                  }
                   if (isActionsHeader) {
                     return (
                       <TableHead
@@ -129,6 +150,14 @@ export const DataTable = <TData, TValue>({
                 return (
                   <TableHead
                     key={header.id}
+                    style={{
+                      width:
+                        header.column.getSize() !== 150
+                          ? header.column.getSize()
+                          : undefined,
+                      minWidth: header.column.columnDef.minSize,
+                      maxWidth: header.column.columnDef.maxSize,
+                    }}
                     className={cn(
                       hasSelection && header.id !== "select" && "opacity-0",
                       isSelectHeader &&
@@ -164,6 +193,14 @@ export const DataTable = <TData, TValue>({
                   return (
                     <TableCell
                       key={cell.id}
+                      style={{
+                        width:
+                          cell.column.getSize() !== 150
+                            ? cell.column.getSize()
+                            : undefined,
+                        minWidth: cell.column.columnDef.minSize,
+                        maxWidth: cell.column.columnDef.maxSize,
+                      }}
                       className={cn(
                         isSelectCell &&
                           'after:content-[" "] sticky left-0 z-20 bg-muted px-3 text-center will-change-transform after:absolute after:top-0 after:right-0 after:bottom-0 after:w-px after:bg-muted dark:after:bg-muted',
