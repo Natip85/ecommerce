@@ -202,7 +202,7 @@ export function ProductDetailsComponents({
   return (
     <div className="mx-auto max-w-7xl">
       <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
-        {/* Image Gallery */}
+        {/* Image-Gallery */}
         <div className="flex flex-col gap-4">
           {/* Main Image */}
           <div
