@@ -7,6 +7,10 @@ import { ShopSidebar } from "@/features/products/shop-sidebar";
 import { shopBreadcrumbs } from "@/lib/breadcrumbs";
 import { prefetch, trpc } from "@/trpc/server";
 
+// Skip static generation - render dynamically at request time
+// Required because layout components use nuqs/useSearchParams
+export const dynamic = "force-dynamic";
+
 type PageProps = {
   searchParams: Promise<SearchParams>;
 };

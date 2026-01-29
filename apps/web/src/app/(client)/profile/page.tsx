@@ -7,6 +7,10 @@ import { Suspense } from "react";
 
 import type { ReactNode } from "react";
 
+// Skip static generation - render dynamically at request time
+// Required because layout components use nuqs/useSearchParams
+export const dynamic = "force-dynamic";
+
 import { Badge } from "@/components/ui/badge";
 import {
   Card,

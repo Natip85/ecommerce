@@ -12,6 +12,10 @@ import { CartSummary } from "@/features/cart/cart-summary";
 import { cartBreadcrumbs } from "@/lib/breadcrumbs";
 import { useCartStore } from "@/store";
 
+// Skip static generation - render dynamically at request time
+// Required because layout components use nuqs/useSearchParams
+export const dynamic = "force-dynamic";
+
 export default function CartPage() {
   // Get raw items state (stable reference) and actions from Zustand store
   const items = useCartStore((state) => state.items);
