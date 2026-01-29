@@ -3,6 +3,7 @@
 import {
   ChevronsLeft,
   ChevronsRight,
+  FolderOpen,
   Key,
   LayoutDashboard,
   ShoppingBag,
@@ -29,8 +30,6 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
-
-
 const data: NavigationItems = {
   items: [
     {
@@ -47,6 +46,11 @@ const data: NavigationItems = {
       title: "Products",
       url: "/admin/products",
       icon: ShoppingBag as React.ComponentType,
+    },
+    {
+      title: "Collections",
+      url: "/admin/collections",
+      icon: FolderOpen as React.ComponentType,
     },
   ],
   footerItems: [

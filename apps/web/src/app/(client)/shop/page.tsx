@@ -17,7 +17,7 @@ export default async function ShopPage({ searchParams }: PageProps) {
   prefetch(trpc.product.storefrontTags.queryOptions());
 
   return (
-    <div className="flex flex-1 flex-col gap-3 py-6 px-2">
+    <div className="flex flex-1 flex-col gap-4 py-6 px-2">
       <Breadcrumbs pages={shopBreadcrumbs} className="px-2" />
       <div className="flex flex-1 gap-3">
         <ShopSidebar />

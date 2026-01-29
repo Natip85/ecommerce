@@ -17,8 +17,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useTRPC } from "@/trpc";
 
-
-
 type QuickLink = {
   label: string;
   icon: React.ElementType;
@@ -154,13 +152,13 @@ export function ShopSidebar() {
     searchParams.filter?.onSale;
 
   return (
-    <aside className="w-40 shrink-0 hidden md:block">
+    <aside className="w-44 shrink-0 hidden md:block">
       <div className="sticky top-20 space-y-6">
         {/* Shop by section */}
         <div>
           <div className="flex items-center gap-2 mb-3">
             <LayoutGrid className="size-4 text-muted-foreground" />
-            <h3 className="text-sm font-semibold tracking-tight">Shop by</h3>
+            <h3 className="text-lg font-semibold tracking-tight">Shop by</h3>
           </div>
           <nav className="space-y-1">
             {quickLinks.map((link) => {
@@ -213,7 +211,7 @@ export function ShopSidebar() {
         <div>
           <div className="flex items-center gap-2 mb-3">
             <Folder className="size-4 text-muted-foreground" />
-            <h3 className="text-sm font-semibold tracking-tight">
+            <h3 className="text-lg font-semibold tracking-tight">
               Collections
             </h3>
           </div>
@@ -264,7 +262,7 @@ export function ShopSidebar() {
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <Tag className="size-4 text-muted-foreground" />
-                <h3 className="text-sm font-semibold tracking-tight">
+                <h3 className="text-lg font-semibold tracking-tight">
                   Popular Tags
                 </h3>
               </div>

@@ -86,7 +86,6 @@ export function SortMenu() {
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          size="sm"
           role="combobox"
           aria-expanded={open}
           className="justify-between gap-2"

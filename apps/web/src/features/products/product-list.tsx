@@ -32,7 +32,6 @@ import { cn } from "@/lib/utils";
 import { useCartStore } from "@/store";
 import { useTRPC } from "@/trpc";
 
-
 // Grid breakpoints based on container width
 const GRID_5_COLS = 1300;
 const GRID_4_COLS = 1200;
@@ -69,11 +68,11 @@ export const ProductList = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center gap-3 mb-5 ">
+      <div className="flex justify-between items-center gap-3 mb-5 px-3 ">
         {data?.total !== undefined && (
           <div className="flex items-center gap-2">
-            <p className="text-sm ">Results: </p>
-            <Badge variant="outline">
+            <p>Results: </p>
+            <Badge variant="outline" className="h-8">
               {data.total} {data.total === 1 ? "product" : "products"}
             </Badge>
           </div>
@@ -82,7 +81,6 @@ export const ProductList = () => {
           <SortMenu />
           <Button
             variant="outline"
-            size="sm"
             onClick={() => toggleFilterOpen("new")}
             className="flex transition-all duration-300 ease-in-out"
           >

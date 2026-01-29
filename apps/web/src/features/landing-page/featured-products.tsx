@@ -63,7 +63,7 @@ export function FeaturedProducts() {
             </p>
           </div>
           <Button variant="outline" asChild>
-            <Link href="#">
+            <Link href="/shop">
               View All Products
               <ArrowRight className="h-4 w-4" />
             </Link>

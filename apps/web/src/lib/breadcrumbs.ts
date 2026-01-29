@@ -29,6 +29,11 @@ export const adminUsersBreadcrumbs: BreadcrumbPageType[] = [
   { href: '/admin/users', label: 'Users' },
 ]
 
+export const adminCollectionsBreadcrumbs: BreadcrumbPageType[] = [
+  adminBreadcrumb,
+  { href: '/admin/collections', label: 'Collections' },
+]
+
 // Factory functions for dynamic breadcrumbs
 export function createProductDetailBreadcrumbs(
   productId: string,
@@ -49,5 +54,16 @@ export function createAdminProductDetailBreadcrumbs(
     adminBreadcrumb,
     { href: '/admin/products', label: 'Products' },
     { href: `/admin/products/${productId}`, label: productTitle || 'Edit Product' },
+  ]
+}
+
+export function createAdminCollectionDetailBreadcrumbs(
+  collectionId: string,
+  collectionTitle?: string
+): BreadcrumbPageType[] {
+  return [
+    adminBreadcrumb,
+    { href: '/admin/collections', label: 'Collections' },
+    { href: `/admin/collections/${collectionId}`, label: collectionTitle || 'Edit Collection' },
   ]
 }

@@ -1,8 +1,10 @@
+import { collectionRouter } from "./routers/collection";
 import { productRouter } from "./routers/product";
 import { createCallerFactory, createTRPCRouter } from "./trpc";
 
 export const appRouter = createTRPCRouter({
   product: productRouter,
+  collection: collectionRouter,
 });
 
 // export type definition of API

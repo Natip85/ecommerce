@@ -72,7 +72,7 @@ export default function ProductDetails({ id }: ProductDetailsProps) {
   return (
     <main>
       {/* Breadcrumbs */}
-      <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+      <div className="flex flex-1 flex-col gap-4 py-6 px-2">
         <Breadcrumbs
           pages={createProductDetailBreadcrumbs(product.id, product.title)}
         />

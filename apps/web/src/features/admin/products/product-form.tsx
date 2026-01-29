@@ -53,6 +53,14 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
+  MultiSelect,
+  MultiSelectContent,
+  MultiSelectGroup,
+  MultiSelectItem,
+  MultiSelectTrigger,
+  MultiSelectValue,
+} from "@/components/ui/multi-select";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -150,6 +158,11 @@ export function ProductForm({ productId }: ProductFormProps) {
   // Fetch available collections
   const { data: availableCollections } = useQuery(
     trpc.product.listCollections.queryOptions(),
+  );
+
+  // Fetch available tags
+  const { data: availableTags } = useQuery(
+    trpc.product.storefrontTags.queryOptions(),
   );
 
   // Populate form with product data when loaded
@@ -329,7 +342,7 @@ export function ProductForm({ productId }: ProductFormProps) {
             }
           : undefined,
       });
-    } catch (error) {
+    } catch (_error) {
       // Error handled by mutation's onError
     } finally {
       // Error handled by mutation's onError
@@ -354,6 +367,13 @@ export function ProductForm({ productId }: ProductFormProps) {
     <TooltipProvider>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleFormSubmit)}>
+          <Breadcrumbs
+            pages={createAdminProductDetailBreadcrumbs(
+              productId,
+              product?.title,
+            )}
+            className="mb-6 pl-6 pt-6"
+          />
           <div className="min-h-screen">
             {/* Top Header Bar */}
             <header className="sticky top-0 z-50 border-b bg-background">
@@ -420,13 +440,6 @@ export function ProductForm({ productId }: ProductFormProps) {
 
             {/* Main Content */}
             <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
-              <Breadcrumbs
-                pages={createAdminProductDetailBreadcrumbs(
-                  productId,
-                  product?.title,
-                )}
-                className="mb-6"
-              />
               <div className="grid gap-6 lg:grid-cols-[1fr_350px]">
                 {/* Left Column - Main Content */}
                 <div className="space-y-6">
@@ -866,15 +879,51 @@ export function ProductForm({ productId }: ProductFormProps) {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Tags</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Vintage, Cotton, Summer"
-                                {...field}
-                              />
-                            </FormControl>
-                            <p className="text-xs text-muted-foreground">
-                              Comma-separated values for filtering
-                            </p>
+                            <MultiSelect
+                              values={(field.value ?? "")
+                                .split(",")
+                                .map((t) => t.trim())
+                                .filter(Boolean)}
+                              onValuesChange={(values) =>
+                                field.onChange(values.join(", "))
+                              }
+                            >
+                              <FormControl>
+                                <MultiSelectTrigger
+                                  className="w-full"
+                                  disabled={isPending}
+                                >
+                                  <MultiSelectValue placeholder="Select tags..." />
+                                </MultiSelectTrigger>
+                              </FormControl>
+                              <MultiSelectContent
+                                search={{
+                                  placeholder: "Search tags...",
+                                  emptyMessage: "No tags found.",
+                                }}
+                              >
+                                <MultiSelectGroup heading="Tags">
+                                  {Array.from(
+                                    new Set([
+                                      ...((availableTags ?? []).map(
+                                        (t) => t.value,
+                                      ) ?? []),
+                                      ...((field.value ?? "")
+                                        .split(",")
+                                        .map((t) => t.trim())
+                                        .filter(Boolean) ?? []),
+                                    ]),
+                                  ).map((tagValue) => (
+                                    <MultiSelectItem
+                                      key={tagValue}
+                                      value={tagValue}
+                                    >
+                                      {tagValue}
+                                    </MultiSelectItem>
+                                  ))}
+                                </MultiSelectGroup>
+                              </MultiSelectContent>
+                            </MultiSelect>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -887,42 +936,36 @@ export function ProductForm({ productId }: ProductFormProps) {
                             <FormLabel>Collections</FormLabel>
                             {availableCollections &&
                             availableCollections.length > 0 ? (
-                              <div className="space-y-2 rounded-md border p-3">
-                                {availableCollections.map((collection) => (
-                                  <div
-                                    key={collection.id}
-                                    className="flex items-center space-x-2"
+                              <MultiSelect
+                                values={field.value ?? []}
+                                onValuesChange={field.onChange}
+                              >
+                                <FormControl>
+                                  <MultiSelectTrigger
+                                    className="w-full"
+                                    disabled={isPending}
                                   >
-                                    <Checkbox
-                                      id={`collection-${collection.id}`}
-                                      checked={field.value?.includes(
-                                        collection.id,
-                                      )}
-                                      onCheckedChange={(checked) => {
-                                        const current = field.value || [];
-                                        if (checked) {
-                                          field.onChange([
-                                            ...current,
-                                            collection.id,
-                                          ]);
-                                        } else {
-                                          field.onChange(
-                                            current.filter(
-                                              (id) => id !== collection.id,
-                                            ),
-                                          );
-                                        }
-                                      }}
-                                    />
-                                    <label
-                                      htmlFor={`collection-${collection.id}`}
-                                      className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                    >
-                                      {collection.title}
-                                    </label>
-                                  </div>
-                                ))}
-                              </div>
+                                    <MultiSelectValue placeholder="Select collections..." />
+                                  </MultiSelectTrigger>
+                                </FormControl>
+                                <MultiSelectContent
+                                  search={{
+                                    placeholder: "Search collections...",
+                                    emptyMessage: "No collections found.",
+                                  }}
+                                >
+                                  <MultiSelectGroup heading="Collections">
+                                    {availableCollections.map((collection) => (
+                                      <MultiSelectItem
+                                        key={collection.id}
+                                        value={collection.id}
+                                      >
+                                        {collection.title}
+                                      </MultiSelectItem>
+                                    ))}
+                                  </MultiSelectGroup>
+                                </MultiSelectContent>
+                              </MultiSelect>
                             ) : (
                               <p className="text-sm text-muted-foreground">
                                 No collections available. Create collections to

@@ -16,8 +16,7 @@ import { useCartStore } from "@/store";
 
 const navigation = [
   { name: "Shop", href: "/shop" },
-  { name: "Collections", href: "/#collections" },
-  { name: "About", href: "/#about" },
+  { name: "About", href: "/about" },
 ];
 
 export function Header() {
@@ -100,13 +99,13 @@ export function Header() {
 
         {/* Right actions */}
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" onClick={openGlobalSearch}>
-            <Search className="h-6 w-6" />
+          <Button variant="ghost" size="sm" onClick={openGlobalSearch}>
+            <Search className="size-5" />
             <span className="sr-only">Search</span>
           </Button>
-          <Button variant="ghost" size="icon" className="relative mr-2" asChild>
+          <Button variant="ghost" size="sm" className="relative mr-2" asChild>
             <Link href="/cart" id="header-cart-icon">
-              <ShoppingCart className="h-6 w-6" />
+              <ShoppingCart className="size-5" />
               <span className="sr-only">Cart</span>
               {mounted && cartCount > 0 && (
                 <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground">

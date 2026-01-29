@@ -86,9 +86,9 @@ export const DataTable = <TData, TValue>({
   const hasSelection = selectedRows.length > 0;
 
   return (
-    <div className="relative w-full overflow-hidden rounded-lg border">
+    <div className="relative w-full overflow-hidden rounded-lg border-2">
       <Table className="contain-paint">
-        <TableHeader className="bg-secondary">
+        <TableHeader className="bg-muted">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow
               key={headerGroup.id}
@@ -105,9 +105,9 @@ export const DataTable = <TData, TValue>({
                         className={cn(
                           "text-foreground",
                           isSelectHeader &&
-                            'after:content-[" "] sticky left-0 z-30 bg-secondary px-3 text-center after:absolute after:top-0 after:right-0 after:bottom-0 after:w-px after:bg-secondary dark:after:bg-secondary',
+                            'after:content-[" "] sticky left-0 z-30 bg-muted px-3 text-center after:absolute after:top-0 after:right-0 after:bottom-0 after:w-px after:bg-muted dark:after:bg-muted',
                           isActionsHeader &&
-                            'after:content-[" "] sticky right-0 z-30 bg-secondary pr-3 pl-4 text-right after:absolute after:top-0 after:bottom-0 after:left-0 after:w-px after:bg-secondary dark:after:bg-secondary',
+                            'after:content-[" "] sticky right-0 z-30 bg-muted pr-3 pl-4 text-right after:absolute after:top-0 after:bottom-0 after:left-0 after:w-px after:bg-muted dark:after:bg-muted',
                         )}
                       >
                         {selectedRows.length} row
@@ -119,7 +119,7 @@ export const DataTable = <TData, TValue>({
                     return (
                       <TableHead
                         key={header.id}
-                        className='after:content-[" "] sticky right-0 z-30 bg-secondary pr-3 pl-4 text-right after:absolute after:top-0 after:bottom-0 after:left-0 after:w-px after:bg-secondary dark:after:bg-secondary'
+                        className='after:content-[" "] sticky right-0 z-30 bg-muted pr-3 pl-4 text-right after:absolute after:top-0 after:bottom-0 after:left-0 after:w-px after:bg-muted dark:after:bg-muted'
                       >
                         {renderBulkActions?.({ selectedRows, table })}
                       </TableHead>
@@ -132,9 +132,9 @@ export const DataTable = <TData, TValue>({
                     className={cn(
                       hasSelection && header.id !== "select" && "opacity-0",
                       isSelectHeader &&
-                        'after:content-[" "] sticky left-0 z-30 bg-secondary px-3 text-center after:absolute after:top-0 after:right-0 after:bottom-0 after:w-px after:bg-secondary dark:after:bg-secondary',
+                        'after:content-[" "] sticky left-0 z-30 bg-muted px-3 text-center after:absolute after:top-0 after:right-0 after:bottom-0 after:w-px after:bg-muted dark:after:bg-muted',
                       isActionsHeader &&
-                        'after:content-[" "] sticky right-0 z-30 bg-secondary pr-3 pl-4 text-right after:absolute after:top-0 after:bottom-0 after:left-0 after:w-px after:bg-secondary dark:after:bg-secondary',
+                        'after:content-[" "] sticky right-0 z-30 bg-muted pr-3 pl-4 text-right after:absolute after:top-0 after:bottom-0 after:left-0 after:w-px after:bg-muted dark:after:bg-muted',
                     )}
                   >
                     {header.isPlaceholder
@@ -166,9 +166,9 @@ export const DataTable = <TData, TValue>({
                       key={cell.id}
                       className={cn(
                         isSelectCell &&
-                          'after:content-[" "] sticky left-0 z-20 bg-secondary px-3 text-center will-change-transform after:absolute after:top-0 after:right-0 after:bottom-0 after:w-px after:bg-secondary dark:after:bg-secondary',
+                          'after:content-[" "] sticky left-0 z-20 bg-muted px-3 text-center will-change-transform after:absolute after:top-0 after:right-0 after:bottom-0 after:w-px after:bg-muted dark:after:bg-muted',
                         isActionsCell &&
-                          'after:content-[" "] sticky right-0 z-20 bg-secondary pr-3 pl-4 text-right will-change-transform after:absolute after:top-0 after:bottom-0 after:left-0 after:w-px after:bg-secondary dark:after:bg-secondary',
+                          'after:content-[" "] sticky right-0 z-20 bg-muted pr-3 pl-4 text-right will-change-transform after:absolute after:top-0 after:bottom-0 after:left-0 after:w-px after:bg-muted dark:after:bg-muted',
                         isActionsCell && hasSelection && "pointer-events-none",
                       )}
                     >

@@ -74,9 +74,9 @@ export function NavUser() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
-            <Link href="#">
+            <Link href="/profile">
               <User />
-              Profile{" "}
+              Profile
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
