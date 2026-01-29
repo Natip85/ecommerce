@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { GlobalSearch } from "@/features/global-search/global-search";
 import { Footer } from "@/features/landing-page/footer";
@@ -18,8 +20,12 @@ export default function ClientLayout({
           {children}
           <Footer />
         </div>
-        <RightSidebarContainer />
-        <GlobalSearch />
+        <Suspense fallback={null}>
+          <RightSidebarContainer />
+        </Suspense>
+        <Suspense fallback={null}>
+          <GlobalSearch />
+        </Suspense>
       </SidebarProvider>
     </HydrateClient>
   );
