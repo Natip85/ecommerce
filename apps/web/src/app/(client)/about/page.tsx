@@ -1,4 +1,3 @@
-"use client";
 import { Heart, Leaf, Sparkles, Star } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
