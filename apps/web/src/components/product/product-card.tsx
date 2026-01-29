@@ -9,11 +9,9 @@ import {
   Plus,
   Minus,
 } from "lucide-react";
-import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
-import { createContext, useContext, useState, useEffect, useRef } from "react";
-import { createPortal } from "react-dom";
+import { createContext, useContext, useState, useRef } from "react";
 
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -21,6 +19,7 @@ import { Button } from "../ui/button";
 import type { RouterOutputs } from "@ecommerce/api";
 import type { Route } from "next";
 
+import { FlyingCartIcon } from "@/hooks/use-add-to-cart-animation";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/store";
 
@@ -133,64 +132,6 @@ export type ProductCardImageProps = {
   onQuickView?: () => void;
   onAddToCart?: () => void;
   onWishlist?: () => void;
-};
-
-// Flying cart animation component
-const FlyingCartIcon = ({
-  startPos,
-  onComplete,
-}: {
-  startPos: { x: number; y: number };
-  onComplete: () => void;
-}) => {
-  const [mounted, setMounted] = useState(false);
-  const [targetPos, setTargetPos] = useState<{ x: number; y: number } | null>(
-    null,
-  );
-
-  useEffect(() => {
-    setMounted(true);
-    const cartIcon = document.getElementById("header-cart-icon");
-    if (cartIcon) {
-      const rect = cartIcon.getBoundingClientRect();
-      setTargetPos({
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2,
-      });
-    }
-  }, []);
-
-  if (!mounted || !targetPos) return null;
-
-  return createPortal(
-    <motion.div
-      className="pointer-events-none fixed z-9999 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg"
-      initial={{
-        left: startPos.x,
-        top: startPos.y,
-        x: "-50%",
-        y: "-50%",
-        scale: 1,
-        opacity: 1,
-      }}
-      animate={{
-        left: targetPos.x,
-        top: targetPos.y,
-        scale: 0.4,
-        opacity: 0,
-      }}
-      transition={{
-        duration: 0.65,
-        ease: [0.22, 1, 0.36, 1],
-        scale: { duration: 0.65, ease: "easeIn" },
-        opacity: { duration: 0.5, delay: 0.15 },
-      }}
-      onAnimationComplete={onComplete}
-    >
-      <ShoppingCart className="h-4 w-4" />
-    </motion.div>,
-    document.body,
-  );
 };
 
 export const ProductCardImage = ({

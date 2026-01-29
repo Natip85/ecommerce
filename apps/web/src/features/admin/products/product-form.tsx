@@ -1,7 +1,7 @@
 "use client";
 "use no memo";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery, useMutation, useQueryClient  } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   MoreHorizontal,
@@ -25,6 +25,7 @@ import { ProductImageUpload } from "./add-product-image";
 import { OptionsEditor } from "./options-editor";
 import { VariantsTable } from "./variants-table";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -67,6 +68,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { createAdminProductDetailBreadcrumbs } from "@/lib/breadcrumbs";
 import { useTRPC } from "@/trpc";
 import {
   productFormSchema,
@@ -77,7 +79,6 @@ import {
   generateHandle,
   generateVariants,
 } from "@/validation";
-
 
 type ProductFormProps = {
   productId: string;
@@ -419,6 +420,13 @@ export function ProductForm({ productId }: ProductFormProps) {
 
             {/* Main Content */}
             <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+              <Breadcrumbs
+                pages={createAdminProductDetailBreadcrumbs(
+                  productId,
+                  product?.title,
+                )}
+                className="mb-6"
+              />
               <div className="grid gap-6 lg:grid-cols-[1fr_350px]">
                 {/* Left Column - Main Content */}
                 <div className="space-y-6">

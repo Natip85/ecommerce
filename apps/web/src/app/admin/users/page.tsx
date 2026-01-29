@@ -2,6 +2,7 @@ import { auth } from "@ecommerce/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import {
   Table,
   TableBody,
@@ -11,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import { PageTitle } from "@/features/admin/page-title";
 import { UserRow } from "@/features/admin/user-row";
+import { adminUsersBreadcrumbs } from "@/lib/breadcrumbs";
 // import { UsersHeader } from "@/features/admin/users/header";
 // import { UserRow } from "@/features/admin/users/user-row";
 
@@ -31,6 +33,7 @@ export default async function UsersPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 py-6 pr-4.5 pl-6">
+      <Breadcrumbs pages={adminUsersBreadcrumbs} className="mb-2" />
       <PageTitle title="Users" className="mb-5" />
       <main className="p-6">
         <div className="mx-auto max-w-[1600px] space-y-6">

@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef } from "react";
 
 import { useSidebarParams } from "./query-params";
 
@@ -29,6 +29,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAddToCartAnimation } from "@/hooks/use-add-to-cart-animation";
 import { cn } from "@/lib/utils";
 import { cartStore, useCartStore } from "@/store/cart-store";
 import { useTRPC } from "@/trpc";
@@ -414,6 +415,8 @@ const SidebarCartFooter = ({
   isInStock,
 }: SidebarCartFooterProps) => {
   const cartItemId = productId ? getCartItemId(productId, variantId) : null;
+  const addToCartButtonRef = useRef<HTMLButtonElement>(null);
+  const { triggerAnimation, AnimationComponent } = useAddToCartAnimation();
 
   // Get cart item info - this is a hook that subscribes to cart changes
   const cartItem = useCartStore((state) =>
@@ -423,6 +426,8 @@ const SidebarCartFooter = ({
 
   const handleAddToCart = () => {
     if (!productId) return;
+    // Trigger the flying animation
+    triggerAnimation(addToCartButtonRef.current);
     cartStore.getState().addItem({
       productId,
       variantId,
@@ -489,6 +494,7 @@ const SidebarCartFooter = ({
         ) : (
           <div className="flex flex-1 gap-2 flex-col">
             <Button
+              ref={addToCartButtonRef}
               className="w-full"
               size="lg"
               disabled={!isInStock}
@@ -505,6 +511,7 @@ const SidebarCartFooter = ({
             </Button>
           </div>
         )}
+        {AnimationComponent}
       </div>
     </div>
   );

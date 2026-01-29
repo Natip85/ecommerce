@@ -4,10 +4,12 @@ import { ArrowLeft, Package, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CartItem } from "@/features/cart/cart-item";
 import { CartSummary } from "@/features/cart/cart-summary";
+import { cartBreadcrumbs } from "@/lib/breadcrumbs";
 import { useCartStore } from "@/store";
 
 export default function CartPage() {
@@ -81,6 +83,9 @@ export default function CartPage() {
   if (cartItems.length === 0) {
     return (
       <main className="min-h-screen bg-background">
+        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+          <Breadcrumbs pages={cartBreadcrumbs} />
+        </div>
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-muted">
@@ -106,6 +111,9 @@ export default function CartPage() {
   }
   return (
     <main className="bg-background">
+      <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+        <Breadcrumbs pages={cartBreadcrumbs} />
+      </div>
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">

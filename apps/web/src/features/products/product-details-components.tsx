@@ -16,9 +16,13 @@ import {
   ZoomIn,
 } from "lucide-react";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useState, useRef, useCallback } from "react";
 
-
+import {
+  VariantSelector,
+  type ProductOption,
+  type ProductVariant,
+} from "@/components/product/variant-selector";
 import {
   Accordion,
   AccordionContent,
@@ -28,15 +32,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAddToCartAnimation } from "@/hooks/use-add-to-cart-animation";
 import { cn } from "@/lib/utils";
-
-interface ProductVariant {
-  id: string;
-  name: string;
-  value: string;
-  image?: string;
-  inStock?: boolean;
-}
 
 interface ProductImage {
   id: string;
@@ -56,7 +53,12 @@ interface ProductReview {
   helpful?: number;
 }
 
+interface CartItemInfo {
+  quantity: number;
+}
+
 interface ProductDetailProps {
+  productId: string;
   images: ProductImage[];
   title: string;
   description: string;
@@ -69,20 +71,24 @@ interface ProductDetailProps {
   stockCount?: number;
   sku?: string;
   brand?: string;
-  colors?: ProductVariant[];
-  sizes?: ProductVariant[];
+  options?: ProductOption[];
+  variants?: ProductVariant[];
   features?: string[];
   specifications?: Record<string, string>;
   reviews?: ProductReview[];
   isWishlisted?: boolean;
-  cartQuantity?: number;
-  onAddToCart?: (quantity: number, variants: Record<string, string>) => void;
-  onUpdateCartQuantity?: (quantity: number) => void;
+  cartItems?: Record<string, CartItemInfo>;
+  onAddToCart?: (
+    quantity: number,
+    selectedVariant: ProductVariant | null,
+  ) => void;
+  onUpdateCartQuantity?: (cartItemId: string, quantity: number) => void;
   onWishlist?: () => void;
   onViewCart?: () => void;
 }
 
 export function ProductDetailsComponents({
+  productId,
   images,
   title,
   description,
@@ -95,13 +101,13 @@ export function ProductDetailsComponents({
   stockCount,
   sku,
   brand,
-  colors = [],
-  sizes = [],
+  options = [],
+  variants = [],
   features = [],
   specifications = {},
   reviews = [],
   isWishlisted = false,
-  cartQuantity = 0,
+  cartItems = {},
   onAddToCart,
   onUpdateCartQuantity,
   onWishlist,
@@ -110,13 +116,45 @@ export function ProductDetailsComponents({
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [showQuantitySelector, setShowQuantitySelector] = useState(false);
-  const [selectedColor, setSelectedColor] = useState(colors[0]?.id || "");
-  const [selectedSize, setSelectedSize] = useState(sizes[0]?.id || "");
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
+    null,
+  );
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
+  const addToCartButtonRef = useRef<HTMLButtonElement>(null);
+  const { triggerAnimation, AnimationComponent } = useAddToCartAnimation();
 
-  const discount = originalPrice
-    ? Math.round(((originalPrice - price) / originalPrice) * 100)
+  // Handle variant change from VariantSelector
+  const handleVariantChange = useCallback((variant: ProductVariant | null) => {
+    setSelectedVariant(variant);
+  }, []);
+
+  // Compute cart item ID for the currently selected variant
+  const selectedVariantCartItemId = `${productId}-${selectedVariant?.id || "default"}`;
+
+  // Get the cart quantity for the selected variant specifically
+  const variantCartQuantity =
+    cartItems[selectedVariantCartItemId]?.quantity ?? 0;
+
+  // Calculate display values based on selected variant or base product
+  const displayPrice = selectedVariant
+    ? parseFloat(selectedVariant.price)
+    : price;
+  const displayCompareAtPrice = selectedVariant?.compareAtPrice
+    ? parseFloat(selectedVariant.compareAtPrice)
+    : originalPrice;
+  const displaySku = selectedVariant?.sku ?? sku;
+  const displayStockCount = selectedVariant?.inventoryQuantity ?? stockCount;
+  const displayInStock = selectedVariant
+    ? (selectedVariant.inventoryQuantity ?? 0) > 0 ||
+      !selectedVariant.inventoryTracked ||
+      selectedVariant.continueSellingWhenOutOfStock === true
+    : inStock;
+
+  const discount = displayCompareAtPrice
+    ? Math.round(
+        ((displayCompareAtPrice - displayPrice) / displayCompareAtPrice) * 100,
+      )
     : 0;
 
   const handleWishlist = () => {
@@ -125,7 +163,7 @@ export function ProductDetailsComponents({
 
   const handleQuantityChange = (delta: number) => {
     setQuantity((prev) =>
-      Math.max(1, Math.min(prev + delta, stockCount || 99)),
+      Math.max(1, Math.min(prev + delta, displayStockCount || 99)),
     );
   };
 
@@ -133,10 +171,9 @@ export function ProductDetailsComponents({
     if (!showQuantitySelector) {
       setShowQuantitySelector(true);
     } else {
-      onAddToCart?.(quantity, {
-        color: selectedColor,
-        size: selectedSize,
-      });
+      // Trigger the flying animation when actually adding to cart
+      triggerAnimation(addToCartButtonRef.current);
+      onAddToCart?.(quantity, selectedVariant);
       setShowQuantitySelector(false);
       setQuantity(1);
     }
@@ -291,11 +328,11 @@ export function ProductDetailsComponents({
             <span className="text-sm text-muted-foreground">
               ({reviewCount.toLocaleString()} reviews)
             </span>
-            {sku && (
+            {displaySku && (
               <>
                 <span className="text-muted-foreground">|</span>
                 <span className="text-sm text-muted-foreground">
-                  SKU: {sku}
+                  SKU: {displaySku}
                 </span>
               </>
             )}
@@ -305,37 +342,38 @@ export function ProductDetailsComponents({
           <div className="mb-6 rounded-xl border border-border bg-card p-4">
             <div className="flex items-baseline gap-3">
               <span className="text-3xl font-bold text-foreground">
-                ${price.toFixed(2)}
+                ${displayPrice.toFixed(2)}
               </span>
-              {originalPrice && (
-                <span className="text-lg text-muted-foreground line-through">
-                  ${originalPrice.toFixed(2)}
-                </span>
-              )}
+              {displayCompareAtPrice &&
+                displayCompareAtPrice > displayPrice && (
+                  <span className="text-lg text-muted-foreground line-through">
+                    ${displayCompareAtPrice.toFixed(2)}
+                  </span>
+                )}
               {discount > 0 && (
                 <Badge className="bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/10">
                   Save {discount}%
                 </Badge>
               )}
             </div>
-            {discount > 0 && (
+            {discount > 0 && displayCompareAtPrice && (
               <p className="mt-1 text-sm font-medium text-emerald-500">
-                You save ${(originalPrice! - price).toFixed(2)}
+                You save ${(displayCompareAtPrice - displayPrice).toFixed(2)}
               </p>
             )}
           </div>
 
           {/* Stock Status */}
           <div className="mb-6 flex items-center gap-2">
-            {inStock ? (
+            {displayInStock ? (
               <>
                 <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
                 <span className="text-sm font-medium text-emerald-500">
                   In Stock
                 </span>
-                {stockCount && stockCount <= 10 && (
+                {displayStockCount && displayStockCount <= 10 && (
                   <span className="text-sm text-amber-500">
-                    - Only {stockCount} left!
+                    - Only {displayStockCount} left!
                   </span>
                 )}
               </>
@@ -354,90 +392,15 @@ export function ProductDetailsComponents({
             {description}
           </p>
 
-          {/* Color Variants */}
-          {colors.length > 0 && (
+          {/* Variant Selector */}
+          {options.length > 0 && variants.length > 0 && (
             <div className="mb-6">
-              <div className="mb-3 flex items-center justify-between">
-                <span className="text-sm font-medium text-foreground">
-                  Color
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  {colors.find((c) => c.id === selectedColor)?.name}
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                {colors.map((color) => (
-                  <button
-                    key={color.id}
-                    onClick={() => setSelectedColor(color.id)}
-                    disabled={color.inStock === false}
-                    className={cn(
-                      "group/color relative flex h-12 w-12 items-center justify-center rounded-full border-2 transition-all",
-                      selectedColor === color.id
-                        ? "border-primary ring-2 ring-primary/20"
-                        : "border-border hover:border-primary/50",
-                      color.inStock === false &&
-                        "opacity-40 cursor-not-allowed",
-                    )}
-                    title={color.name}
-                  >
-                    <span
-                      className="h-9 w-9 rounded-full"
-                      style={{ backgroundColor: color.value }}
-                    />
-                    {selectedColor === color.id && (
-                      <Check
-                        className={cn(
-                          "absolute h-4 w-4",
-                          ["#ffffff", "#fff", "white", "#f5f5f5"].includes(
-                            color.value.toLowerCase(),
-                          )
-                            ? "text-foreground"
-                            : "text-white",
-                        )}
-                      />
-                    )}
-                    {color.inStock === false && (
-                      <span className="absolute inset-0 flex items-center justify-center">
-                        <span className="h-px w-10 rotate-45 bg-muted-foreground" />
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Size Variants */}
-          {sizes.length > 0 && (
-            <div className="mb-6">
-              <div className="mb-3 flex items-center justify-between">
-                <span className="text-sm font-medium text-foreground">
-                  Size
-                </span>
-                <button className="text-sm text-primary hover:underline">
-                  Size Guide
-                </button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {sizes.map((size) => (
-                  <button
-                    key={size.id}
-                    onClick={() => setSelectedSize(size.id)}
-                    disabled={size.inStock === false}
-                    className={cn(
-                      "flex h-10 min-w-[48px] items-center justify-center rounded-lg border px-4 text-sm font-medium transition-all",
-                      selectedSize === size.id
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border bg-background hover:border-primary/50",
-                      size.inStock === false &&
-                        "cursor-not-allowed opacity-40 line-through",
-                    )}
-                  >
-                    {size.name}
-                  </button>
-                ))}
-              </div>
+              <VariantSelector
+                options={options}
+                variants={variants}
+                selectedVariant={selectedVariant}
+                onVariantChange={handleVariantChange}
+              />
             </div>
           )}
 
@@ -464,22 +427,32 @@ export function ProductDetailsComponents({
 
           {/* Add to Cart */}
           <div className="mb-8">
-            {cartQuantity > 0 ? (
+            {variantCartQuantity > 0 ? (
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                {/* Cart Quantity Adjuster */}
+                {/* Cart Quantity Adjuster for selected variant */}
                 <div className="flex items-center rounded-full border border-border bg-muted/50">
                   <button
-                    onClick={() => onUpdateCartQuantity?.(cartQuantity - 1)}
+                    onClick={() =>
+                      onUpdateCartQuantity?.(
+                        selectedVariantCartItemId,
+                        variantCartQuantity - 1,
+                      )
+                    }
                     className="flex h-11 w-11 items-center justify-center rounded-l-full transition-colors hover:bg-muted"
                   >
                     <Minus className="h-4 w-4" />
                   </button>
                   <span className="flex h-11 w-12 items-center justify-center text-sm font-medium">
-                    {cartQuantity}
+                    {variantCartQuantity}
                   </span>
                   <button
-                    onClick={() => onUpdateCartQuantity?.(cartQuantity + 1)}
-                    disabled={cartQuantity >= (stockCount || 99)}
+                    onClick={() =>
+                      onUpdateCartQuantity?.(
+                        selectedVariantCartItemId,
+                        variantCartQuantity + 1,
+                      )
+                    }
+                    disabled={variantCartQuantity >= (displayStockCount || 99)}
                     className="flex h-11 w-11 items-center justify-center rounded-r-full transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <Plus className="h-4 w-4" />
@@ -510,7 +483,7 @@ export function ProductDetailsComponents({
                   </span>
                   <button
                     onClick={() => handleQuantityChange(1)}
-                    disabled={quantity >= (stockCount || 99)}
+                    disabled={quantity >= (displayStockCount || 99)}
                     className="flex h-11 w-11 items-center justify-center rounded-r-full transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <Plus className="h-4 w-4" />
@@ -526,6 +499,7 @@ export function ProductDetailsComponents({
                     Cancel
                   </Button>
                   <Button
+                    ref={addToCartButtonRef}
                     size="lg"
                     className="flex-1 gap-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
                     onClick={handleAddToCartClick}
@@ -540,12 +514,13 @@ export function ProductDetailsComponents({
                 size="lg"
                 className="w-full gap-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
                 onClick={handleAddToCartClick}
-                disabled={!inStock}
+                disabled={!displayInStock}
               >
                 <ShoppingCart className="h-5 w-5" />
                 Add to Cart
               </Button>
             )}
+            {AnimationComponent}
           </div>
 
           {/* Trust Badges */}

@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 
 import { ProductDetailsComponents } from "./product-details-components";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { createProductDetailBreadcrumbs } from "@/lib/breadcrumbs";
 import {
   cartStore,
   wishlistStore,
@@ -13,7 +15,6 @@ import {
   useCartStore,
 } from "@/store";
 import { useTRPC } from "@/trpc";
-
 
 interface ProductDetailsProps {
   id: string;
@@ -31,11 +32,8 @@ export default function ProductDetails({ id }: ProductDetailsProps) {
   // Subscribe to wishlist items for reactivity
   const wishlistItems = useWishlistStore((state) => state.items);
 
-  // Subscribe to cart items for reactivity - calculate total quantity for this product
+  // Subscribe to cart items for reactivity
   const cartItems = useCartStore((state) => state.items);
-  const cartQuantity = Object.values(cartItems)
-    .filter((item) => item.productId === id)
-    .reduce((total, item) => total + item.quantity, 0);
 
   if (isLoading) {
     return (
@@ -73,29 +71,16 @@ export default function ProductDetails({ id }: ProductDetailsProps) {
 
   return (
     <main>
-      {/* Breadcrumb */}
-      <div className="border-b border-border">
-        <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
-          <nav className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Link href="/" className="hover:text-foreground transition-colors">
-              Home
-            </Link>
-            <span>/</span>
-            <Link
-              href="/shop"
-              className="hover:text-foreground transition-colors"
-            >
-              Shop
-            </Link>
-            <span>/</span>
-            <span className="text-foreground">{product.title}</span>
-          </nav>
-        </div>
+      {/* Breadcrumbs */}
+      <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+        <Breadcrumbs
+          pages={createProductDetailBreadcrumbs(product.id, product.title)}
+        />
       </div>
-
       {/* Product Detail */}
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <ProductDetailsComponents
+          productId={product.id}
           images={product.images}
           title={product.title}
           description={product.description}
@@ -105,54 +90,50 @@ export default function ProductDetails({ id }: ProductDetailsProps) {
           stockCount={product.stockCount}
           sku={product.sku}
           brand={product.brand}
-          colors={product.colors}
-          sizes={product.sizes}
+          options={product.options.map((opt) => ({
+            id: opt.id,
+            name: opt.name,
+            values: opt.values.map((v) => v.value),
+          }))}
+          variants={product.variants.map((v) => ({
+            id: v.id,
+            optionValues: v.optionValues,
+            price: String(v.price),
+            compareAtPrice: v.compareAtPrice ? String(v.compareAtPrice) : null,
+            sku: v.sku,
+            inventoryQuantity: v.inventoryQuantity,
+          }))}
           // Empty arrays for features we're skipping for now
           features={[]}
           specifications={{}}
           reviews={[]}
           reviewCount={0}
           isWishlisted={Boolean(wishlistItems[product.id])}
-          cartQuantity={cartQuantity}
-          onAddToCart={(quantity, variants) => {
-            // Find the matching variant based on selected options
-            const selectedVariant = product.variants.find((v) => {
-              const variantOptions = v.optionValues;
-              return (
-                (!variants.color || variantOptions.Color === variants.color) &&
-                (!variants.size || variantOptions.Size === variants.size)
-              );
-            });
-
+          cartItems={cartItems}
+          onAddToCart={(quantity, selectedVariant) => {
             cartStore.getState().addItem(
               {
                 productId: product.id,
                 variantId: selectedVariant?.id,
-                variantOptions: variants,
+                variantOptions: selectedVariant?.optionValues ?? {},
                 title: product.title,
                 description: product.description,
-                price: selectedVariant?.price ?? product.price,
-                compareAtPrice:
-                  selectedVariant?.compareAtPrice ?? product.originalPrice,
+                price: selectedVariant?.price
+                  ? parseFloat(selectedVariant.price)
+                  : product.price,
+                compareAtPrice: selectedVariant?.compareAtPrice
+                  ? parseFloat(selectedVariant.compareAtPrice)
+                  : product.originalPrice,
                 imageUrl: product.images[0]?.src,
               },
               quantity,
             );
           }}
-          onUpdateCartQuantity={(newQuantity) => {
-            // Find the cart item(s) for this product and update
-            const cartItemIds = Object.keys(cartItems).filter((id) =>
-              id.startsWith(`${product.id}-`),
-            );
-
-            if (cartItemIds.length > 0) {
-              // Update the first matching item (or remove if quantity is 0)
-              const itemId = cartItemIds[0]!;
-              if (newQuantity <= 0) {
-                cartStore.getState().removeItem(itemId);
-              } else {
-                cartStore.getState().updateQuantity(itemId, newQuantity);
-              }
+          onUpdateCartQuantity={(cartItemId, newQuantity) => {
+            if (newQuantity <= 0) {
+              cartStore.getState().removeItem(cartItemId);
+            } else {
+              cartStore.getState().updateQuantity(cartItemId, newQuantity);
             }
           }}
           onWishlist={() => {
