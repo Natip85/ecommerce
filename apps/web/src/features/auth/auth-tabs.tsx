@@ -1,0 +1,95 @@
+"use client";
+
+import { Activity, useState } from "react";
+
+import { EmailVerification } from "./email-verification";
+import { ForgotPassword } from "./forgot-password";
+import { SignInTab } from "./sign-in-tab";
+import { SignUpTab } from "./sign-up-tab";
+import { SocialAuthButtons } from "./social-auth-buttons";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+type Tab = "signin" | "signup" | "email-verification" | "forgot-password";
+
+export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [selectedTab, setSelectedTab] = useState<Tab>("signin");
+
+  function openEmailVerificationTab(email: string) {
+    setEmail(email);
+    setSelectedTab("email-verification");
+  }
+
+  const isAuthTab = selectedTab === "signin" || selectedTab === "signup";
+
+  return (
+    <Tabs
+      value={selectedTab}
+      onValueChange={(t) => setSelectedTab(t as Tab)}
+      className="w-full max-w-md px-4"
+    >
+      {isAuthTab && (
+        <TabsList className="w-fit">
+          <TabsTrigger value="signin">Sign In</TabsTrigger>
+          <TabsTrigger value="signup">Sign Up</TabsTrigger>
+        </TabsList>
+      )}
+
+      {isAuthTab && (
+        <Card>
+          <CardContent className="space-y-4 py-4">
+            <SocialAuthButtons />
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <Separator className="w-full" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">or</span>
+              </div>
+            </div>
+
+            <Activity mode={selectedTab === "signin" ? "visible" : "hidden"}>
+              <SignInTab
+                openEmailVerificationTab={openEmailVerificationTab}
+                openForgotPassword={() => setSelectedTab("forgot-password")}
+              />
+            </Activity>
+            <Activity mode={selectedTab === "signup" ? "visible" : "hidden"}>
+              <SignUpTab openEmailVerificationTab={openEmailVerificationTab} />
+            </Activity>
+          </CardContent>
+        </Card>
+      )}
+
+      <TabsContent value="email-verification">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold">
+              Verify Your Email
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <EmailVerification email={email} />
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="forgot-password">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold">
+              Forgot Password
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ForgotPassword openSignInTab={() => setSelectedTab("signin")} />
+          </CardContent>
+        </Card>
+      </TabsContent>
+    </Tabs>
+  );
+}

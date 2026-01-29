@@ -1,25 +1,44 @@
-import { initTRPC, TRPCError } from "@trpc/server";
 
-import type { Context } from "./context";
+import { appRouter, createCaller } from "./root";
+import {
+  createCallerFactory,
+  createTRPCContext,
+  createOuterContext,
+  createTRPCRouter,
+  publicProcedure,
+  protectedProcedure,
+} from "./trpc";
 
-export const t = initTRPC.context<Context>().create();
+import type { AppRouter } from "./root";
+import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 
-export const router = t.router;
+/**
+ * Inference helpers for input types
+ * @example
+ * type ProductByIdInput = RouterInputs['product']['byId']
+ *      ^? { id: number }
+ **/
+type RouterInputs = inferRouterInputs<AppRouter>;
 
-export const publicProcedure = t.procedure;
+/**
+ * Inference helpers for output types
+ * @example
+ * type AllProductsOutput = RouterOutputs['product']['all']
+ *      ^? Product[]
+ **/
+type RouterOutputs = inferRouterOutputs<AppRouter>;
 
-export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
-  if (!ctx.session) {
-    throw new TRPCError({
-      code: "UNAUTHORIZED",
-      message: "Authentication required",
-      cause: "No session",
-    });
-  }
-  return next({
-    ctx: {
-      ...ctx,
-      session: ctx.session,
-    },
-  });
-});
+export {
+  createTRPCContext,
+  createOuterContext,
+  createTRPCRouter,
+  createCallerFactory,
+  publicProcedure,
+  protectedProcedure,
+  appRouter,
+  createCaller,
+};
+export type { AppRouter, RouterInputs, RouterOutputs };
+
+// Client-safe schemas are available via "@ecommerce/api/schemas"
+// Server-side query builders are available via "./lib" internal imports

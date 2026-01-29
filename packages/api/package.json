@@ -5,18 +5,32 @@
     ".": {
       "default": "./src/index.ts"
     },
-    "./*": {
-      "default": "./src/*.ts"
+    "./schemas": {
+      "default": "./src/schemas.ts"
+    },
+    "./trpc": {
+      "default": "./src/trpc.ts"
+    },
+    "./root": {
+      "default": "./src/root.ts"
+    },
+    "./routers/*": {
+      "default": "./src/routers/*.ts"
     }
   },
-  "scripts": {},
+  "scripts": {
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix"
+  },
   "dependencies": {
     "@ecommerce/auth": "workspace:*",
     "@ecommerce/db": "workspace:*",
     "@ecommerce/env": "workspace:*",
     "@trpc/client": "catalog:",
     "@trpc/server": "catalog:",
+    "superjson": "^2.2.2",
     "dotenv": "catalog:",
+    "drizzle-orm": "^0.45.1",
     "next": "catalog:",
     "zod": "catalog:"
   },

@@ -9,12 +9,16 @@
       "default": "./src/*.ts"
     }
   },
-  "scripts": {},
+  "scripts": {
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix"
+  },
   "dependencies": {
     "@ecommerce/db": "workspace:*",
     "@ecommerce/env": "workspace:*",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
+    "resend": "^6.8.0",
     "zod": "catalog:"
   },
   "devDependencies": {

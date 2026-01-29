@@ -1,14 +1,11 @@
 import { env } from "@ecommerce/env/server";
-import { neon, neonConfig } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
-import ws from "ws";
+import { drizzle } from "drizzle-orm/node-postgres";
+import pg from "pg";
 
 import * as schema from "./schema";
 
-neonConfig.webSocketConstructor = ws;
+const pool = new pg.Pool({
+  connectionString: env.DATABASE_URL,
+});
 
-// To work in edge environments (Cloudflare Workers, Vercel Edge, etc.), enable querying over fetch
-// neonConfig.poolQueryViaFetch = true
-
-const sql = neon(env.DATABASE_URL);
-export const db = drizzle(sql, { schema });
+export const db = drizzle(pool, { schema });

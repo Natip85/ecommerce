@@ -9,6 +9,8 @@
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
+    "lint": "turbo lint",
+    "lint:fix": "turbo lint:fix",
     "check-types": "turbo check-types",
     "dev:native": "turbo -F native dev",
     "dev:web": "turbo -F web dev",
@@ -16,6 +18,8 @@
     "db:studio": "turbo -F @ecommerce/db db:studio",
     "db:generate": "turbo -F @ecommerce/db db:generate",
     "db:migrate": "turbo -F @ecommerce/db db:migrate",
+    "db:start": "./start-database.sh",
+    "db:stop": "./start-database.sh -s",
     "prepare": "husky"
   },
   "dependencies": {
@@ -26,13 +30,14 @@
   "devDependencies": {
     "@ecommerce/config": "workspace:*",
     "@types/node": "^22.13.14",
+    "eslint": "^9.28.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.2",
     "turbo": "^2.6.3",
     "typescript": "catalog:"
   },
   "lint-staged": {
-    "**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,vue,astro,svelte}": ""
+    "**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx}": "eslint --fix"
   },
   "packageManager": "pnpm@10.11.1"
 }
