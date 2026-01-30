@@ -1,8 +1,8 @@
-import { useEffect } from 'react'
+import { useEffect } from "react";
 
 type Options = {
-  withMeta?: boolean
-}
+  withMeta?: boolean;
+};
 
 export const useKeypress = (
   callback: () => void,
@@ -15,12 +15,12 @@ export const useKeypress = (
         (Array.isArray(keys) ? keys : [keys]).includes(event.key) &&
         (!withMeta || event.metaKey || event.ctrlKey)
       ) {
-        event.preventDefault()
-        callback()
+        event.preventDefault();
+        callback();
       }
-    }
+    };
 
-    window.addEventListener('keydown', handleKeypress)
-    return () => window.removeEventListener('keydown', handleKeypress)
-  }, [keys, callback, withMeta])
-}
+    window.addEventListener("keydown", handleKeypress);
+    return () => window.removeEventListener("keydown", handleKeypress);
+  }, [keys, callback, withMeta]);
+};

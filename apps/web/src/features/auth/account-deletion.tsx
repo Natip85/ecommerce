@@ -29,9 +29,7 @@ export function AccountDeletion() {
       if (res.error) {
         toast.error(res.error.message ?? "Failed to delete account");
       } else {
-        toast.success(
-          "Account deletion initiated. Please check your email to confirm.",
-        );
+        toast.success("Account deletion initiated. Please check your email to confirm.");
         setIsOpen(false);
       }
     } finally {
@@ -40,9 +38,15 @@ export function AccountDeletion() {
   }
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+    <AlertDialog
+      open={isOpen}
+      onOpenChange={setIsOpen}
+    >
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" className="w-full">
+        <Button
+          variant="destructive"
+          className="w-full"
+        >
           Delete Account Permanently
         </Button>
       </AlertDialogTrigger>
@@ -50,8 +54,8 @@ export function AccountDeletion() {
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete your
-            account and remove all your data from our servers.
+            This action cannot be undone. This will permanently delete your account and remove all
+            your data from our servers.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

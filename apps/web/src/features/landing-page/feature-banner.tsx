@@ -1,5 +1,5 @@
-import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -12,16 +12,18 @@ export function FeatureBanner() {
           alt="Beautifully designed modern bedroom"
           className="h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-foreground/40" />
+        <div className="bg-foreground/40 absolute inset-0" />
         <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
-          <h2 className="mb-4 text-3xl font-semibold text-background sm:text-4xl lg:text-5xl text-balance">
+          <h2 className="text-background mb-4 text-3xl font-semibold text-balance sm:text-4xl lg:text-5xl">
             Escape reality without leaving your bedroom
           </h2>
-          <p className="mb-6 max-w-xl text-background/80">
-            Transform your space into a personal retreat with our curated
-            bedroom collection.
+          <p className="text-background/80 mb-6 max-w-xl">
+            Transform your space into a personal retreat with our curated bedroom collection.
           </p>
-          <Button size="lg" asChild>
+          <Button
+            size="lg"
+            asChild
+          >
             <Link href="#">
               Explore Collection
               <ArrowRight className="h-4 w-4" />

@@ -42,13 +42,13 @@ export type VariantSelectorProps = {
  */
 function findMatchingVariant(
   variants: ProductVariant[],
-  selections: Record<string, string>,
+  selections: Record<string, string>
 ): ProductVariant | null {
   return (
     variants.find((variant) => {
       // Check if all selections match this variant's optionValues
       return Object.entries(selections).every(
-        ([optionName, value]) => variant.optionValues[optionName] === value,
+        ([optionName, value]) => variant.optionValues[optionName] === value
       );
     }) ?? null
   );
@@ -62,7 +62,7 @@ function isValueAvailable(
   variants: ProductVariant[],
   currentSelections: Record<string, string>,
   optionName: string,
-  value: string,
+  value: string
 ): boolean {
   // Create a hypothetical selection with this value
   const hypotheticalSelections = {
@@ -74,7 +74,7 @@ function isValueAvailable(
   // We only check options that have been selected (including the current one)
   return variants.some((variant) => {
     return Object.entries(hypotheticalSelections).every(
-      ([name, selectedValue]) => variant.optionValues[name] === selectedValue,
+      ([name, selectedValue]) => variant.optionValues[name] === selectedValue
     );
   });
 }
@@ -85,11 +85,8 @@ function isValueAvailable(
 function isVariantInStock(variant: ProductVariant): boolean {
   const inventoryQuantity = variant.inventoryQuantity ?? 0;
   const inventoryTracked = variant.inventoryTracked ?? true;
-  const continueSellingWhenOutOfStock =
-    variant.continueSellingWhenOutOfStock ?? false;
-  return (
-    !inventoryTracked || inventoryQuantity > 0 || continueSellingWhenOutOfStock
-  );
+  const continueSellingWhenOutOfStock = variant.continueSellingWhenOutOfStock ?? false;
+  return !inventoryTracked || inventoryQuantity > 0 || continueSellingWhenOutOfStock;
 }
 
 // =============================================================================
@@ -168,12 +165,7 @@ type OptionGroupProps = {
   onSelect: (optionName: string, value: string) => void;
 };
 
-const OptionGroup = ({
-  option,
-  variants,
-  selections,
-  onSelect,
-}: OptionGroupProps) => {
+const OptionGroup = ({ option, variants, selections, onSelect }: OptionGroupProps) => {
   const selectedValue = selections[option.name];
   const values = option.values ?? [];
 
@@ -187,35 +179,21 @@ const OptionGroup = ({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <label className="text-sm font-medium text-foreground">
-          {option.name}
-        </label>
-        {selectedValue && (
-          <span className="text-sm text-muted-foreground">{selectedValue}</span>
-        )}
+        <label className="text-foreground text-sm font-medium">{option.name}</label>
+        {selectedValue && <span className="text-muted-foreground text-sm">{selectedValue}</span>}
       </div>
       <div className="flex flex-wrap gap-2">
         {values.map((value) => {
           const isSelected = selectedValue === value;
-          const isAvailable = isValueAvailable(
-            variants,
-            selections,
-            option.name,
-            value,
-          );
+          const isAvailable = isValueAvailable(variants, selections, option.name, value);
 
           // Check stock for this specific combination
           const hypotheticalSelections = {
             ...selections,
             [option.name]: value,
           };
-          const matchingVariant = findMatchingVariant(
-            variants,
-            hypotheticalSelections,
-          );
-          const isInStock = matchingVariant
-            ? isVariantInStock(matchingVariant)
-            : true;
+          const matchingVariant = findMatchingVariant(variants, hypotheticalSelections);
+          const isInStock = matchingVariant ? isVariantInStock(matchingVariant) : true;
 
           return (
             <OptionButton
@@ -308,11 +286,11 @@ const OptionButton = ({
         disabled={isDisabled}
         className={cn(
           "relative h-8 w-8 rounded-full border-2 transition-all duration-200",
-          isSelected
-            ? "border-primary ring-2 ring-primary ring-offset-2 ring-offset-background"
-            : "border-border hover:border-primary/50",
+          isSelected ?
+            "border-primary ring-primary ring-offset-background ring-2 ring-offset-2"
+          : "border-border hover:border-primary/50",
           isDisabled && "cursor-not-allowed opacity-40",
-          !isInStock && !isDisabled && "opacity-60",
+          !isInStock && !isDisabled && "opacity-60"
         )}
         style={{ backgroundColor: colorStyle }}
         title={`${value}${!isInStock ? " (Out of stock)" : ""}`}
@@ -320,7 +298,7 @@ const OptionButton = ({
         {/* Out of stock diagonal line */}
         {!isInStock && !isDisabled && (
           <span className="absolute inset-0 flex items-center justify-center">
-            <span className="h-[2px] w-full rotate-45 bg-muted-foreground/70" />
+            <span className="bg-muted-foreground/70 h-[2px] w-full rotate-45" />
           </span>
         )}
       </button>
@@ -335,18 +313,18 @@ const OptionButton = ({
       disabled={isDisabled}
       className={cn(
         "relative min-w-12 rounded-md border px-3 py-1.5 text-sm font-medium transition-all duration-200",
-        isSelected
-          ? "border-primary bg-primary text-primary-foreground"
-          : "border-border bg-background text-foreground hover:border-primary/50 hover:bg-muted",
-        isDisabled && "cursor-not-allowed opacity-40 line-through",
-        !isInStock && !isDisabled && "opacity-60",
+        isSelected ?
+          "border-primary bg-primary text-primary-foreground"
+        : "border-border bg-background text-foreground hover:border-primary/50 hover:bg-muted",
+        isDisabled && "cursor-not-allowed line-through opacity-40",
+        !isInStock && !isDisabled && "opacity-60"
       )}
       title={!isInStock ? "Out of stock" : undefined}
     >
       {value}
       {/* Out of stock indicator */}
       {!isInStock && !isDisabled && (
-        <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-amber-500" />
+        <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-amber-500" />
       )}
     </button>
   );

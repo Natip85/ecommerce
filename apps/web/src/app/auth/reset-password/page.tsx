@@ -1,20 +1,14 @@
 "use client";
 
-import { useForm } from "@tanstack/react-form";
+import { Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import z from "zod";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password-input";
 import { authClient } from "@/lib/auth-client";
@@ -60,12 +54,13 @@ function ResetPasswordForm() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Invalid Reset Link</CardTitle>
-          <CardDescription>
-            The password reset link is invalid or has expired.
-          </CardDescription>
+          <CardDescription>The password reset link is invalid or has expired.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Button className="w-full" asChild>
+          <Button
+            className="w-full"
+            asChild
+          >
             <Link href="/auth/sign-in">Back to Login</Link>
           </Button>
         </CardContent>
@@ -100,7 +95,10 @@ function ResetPasswordForm() {
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
                 {field.state.meta.errors.map((error) => (
-                  <p key={error?.message} className="text-destructive text-sm">
+                  <p
+                    key={error?.message}
+                    className="text-destructive text-sm"
+                  >
                     {error?.message}
                   </p>
                 ))}

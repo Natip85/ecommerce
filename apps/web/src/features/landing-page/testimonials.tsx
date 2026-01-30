@@ -1,7 +1,7 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import { useState } from "react";
+import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -43,28 +43,32 @@ export function Testimonial() {
   const current = testimonials[currentIndex];
 
   return (
-    <section className="py-16 sm:py-24 bg-background">
+    <section className="bg-background py-16 sm:py-24">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <div className="mb-8 text-center">
-          <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+          <p className="text-muted-foreground text-xs font-medium tracking-widest uppercase">
             Recognition
           </p>
         </div>
 
         <div className="relative text-center">
-          <Quote className="mx-auto mb-6 h-8 w-8 text-muted-foreground/30" />
+          <Quote className="text-muted-foreground/30 mx-auto mb-6 h-8 w-8" />
           <blockquote className="mb-8">
-            <p className="text-xl font-medium leading-relaxed text-foreground sm:text-2xl lg:text-3xl text-balance">
+            <p className="text-foreground text-xl leading-relaxed font-medium text-balance sm:text-2xl lg:text-3xl">
               {`"${current.quote}"`}
             </p>
           </blockquote>
           <div className="mb-8">
-            <p className="font-semibold text-foreground">{current.author}</p>
-            <p className="text-sm text-muted-foreground">{current.role}</p>
+            <p className="text-foreground font-semibold">{current.author}</p>
+            <p className="text-muted-foreground text-sm">{current.role}</p>
           </div>
 
           <div className="flex items-center justify-center gap-4">
-            <Button variant="outline" size="icon" onClick={prev}>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={prev}
+            >
               <ChevronLeft className="h-4 w-4" />
               <span className="sr-only">Previous testimonial</span>
             </Button>
@@ -74,16 +78,18 @@ export function Testimonial() {
                   key={index}
                   onClick={() => setCurrentIndex(index)}
                   className={`h-2 w-2 rounded-full transition-colors ${
-                    index === currentIndex
-                      ? "bg-foreground"
-                      : "bg-foreground/20"
+                    index === currentIndex ? "bg-foreground" : "bg-foreground/20"
                   }`}
                 >
                   <span className="sr-only">Go to testimonial {index + 1}</span>
                 </button>
               ))}
             </div>
-            <Button variant="outline" size="icon" onClick={next}>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={next}
+            >
               <ChevronRight className="h-4 w-4" />
               <span className="sr-only">Next testimonial</span>
             </Button>

@@ -1,16 +1,11 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { Loader2, Package, FolderOpen } from "lucide-react";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { FolderOpen, Loader2, Package } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useGlobalSearchParams } from "@/hooks/use-global-search-params";
@@ -69,30 +64,29 @@ function ProductResultItem({ product }: { product: Product }) {
   return (
     <Link
       href={`/shop/${product.id}`}
-      className="flex items-center gap-3 px-3 py-2 cursor-pointer rounded-md hover:bg-accent transition-colors"
+      className="hover:bg-accent flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 transition-colors"
     >
-      {product.image ? (
+      {product.image ?
         <img
           src={product.image.url}
           alt={product.image.alt ?? product.title}
-          className="h-10 w-10 rounded-md object-cover border"
+          className="h-10 w-10 rounded-md border object-cover"
         />
-      ) : (
-        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-muted border">
-          <Package className="h-5 w-5 text-muted-foreground" />
+      : <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-md border">
+          <Package className="text-muted-foreground h-5 w-5" />
         </div>
-      )}
-      <div className="flex flex-1 flex-col gap-0.5 min-w-0">
+      }
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <div className="flex items-center gap-2">
-          <span className="font-medium truncate">{product.title}</span>
+          <span className="truncate font-medium">{product.title}</span>
           <Badge
             variant="secondary"
-            className="text-[10px] px-1.5 py-0 h-4 shrink-0"
+            className="h-4 shrink-0 px-1.5 py-0 text-[10px]"
           >
             Product
           </Badge>
         </div>
-        <span className="text-xs text-muted-foreground">
+        <span className="text-muted-foreground text-xs">
           {product.productType && `${product.productType}`}
           {product.productType && product.price && " · "}
           {formatPrice(product.price)}
@@ -106,22 +100,22 @@ function CollectionResultItem({ collection }: { collection: Collection }) {
   return (
     <Link
       href={`/shop?collectionIds=${collection.id}`}
-      className="flex items-center gap-3 px-3 py-2 cursor-pointer rounded-md hover:bg-accent transition-colors"
+      className="hover:bg-accent flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 transition-colors"
     >
-      <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 border border-primary/20">
-        <FolderOpen className="h-5 w-5 text-primary" />
+      <div className="bg-primary/10 border-primary/20 flex h-10 w-10 items-center justify-center rounded-md border">
+        <FolderOpen className="text-primary h-5 w-5" />
       </div>
-      <div className="flex flex-1 flex-col gap-0.5 min-w-0">
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <div className="flex items-center gap-2">
-          <span className="font-medium truncate">{collection.title}</span>
+          <span className="truncate font-medium">{collection.title}</span>
           <Badge
             variant="outline"
-            className="text-[10px] px-1.5 py-0 h-4 shrink-0 border-primary/50 text-primary"
+            className="border-primary/50 text-primary h-4 shrink-0 px-1.5 py-0 text-[10px]"
           >
             Collection
           </Badge>
         </div>
-        <span className="text-xs text-muted-foreground">
+        <span className="text-muted-foreground text-xs">
           {collection.productCount} product
           {collection.productCount !== 1 ? "s" : ""}
         </span>
@@ -142,8 +136,8 @@ function ResultsGroup({
   return (
     <div className="space-y-1">
       <div className="flex items-center gap-1 px-3">
-        <p className="text-xs font-medium text-muted-foreground">{label}</p>
-        <p className="text-xs text-muted-foreground">({count})</p>
+        <p className="text-muted-foreground text-xs font-medium">{label}</p>
+        <p className="text-muted-foreground text-xs">({count})</p>
       </div>
       <div className="space-y-0.5">{children}</div>
     </div>
@@ -157,9 +151,7 @@ function SearchResults() {
   const shouldSearch = searchQuery.length >= 2;
 
   const { data, isPending } = useQuery(
-    trpc.product.globalSearch.queryOptions(
-      shouldSearch ? searchQuery : skipToken,
-    ),
+    trpc.product.globalSearch.queryOptions(shouldSearch ? searchQuery : skipToken)
   );
 
   const products = data?.products ?? [];
@@ -170,14 +162,14 @@ function SearchResults() {
   if (isPending && shouldSearch) {
     return (
       <div className="flex items-center justify-center py-8">
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+        <Loader2 className="text-muted-foreground h-5 w-5 animate-spin" />
       </div>
     );
   }
 
   if (!hasSearchQuery) {
     return (
-      <div className="text-muted-foreground text-sm text-center py-8">
+      <div className="text-muted-foreground py-8 text-center text-sm">
         Start typing to search...
       </div>
     );
@@ -185,7 +177,7 @@ function SearchResults() {
 
   if (hasSearchQuery && searchQuery.length < 2) {
     return (
-      <div className="text-muted-foreground text-sm text-center py-8">
+      <div className="text-muted-foreground py-8 text-center text-sm">
         Type at least 2 characters to search
       </div>
     );
@@ -193,7 +185,7 @@ function SearchResults() {
 
   if (!hasResults) {
     return (
-      <div className="text-muted-foreground text-sm text-center py-8">
+      <div className="text-muted-foreground py-8 text-center text-sm">
         No results found for "{searchQuery}"
       </div>
     );
@@ -202,16 +194,28 @@ function SearchResults() {
   return (
     <div className="space-y-4">
       {products.length > 0 && (
-        <ResultsGroup label="Products" count={products.length}>
+        <ResultsGroup
+          label="Products"
+          count={products.length}
+        >
           {products.map((product) => (
-            <ProductResultItem key={product.id} product={product} />
+            <ProductResultItem
+              key={product.id}
+              product={product}
+            />
           ))}
         </ResultsGroup>
       )}
       {collections.length > 0 && (
-        <ResultsGroup label="Collections" count={collections.length}>
+        <ResultsGroup
+          label="Collections"
+          count={collections.length}
+        >
           {collections.map((collection) => (
-            <CollectionResultItem key={collection.id} collection={collection} />
+            <CollectionResultItem
+              key={collection.id}
+              collection={collection}
+            />
           ))}
         </ResultsGroup>
       )}
@@ -220,8 +224,7 @@ function SearchResults() {
 }
 
 export function GlobalSearch() {
-  const { globalSearchParams, closeGlobalSearch, toggleGlobalSearch } =
-    useGlobalSearchParams();
+  const { globalSearchParams, closeGlobalSearch, toggleGlobalSearch } = useGlobalSearchParams();
 
   // Keyboard shortcut: Cmd+K or Cmd+/
   useKeypress(toggleGlobalSearch, ["k", "/"], { withMeta: true });
@@ -233,7 +236,10 @@ export function GlobalSearch() {
         if (!open) closeGlobalSearch();
       }}
     >
-      <DialogContent className="p-0 gap-0" showCloseButton={false}>
+      <DialogContent
+        className="gap-0 p-0"
+        showCloseButton={false}
+      >
         <DialogTitle className="sr-only">Search</DialogTitle>
         <DialogDescription className="sr-only">
           Search for products and collections

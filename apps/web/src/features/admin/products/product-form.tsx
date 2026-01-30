@@ -1,40 +1,32 @@
 "use client";
 "use no memo";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  ArrowLeft,
-  MoreHorizontal,
-  Eye,
-  Copy,
   Archive,
-  Trash2,
-  X,
+  ArrowLeft,
+  Copy,
+  Eye,
+  Globe,
   GripVertical,
   Info,
   Loader2,
-  Globe,
+  MoreHorizontal,
+  Trash2,
+  X,
 } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { useEffect, useRef, useState, useCallback } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
-import { ProductImageUpload } from "./add-product-image";
-import { OptionsEditor } from "./options-editor";
-import { VariantsTable } from "./variants-table";
-
+import type { ProductForm, ProductOption, ProductVariant } from "@/validation";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
@@ -70,23 +62,18 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { createAdminProductDetailBreadcrumbs } from "@/lib/breadcrumbs";
 import { useTRPC } from "@/trpc";
 import {
-  productFormSchema,
-  type ProductForm,
-  type ProductOption,
-  type ProductVariant,
   defaultProductForm,
   generateHandle,
   generateVariants,
+  productFormSchema,
 } from "@/validation";
+import { ProductImageUpload } from "./add-product-image";
+import { OptionsEditor } from "./options-editor";
+import { VariantsTable } from "./variants-table";
 
 type ProductFormProps = {
   productId: string;
@@ -104,7 +91,7 @@ export function ProductForm({ productId }: ProductFormProps) {
 
   // Fetch product data
   const { data: product, isLoading: isLoadingProduct } = useQuery(
-    trpc.product.getById.queryOptions({ productId }),
+    trpc.product.getById.queryOptions({ productId })
   );
 
   // Update mutation
@@ -124,7 +111,7 @@ export function ProductForm({ productId }: ProductFormProps) {
           description: error.message,
         });
       },
-    }),
+    })
   );
 
   // Delete image mutation
@@ -140,7 +127,7 @@ export function ProductForm({ productId }: ProductFormProps) {
           description: error.message,
         });
       },
-    }),
+    })
   );
 
   async function handleDeleteImage(imageId: string) {
@@ -156,14 +143,10 @@ export function ProductForm({ productId }: ProductFormProps) {
   });
 
   // Fetch available collections
-  const { data: availableCollections } = useQuery(
-    trpc.product.listCollections.queryOptions(),
-  );
+  const { data: availableCollections } = useQuery(trpc.product.listCollections.queryOptions());
 
   // Fetch available tags
-  const { data: availableTags } = useQuery(
-    trpc.product.storefrontTags.queryOptions(),
-  );
+  const { data: availableTags } = useQuery(trpc.product.storefrontTags.queryOptions());
 
   // Populate form with product data when loaded
   useEffect(() => {
@@ -186,11 +169,9 @@ export function ProductForm({ productId }: ProductFormProps) {
       const variant = product.defaultVariant;
 
       // Parse options and variants from product data
-      const productOptions =
-        (product as { options?: ProductOption[] }).options || [];
+      const productOptions = (product as { options?: ProductOption[] }).options || [];
       // Variants are already transformed by the API to form format
-      const productVariants =
-        (product as { variants?: ProductVariant[] }).variants || [];
+      const productVariants = (product as { variants?: ProductVariant[] }).variants || [];
 
       form.reset({
         title: product.title || "",
@@ -203,15 +184,14 @@ export function ProductForm({ productId }: ProductFormProps) {
         barcode: variant?.barcode || "",
         trackQuantity: variant?.inventoryTracked ?? true,
         quantity: String(variant?.inventoryQuantity ?? 0),
-        continueSellingWhenOutOfStock:
-          variant?.continueSellingWhenOutOfStock ?? false,
+        continueSellingWhenOutOfStock: variant?.continueSellingWhenOutOfStock ?? false,
         options: productOptions,
         variants: productVariants,
         productType: product.productType || "",
         vendor: product.vendor || "",
         tags: product.tags?.join(", ") || "",
         collections: product.collections || [],
-        status: (product.status || "draft") as "draft" | "active" | "archived",
+        status: product.status || "draft",
         published: product.published || false,
         metaTitle: metadata?.metaTitle || "",
         metaDescription: metadata?.metaDescription || "",
@@ -237,15 +217,12 @@ export function ProductForm({ productId }: ProductFormProps) {
     name: "metaDescription",
   });
   const publishedValue = useWatch({ control: form.control, name: "published" });
-  const optionsValue =
-    useWatch({ control: form.control, name: "options" }) || [];
-  const variantsValue =
-    useWatch({ control: form.control, name: "variants" }) || [];
+  const optionsValue = useWatch({ control: form.control, name: "options" }) || [];
+  const variantsValue = useWatch({ control: form.control, name: "variants" }) || [];
 
   // Check if product has variants (more than just the default)
   const hasVariants =
-    optionsValue.length > 0 &&
-    optionsValue.some((o: ProductOption) => o.values.length > 0);
+    optionsValue.length > 0 && optionsValue.some((o: ProductOption) => o.values.length > 0);
 
   // Handler for options changes - regenerates variants
   const handleOptionsChange = useCallback(
@@ -256,7 +233,7 @@ export function ProductForm({ productId }: ProductFormProps) {
       const newVariants = generateVariants(newOptions, currentVariants);
       form.setValue("variants", newVariants);
     },
-    [form],
+    [form]
   );
 
   // Handler for variants changes
@@ -264,7 +241,7 @@ export function ProductForm({ productId }: ProductFormProps) {
     (newVariants: ProductVariant[]) => {
       form.setValue("variants", newVariants);
     },
-    [form],
+    [form]
   );
 
   // Auto-generate handle from title (only when handle not manually edited and title changes)
@@ -279,16 +256,18 @@ export function ProductForm({ productId }: ProductFormProps) {
     try {
       // Only include metadata if there's actual SEO content
       const hasMetadata = data.metaTitle || data.metaDescription;
-      const metadata = hasMetadata
-        ? {
+      const metadata =
+        hasMetadata ?
+          {
             metaTitle: data.metaTitle || undefined,
             metaDescription: data.metaDescription || undefined,
           }
         : undefined;
 
       // Parse tags from comma-separated string to array
-      const tagsArray = data.tags
-        ? data.tags
+      const tagsArray =
+        data.tags ?
+          data.tags
             .split(",")
             .map((t) => t.trim())
             .filter((t) => t.length > 0)
@@ -296,9 +275,7 @@ export function ProductForm({ productId }: ProductFormProps) {
 
       // Check if we have variants (options with values)
       const hasProductVariants =
-        data.options &&
-        data.options.length > 0 &&
-        data.options.some((o) => o.values.length > 0);
+        data.options && data.options.length > 0 && data.options.some((o) => o.values.length > 0);
 
       await updateProduct({
         productId,
@@ -315,8 +292,9 @@ export function ProductForm({ productId }: ProductFormProps) {
         metadata,
         // Include options and variants if they exist
         options: data.options,
-        variants: hasProductVariants
-          ? data.variants?.map((v) => ({
+        variants:
+          hasProductVariants ?
+            data.variants?.map((v) => ({
               id: v.id,
               optionValues: v.optionValues,
               price: v.price || "0",
@@ -326,16 +304,15 @@ export function ProductForm({ productId }: ProductFormProps) {
             }))
           : undefined,
         // Only include default variant data when no variants exist
-        variant: !hasProductVariants
-          ? {
+        variant:
+          !hasProductVariants ?
+            {
               price: data.price || undefined,
               // Always send compareAtPrice (even empty string) so API can clear it
               compareAtPrice: data.compareAtPrice,
               sku: data.sku || undefined,
               barcode: data.barcode || undefined,
-              inventoryQuantity: data.quantity
-                ? parseInt(data.quantity, 10)
-                : 0,
+              inventoryQuantity: data.quantity ? parseInt(data.quantity, 10) : 0,
               inventoryTracked: data.trackQuantity,
               chargeTax: data.chargeTax,
               continueSellingWhenOutOfStock: data.continueSellingWhenOutOfStock,
@@ -352,31 +329,26 @@ export function ProductForm({ productId }: ProductFormProps) {
   if (isLoadingProduct) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
       </div>
     );
   }
 
   const currentStatus = product?.status ?? "draft";
-  const statusBadgeVariant =
-    currentStatus === "active" ? "default" : "secondary";
-  const statusBadgeText =
-    currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1);
+  const statusBadgeVariant = currentStatus === "active" ? "default" : "secondary";
+  const statusBadgeText = currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1);
 
   return (
     <TooltipProvider>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleFormSubmit)}>
           <Breadcrumbs
-            pages={createAdminProductDetailBreadcrumbs(
-              productId,
-              product?.title,
-            )}
-            className="mb-6 pl-6 pt-6"
+            pages={createAdminProductDetailBreadcrumbs(productId, product?.title)}
+            className="mb-6 pt-6 pl-6"
           />
           <div className="min-h-screen">
             {/* Top Header Bar */}
-            <header className="sticky top-0 z-50 border-b bg-background">
+            <header className="bg-background sticky top-0 z-50 border-b">
               <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
                 <div className="flex items-center gap-3">
                   <Button
@@ -402,15 +374,21 @@ export function ProductForm({ productId }: ProductFormProps) {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Button type="submit" size="sm" disabled={isPending}>
-                    {isPending && (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    )}
+                  <Button
+                    type="submit"
+                    size="sm"
+                    disabled={isPending}
+                  >
+                    {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Save
                   </Button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                      >
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -481,9 +459,8 @@ export function ProductForm({ productId }: ProductFormProps) {
                                   }}
                                 />
                               </FormControl>
-                              <p className="text-xs text-muted-foreground">
-                                URL-friendly identifier. Auto-generated from
-                                title.
+                              <p className="text-muted-foreground text-xs">
+                                URL-friendly identifier. Auto-generated from title.
                               </p>
                               <FormMessage />
                             </FormItem>
@@ -503,9 +480,9 @@ export function ProductForm({ productId }: ProductFormProps) {
                                   {...field}
                                 />
                               </FormControl>
-                              <p className="text-xs text-muted-foreground">
-                                Describe your product in detail. This will
-                                appear on the product page.
+                              <p className="text-muted-foreground text-xs">
+                                Describe your product in detail. This will appear on the product
+                                page.
                               </p>
                               <FormMessage />
                             </FormItem>
@@ -527,7 +504,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                             {images.map((image, index) => (
                               <div
                                 key={image.id}
-                                className="group relative aspect-square overflow-hidden rounded-lg border bg-muted"
+                                className="bg-muted group relative aspect-square overflow-hidden rounded-lg border"
                               >
                                 <Image
                                   src={image.url || "/placeholder.svg"}
@@ -535,7 +512,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                   fill
                                   className="object-cover"
                                 />
-                                <div className="absolute inset-0 flex items-center justify-center gap-1 bg-background/80 opacity-0 transition-opacity group-hover:opacity-100">
+                                <div className="bg-background/80 absolute inset-0 flex items-center justify-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                                   <Button
                                     variant="secondary"
                                     size="icon"
@@ -553,9 +530,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                   </Button>
                                 </div>
                                 {index === 0 && (
-                                  <Badge className="absolute left-2 top-2 text-[10px]">
-                                    Main
-                                  </Badge>
+                                  <Badge className="absolute top-2 left-2 text-[10px]">Main</Badge>
                                 )}
                               </div>
                             ))}
@@ -596,7 +571,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                 <FormLabel>Price</FormLabel>
                                 <FormControl>
                                   <div className="relative">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                                    <span className="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2">
                                       $
                                     </span>
                                     <Input
@@ -620,19 +595,18 @@ export function ProductForm({ productId }: ProductFormProps) {
                                   Compare-at price
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                                      <Info className="text-muted-foreground h-3.5 w-3.5" />
                                     </TooltipTrigger>
                                     <TooltipContent>
                                       <p className="max-w-xs">
-                                        To display a reduced price, set a higher
-                                        compare-at price.
+                                        To display a reduced price, set a higher compare-at price.
                                       </p>
                                     </TooltipContent>
                                   </Tooltip>
                                 </FormLabel>
                                 <FormControl>
                                   <div className="relative">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                                    <span className="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2">
                                       $
                                     </span>
                                     <Input
@@ -653,14 +627,14 @@ export function ProductForm({ productId }: ProductFormProps) {
                           control={form.control}
                           name="chargeTax"
                           render={({ field }) => (
-                            <FormItem className="flex items-center space-x-2 space-y-0">
+                            <FormItem className="flex items-center space-y-0 space-x-2">
                               <FormControl>
                                 <Checkbox
                                   checked={field.value}
                                   onCheckedChange={field.onChange}
                                 />
                               </FormControl>
-                              <FormLabel className="text-sm font-normal leading-none">
+                              <FormLabel className="text-sm leading-none font-normal">
                                 Charge tax on this product
                               </FormLabel>
                             </FormItem>
@@ -685,7 +659,10 @@ export function ProductForm({ productId }: ProductFormProps) {
                               <FormItem>
                                 <FormLabel>SKU (Stock Keeping Unit)</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="SKU-001" {...field} />
+                                  <Input
+                                    placeholder="SKU-001"
+                                    {...field}
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -696,9 +673,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                             name="barcode"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>
-                                  Barcode (ISBN, UPC, GTIN, etc.)
-                                </FormLabel>
+                                <FormLabel>Barcode (ISBN, UPC, GTIN, etc.)</FormLabel>
                                 <FormControl>
                                   <Input
                                     placeholder="12345678901234"
@@ -718,7 +693,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                             <FormItem className="flex items-center justify-between">
                               <div className="space-y-0.5">
                                 <FormLabel>Track quantity</FormLabel>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-muted-foreground text-xs">
                                   Track inventory for this product
                                 </p>
                               </div>
@@ -753,14 +728,14 @@ export function ProductForm({ productId }: ProductFormProps) {
                           control={form.control}
                           name="continueSellingWhenOutOfStock"
                           render={({ field }) => (
-                            <FormItem className="flex items-center space-x-2 space-y-0">
+                            <FormItem className="flex items-center space-y-0 space-x-2">
                               <FormControl>
                                 <Checkbox
                                   checked={field.value}
                                   onCheckedChange={field.onChange}
                                 />
                               </FormControl>
-                              <FormLabel className="text-sm font-normal leading-none">
+                              <FormLabel className="text-sm leading-none font-normal">
                                 Continue selling when out of stock
                               </FormLabel>
                             </FormItem>
@@ -814,7 +789,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                               <SelectContent>
                                 <SelectItem value="draft">
                                   <div className="flex items-center gap-2">
-                                    <span className="h-2 w-2 rounded-full bg-muted-foreground" />
+                                    <span className="bg-muted-foreground h-2 w-2 rounded-full" />
                                     Draft
                                   </div>
                                 </SelectItem>
@@ -842,9 +817,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                   {/* Categorization Card */}
                   <Card>
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-base">
-                        Categorization
-                      </CardTitle>
+                      <CardTitle className="text-base">Categorization</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <FormField
@@ -854,7 +827,10 @@ export function ProductForm({ productId }: ProductFormProps) {
                           <FormItem>
                             <FormLabel>Product type</FormLabel>
                             <FormControl>
-                              <Input placeholder="e.g. T-Shirts" {...field} />
+                              <Input
+                                placeholder="e.g. T-Shirts"
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -867,7 +843,10 @@ export function ProductForm({ productId }: ProductFormProps) {
                           <FormItem>
                             <FormLabel>Vendor</FormLabel>
                             <FormControl>
-                              <Input placeholder="e.g. Nike" {...field} />
+                              <Input
+                                placeholder="e.g. Nike"
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -884,9 +863,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                 .split(",")
                                 .map((t) => t.trim())
                                 .filter(Boolean)}
-                              onValuesChange={(values) =>
-                                field.onChange(values.join(", "))
-                              }
+                              onValuesChange={(values) => field.onChange(values.join(", "))}
                             >
                               <FormControl>
                                 <MultiSelectTrigger
@@ -913,14 +890,12 @@ export function ProductForm({ productId }: ProductFormProps) {
                                 <MultiSelectGroup heading="Tags">
                                   {Array.from(
                                     new Set([
-                                      ...((availableTags ?? []).map(
-                                        (t) => t.value,
-                                      ) ?? []),
+                                      ...((availableTags ?? []).map((t) => t.value) ?? []),
                                       ...((field.value ?? "")
                                         .split(",")
                                         .map((t) => t.trim())
                                         .filter(Boolean) ?? []),
-                                    ]),
+                                    ])
                                   ).map((tagValue) => (
                                     <MultiSelectItem
                                       key={tagValue}
@@ -942,8 +917,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Collections</FormLabel>
-                            {availableCollections &&
-                            availableCollections.length > 0 ? (
+                            {availableCollections && availableCollections.length > 0 ?
                               <MultiSelect
                                 values={field.value ?? []}
                                 onValuesChange={field.onChange}
@@ -974,12 +948,10 @@ export function ProductForm({ productId }: ProductFormProps) {
                                   </MultiSelectGroup>
                                 </MultiSelectContent>
                               </MultiSelect>
-                            ) : (
-                              <p className="text-sm text-muted-foreground">
-                                No collections available. Create collections to
-                                organize products.
+                            : <p className="text-muted-foreground text-sm">
+                                No collections available. Create collections to organize products.
                               </p>
-                            )}
+                            }
                             <FormMessage />
                           </FormItem>
                         )}
@@ -995,10 +967,8 @@ export function ProductForm({ productId }: ProductFormProps) {
                     <CardContent className="space-y-4">
                       <div>
                         <p className="text-sm font-medium">Sales channels</p>
-                        <p className="text-xs text-muted-foreground">
-                          {publishedValue
-                            ? "Online Store"
-                            : "Not published to any channels"}
+                        <p className="text-muted-foreground text-xs">
+                          {publishedValue ? "Online Store" : "Not published to any channels"}
                         </p>
                       </div>
                       <Separator />
@@ -1008,10 +978,8 @@ export function ProductForm({ productId }: ProductFormProps) {
                         render={({ field }) => (
                           <FormItem className="flex items-center justify-between space-y-0">
                             <div className="flex items-center gap-2">
-                              <Globe className="h-4 w-4 text-muted-foreground" />
-                              <FormLabel className="text-sm font-normal">
-                                Online Store
-                              </FormLabel>
+                              <Globe className="text-muted-foreground h-4 w-4" />
+                              <FormLabel className="text-sm font-normal">Online Store</FormLabel>
                             </div>
                             <FormControl>
                               <Switch
@@ -1029,9 +997,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                   <Card>
                     <CardHeader className="pb-3">
                       <div className="flex items-center justify-between">
-                        <CardTitle className="text-base">
-                          Search engine listing
-                        </CardTitle>
+                        <CardTitle className="text-base">Search engine listing</CardTitle>
                         <Button
                           type="button"
                           variant="ghost"
@@ -1042,12 +1008,12 @@ export function ProductForm({ productId }: ProductFormProps) {
                         </Button>
                       </div>
                       <CardDescription>
-                        Add a title and description to see how this product
-                        might appear in search engine listings.
+                        Add a title and description to see how this product might appear in search
+                        engine listings.
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      {isEditingSeo ? (
+                      {isEditingSeo ?
                         <div className="space-y-4">
                           <FormField
                             control={form.control}
@@ -1061,7 +1027,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                     {...field}
                                   />
                                 </FormControl>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-muted-foreground text-xs">
                                   {(field.value || "").length}/70 characters
                                 </p>
                                 <FormMessage />
@@ -1085,7 +1051,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                     {...field}
                                   />
                                 </FormControl>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-muted-foreground text-xs">
                                   {(field.value || "").length}/160 characters
                                 </p>
                                 <FormMessage />
@@ -1093,8 +1059,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                             )}
                           />
                         </div>
-                      ) : (
-                        <div className="space-y-1 rounded-lg border bg-muted/50 p-4">
+                      : <div className="bg-muted/50 space-y-1 rounded-lg border p-4">
                           <p className="text-lg text-[#1a0dab]">
                             {metaTitleValue || titleValue || "Product title"}
                           </p>
@@ -1102,13 +1067,13 @@ export function ProductForm({ productId }: ProductFormProps) {
                             https://yourstore.com/products/
                             {handleValue || "product-handle"}
                           </p>
-                          <p className="line-clamp-2 text-sm text-muted-foreground">
+                          <p className="text-muted-foreground line-clamp-2 text-sm">
                             {metaDescriptionValue ||
                               descriptionValue ||
                               "Product description will appear here..."}
                           </p>
                         </div>
-                      )}
+                      }
                     </CardContent>
                   </Card>
                 </div>

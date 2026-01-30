@@ -1,9 +1,9 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { MoreHorizontal, Pencil, Trash2, Loader2 } from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
+import Link from "next/link";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Loader2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import type { RouterOutputs } from "@ecommerce/api";
@@ -54,7 +54,7 @@ export function TableActions({ product }: TableActionsProps) {
           description: error.message,
         });
       },
-    }),
+    })
   );
 
   return (
@@ -69,11 +69,9 @@ export function TableActions({ product }: TableActionsProps) {
             disabled={isPending}
           >
             <span className="sr-only">Open menu</span>
-            {isPending ? (
+            {isPending ?
               <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <MoreHorizontal className="h-4 w-4" />
-            )}
+            : <MoreHorizontal className="h-4 w-4" />}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
@@ -98,14 +96,17 @@ export function TableActions({ product }: TableActionsProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+      <AlertDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete product?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete &quot;{product.title}&quot;? This
-              will permanently remove the product and all its variants, images,
-              and options. This action cannot be undone.
+              Are you sure you want to delete &quot;{product.title}&quot;? This will permanently
+              remove the product and all its variants, images, and options. This action cannot be
+              undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -115,14 +116,12 @@ export function TableActions({ product }: TableActionsProps) {
               onClick={() => deleteProduct({ productId: product.id })}
               disabled={isPending}
             >
-              {isPending ? (
+              {isPending ?
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Deleting...
                 </>
-              ) : (
-                "Delete"
-              )}
+              : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -32,7 +32,11 @@ export function SetPasswordButton({ email }: SetPasswordButtonProps) {
   }
 
   return (
-    <Button variant="outline" onClick={handleClick} disabled={isLoading}>
+    <Button
+      variant="outline"
+      onClick={handleClick}
+      disabled={isLoading}
+    >
       {isLoading ? "Sending..." : "Send Password Reset Email"}
     </Button>
   );

@@ -1,9 +1,8 @@
 "use client";
 
+import { TRPCReactProvider } from "@/trpc/react";
 import { ThemeProvider } from "./theme-provider";
 import { Toaster } from "./ui/sonner";
-
-import { TRPCReactProvider } from "@/trpc/react";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -13,9 +12,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       enableSystem
       disableTransitionOnChange
     >
-      <TRPCReactProvider>
-        {children}
-      </TRPCReactProvider>
+      <TRPCReactProvider>{children}</TRPCReactProvider>
       <Toaster richColors />
     </ThemeProvider>
   );

@@ -1,5 +1,5 @@
-import { ChevronRight, Lock, ShieldCheck, Tag, Truck } from "lucide-react";
 import { useState } from "react";
+import { ChevronRight, Lock, ShieldCheck, Tag, Truck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,23 +35,23 @@ export const CartSummary = ({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-xl border border-border bg-card transition-all duration-300",
-        isHovered && "shadow-xl shadow-foreground/5",
+        "border-border bg-card relative overflow-hidden rounded-xl border transition-all duration-300",
+        isHovered && "shadow-foreground/5 shadow-xl"
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Header */}
-      <div className="border-b border-border bg-muted/30 px-5 py-4">
-        <h2 className="text-lg font-semibold text-foreground">Order Summary</h2>
-        <p className="mt-0.5 text-xs text-muted-foreground">
+      <div className="border-border bg-muted/30 border-b px-5 py-4">
+        <h2 className="text-foreground text-lg font-semibold">Order Summary</h2>
+        <p className="text-muted-foreground mt-0.5 text-xs">
           {itemCount} {itemCount === 1 ? "item" : "items"} in your cart
         </p>
       </div>
 
       <div className="p-5">
         {/* Free Shipping Progress */}
-        {amountToFreeShipping > 0 ? (
+        {amountToFreeShipping > 0 ?
           <div className="mb-5 rounded-lg bg-amber-500/10 p-3">
             <div className="mb-2 flex items-center gap-2">
               <Truck className="h-4 w-4 text-amber-600" />
@@ -68,20 +68,19 @@ export const CartSummary = ({
               />
             </div>
           </div>
-        ) : (
-          <div className="mb-5 flex items-center gap-2 rounded-lg bg-emerald-500/10 p-3">
+        : <div className="mb-5 flex items-center gap-2 rounded-lg bg-emerald-500/10 p-3">
             <Truck className="h-4 w-4 text-emerald-600" />
             <span className="text-xs font-medium text-emerald-700">
               You qualify for FREE shipping!
             </span>
           </div>
-        )}
+        }
 
         {/* Promo Code */}
         <div className="mb-5">
           <button
             onClick={() => setIsPromoOpen(!isPromoOpen)}
-            className="flex w-full items-center justify-between text-sm text-muted-foreground transition-colors hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground flex w-full items-center justify-between text-sm transition-colors"
           >
             <div className="flex items-center gap-2">
               <Tag className="h-4 w-4" />
@@ -90,7 +89,7 @@ export const CartSummary = ({
             <ChevronRight
               className={cn(
                 "h-4 w-4 transition-transform duration-200",
-                isPromoOpen && "rotate-90",
+                isPromoOpen && "rotate-90"
               )}
             />
           </button>
@@ -120,36 +119,28 @@ export const CartSummary = ({
         <div className="space-y-3">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Subtotal</span>
-            <span className="font-medium text-foreground">
-              ${subtotal.toFixed(2)}
-            </span>
+            <span className="text-foreground font-medium">${subtotal.toFixed(2)}</span>
           </div>
 
           {discount > 0 && (
             <div className="flex items-center justify-between text-sm">
               <span className="text-emerald-600">Discount</span>
-              <span className="font-medium text-emerald-600">
-                -${discount.toFixed(2)}
-              </span>
+              <span className="font-medium text-emerald-600">-${discount.toFixed(2)}</span>
             </div>
           )}
 
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Shipping</span>
-            <span className="font-medium text-foreground">
-              {shipping === 0 ? (
+            <span className="text-foreground font-medium">
+              {shipping === 0 ?
                 <span className="text-emerald-600">FREE</span>
-              ) : (
-                `$${shipping.toFixed(2)}`
-              )}
+              : `$${shipping.toFixed(2)}`}
             </span>
           </div>
 
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Estimated Tax</span>
-            <span className="font-medium text-foreground">
-              ${tax.toFixed(2)}
-            </span>
+            <span className="text-foreground font-medium">${tax.toFixed(2)}</span>
           </div>
         </div>
 
@@ -157,15 +148,11 @@ export const CartSummary = ({
 
         {/* Total */}
         <div className="mb-5 flex items-center justify-between">
-          <span className="text-base font-semibold text-foreground">Total</span>
+          <span className="text-foreground text-base font-semibold">Total</span>
           <div className="text-right">
-            <span className="text-2xl font-bold text-foreground">
-              ${total.toFixed(2)}
-            </span>
+            <span className="text-foreground text-2xl font-bold">${total.toFixed(2)}</span>
             {discount > 0 && (
-              <p className="text-xs text-emerald-600">
-                You save ${discount.toFixed(2)}
-              </p>
+              <p className="text-xs text-emerald-600">You save ${discount.toFixed(2)}</p>
             )}
           </div>
         </div>
@@ -181,12 +168,12 @@ export const CartSummary = ({
 
         {/* Trust Badges */}
         <div className="mt-5 flex items-center justify-center gap-4">
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <div className="text-muted-foreground flex items-center gap-1.5 text-xs">
             <ShieldCheck className="h-4 w-4" />
             <span>Secure Checkout</span>
           </div>
-          <div className="h-4 w-px bg-border" />
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <div className="bg-border h-4 w-px" />
+          <div className="text-muted-foreground flex items-center gap-1.5 text-xs">
             <Truck className="h-4 w-4" />
             <span>Fast Delivery</span>
           </div>
@@ -196,7 +183,7 @@ export const CartSummary = ({
       {/* Bottom accent */}
       <div
         className={cn(
-          "h-1 w-full bg-gradient-to-r from-primary to-primary/60 transition-all duration-500",
+          "from-primary to-primary/60 h-1 w-full bg-gradient-to-r transition-all duration-500"
         )}
         style={{ opacity: isHovered ? 1 : 0.3 }}
       />

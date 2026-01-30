@@ -1,8 +1,8 @@
 "use client";
 
-import { useForm } from "@tanstack/react-form";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "@tanstack/react-form";
 import QRCode from "react-qr-code";
 import { toast } from "sonner";
 import z from "zod";
@@ -19,9 +19,7 @@ type TwoFactorData = {
 };
 
 export function TwoFactorAuth({ isEnabled }: { isEnabled: boolean }) {
-  const [twoFactorData, setTwoFactorData] = useState<TwoFactorData | null>(
-    null,
-  );
+  const [twoFactorData, setTwoFactorData] = useState<TwoFactorData | null>(null);
   const router = useRouter();
 
   const form = useForm({
@@ -94,7 +92,10 @@ export function TwoFactorAuth({ isEnabled }: { isEnabled: boolean }) {
               onChange={(e) => field.handleChange(e.target.value)}
             />
             {field.state.meta.errors.map((error) => (
-              <p key={error?.message} className="text-destructive text-sm">
+              <p
+                key={error?.message}
+                className="text-destructive text-sm"
+              >
                 {error?.message}
               </p>
             ))}
@@ -110,13 +111,13 @@ export function TwoFactorAuth({ isEnabled }: { isEnabled: boolean }) {
             variant={isEnabled ? "destructive" : "default"}
             disabled={!state.canSubmit || state.isSubmitting}
           >
-            {state.isSubmitting
-              ? isEnabled
-                ? "Disabling..."
-                : "Enabling..."
-              : isEnabled
-                ? "Disable 2FA"
-                : "Enable 2FA"}
+            {state.isSubmitting ?
+              isEnabled ?
+                "Disabling..."
+              : "Enabling..."
+            : isEnabled ?
+              "Disable 2FA"
+            : "Enable 2FA"}
           </Button>
         )}
       </form.Subscribe>
@@ -124,11 +125,7 @@ export function TwoFactorAuth({ isEnabled }: { isEnabled: boolean }) {
   );
 }
 
-function QRCodeVerify({
-  totpURI,
-  backupCodes,
-  onDone,
-}: TwoFactorData & { onDone: () => void }) {
+function QRCodeVerify({ totpURI, backupCodes, onDone }: TwoFactorData & { onDone: () => void }) {
   const [successfullyEnabled, setSuccessfullyEnabled] = useState(false);
   const router = useRouter();
 
@@ -160,17 +157,22 @@ function QRCodeVerify({
     return (
       <div className="space-y-4">
         <p className="text-muted-foreground text-sm">
-          Save these backup codes in a safe place. You can use them to access
-          your account.
+          Save these backup codes in a safe place. You can use them to access your account.
         </p>
         <div className="grid grid-cols-2 gap-2">
           {backupCodes.map((code, index) => (
-            <div key={index} className="font-mono text-sm">
+            <div
+              key={index}
+              className="font-mono text-sm"
+            >
               {code}
             </div>
           ))}
         </div>
-        <Button variant="outline" onClick={onDone}>
+        <Button
+          variant="outline"
+          onClick={onDone}
+        >
           Done
         </Button>
       </div>
@@ -180,7 +182,10 @@ function QRCodeVerify({
   return (
     <div className="space-y-4">
       <div className="w-fit bg-white p-4">
-        <QRCode size={256} value={totpURI} />
+        <QRCode
+          size={256}
+          value={totpURI}
+        />
       </div>
 
       <p className="text-muted-foreground text-sm">
@@ -208,7 +213,10 @@ function QRCodeVerify({
                 onChange={(e) => field.handleChange(e.target.value)}
               />
               {field.state.meta.errors.map((error) => (
-                <p key={error?.message} className="text-destructive text-sm">
+                <p
+                  key={error?.message}
+                  className="text-destructive text-sm"
+                >
                   {error?.message}
                 </p>
               ))}

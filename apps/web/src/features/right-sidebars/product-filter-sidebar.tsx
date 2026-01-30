@@ -1,8 +1,21 @@
-import { type OptionValueFilter } from "@ecommerce/api/schemas";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, X } from "lucide-react";
-import { useEffect, useState } from "react";
 
+import type { OptionValueFilter } from "@ecommerce/api/schemas";
+
+import type { StorefrontFilter } from "@/validation";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Slider } from "@/components/ui/slider";
+import { cn } from "@/lib/utils";
+import { useTRPC } from "@/trpc";
+import { defaultStorefrontFilter } from "@/validation";
+import { useProductListSearchParams } from "../products/search-params";
 import {
   FilterSidebar,
   FilterSidebarContent,
@@ -10,23 +23,6 @@ import {
   FilterSidebarHeader,
 } from "./filter-sidebar";
 import { useSidebarParams } from "./query-params";
-import { useProductListSearchParams } from "../products/search-params";
-
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { Slider } from "@/components/ui/slider";
-import { cn } from "@/lib/utils";
-import { useTRPC } from "@/trpc";
-import { type StorefrontFilter, defaultStorefrontFilter } from "@/validation";
-
 
 const MIN_PRICE = 0;
 const MAX_PRICE = 1000;
@@ -54,9 +50,7 @@ export const ProductFilterSidebar = () => {
   } = useSidebarParams();
 
   // Fetch available options for filtering
-  const { data: availableOptions } = useQuery(
-    trpc.product.listOptions.queryOptions(),
-  );
+  const { data: availableOptions } = useQuery(trpc.product.listOptions.queryOptions());
 
   // Derive price range from search params (storefront schema uses minPrice/maxPrice)
   const priceRange: [number, number] = [
@@ -82,8 +76,7 @@ export const ProductFilterSidebar = () => {
     // Strip out default values to keep URL clean
     const cleanFilter: Partial<StorefrontFilter> = {};
     for (const [key, value] of Object.entries(merged)) {
-      const defaultValue =
-        defaultStorefrontFilter[key as keyof StorefrontFilter];
+      const defaultValue = defaultStorefrontFilter[key as keyof StorefrontFilter];
       // Only include if different from default and not undefined
       if (value !== defaultValue && value !== undefined) {
         (cleanFilter as Record<string, unknown>)[key] = value;
@@ -105,17 +98,11 @@ export const ProductFilterSidebar = () => {
   };
 
   // Handle option filter changes
-  const handleOptionFilterChange = (
-    optionName: string,
-    value: string,
-    checked: boolean,
-  ) => {
+  const handleOptionFilterChange = (optionName: string, value: string, checked: boolean) => {
     const currentOptionFilters = filter?.optionFilters ?? [];
 
     // Find existing filter for this option
-    const existingFilterIndex = currentOptionFilters.findIndex(
-      (f) => f.optionName === optionName,
-    );
+    const existingFilterIndex = currentOptionFilters.findIndex((f) => f.optionName === optionName);
 
     let newOptionFilters: OptionValueFilter[];
 
@@ -124,32 +111,25 @@ export const ProductFilterSidebar = () => {
       if (existingFilterIndex >= 0) {
         // Option already has some values, add this one
         newOptionFilters = currentOptionFilters.map((f, i) =>
-          i === existingFilterIndex
-            ? { ...f, values: [...f.values, value] }
-            : f,
+          i === existingFilterIndex ? { ...f, values: [...f.values, value] } : f
         );
       } else {
         // New option filter
-        newOptionFilters = [
-          ...currentOptionFilters,
-          { optionName, values: [value] },
-        ];
+        newOptionFilters = [...currentOptionFilters, { optionName, values: [value] }];
       }
     } else {
       // Removing a value
       if (existingFilterIndex >= 0) {
         const existingFilter = currentOptionFilters[existingFilterIndex];
-        const newValues = existingFilter!.values.filter((v) => v !== value);
+        const newValues = existingFilter.values.filter((v) => v !== value);
 
         if (newValues.length === 0) {
           // Remove the entire option filter if no values left
-          newOptionFilters = currentOptionFilters.filter(
-            (_, i) => i !== existingFilterIndex,
-          );
+          newOptionFilters = currentOptionFilters.filter((_, i) => i !== existingFilterIndex);
         } else {
           // Update the values
           newOptionFilters = currentOptionFilters.map((f, i) =>
-            i === existingFilterIndex ? { ...f, values: newValues } : f,
+            i === existingFilterIndex ? { ...f, values: newValues } : f
           );
         }
       } else {
@@ -163,13 +143,8 @@ export const ProductFilterSidebar = () => {
   };
 
   // Check if a specific option value is selected
-  const isOptionValueSelected = (
-    optionName: string,
-    value: string,
-  ): boolean => {
-    const optionFilter = filter?.optionFilters?.find(
-      (f) => f.optionName === optionName,
-    );
+  const isOptionValueSelected = (optionName: string, value: string): boolean => {
+    const optionFilter = filter?.optionFilters?.find((f) => f.optionName === optionName);
     return optionFilter?.values.includes(value) ?? false;
   };
 
@@ -237,9 +212,7 @@ export const ProductFilterSidebar = () => {
   // Clear a specific option filter
   const handleClearOptionFilter = (optionName: string) => {
     const currentFilters = filter?.optionFilters ?? [];
-    const newOptionFilters = currentFilters.filter(
-      (f) => f.optionName !== optionName,
-    );
+    const newOptionFilters = currentFilters.filter((f) => f.optionName !== optionName);
 
     // Create new filter by spreading existing and updating only optionFilters
     const newFilter: Partial<StorefrontFilter> = {
@@ -249,7 +222,7 @@ export const ProductFilterSidebar = () => {
 
     // Clean up undefined values
     const cleanFilter = Object.fromEntries(
-      Object.entries(newFilter).filter(([, v]) => v !== undefined),
+      Object.entries(newFilter).filter(([, v]) => v !== undefined)
     ) as Partial<StorefrontFilter>;
 
     // Use null to clear the filter completely if no other filters remain
@@ -261,15 +234,12 @@ export const ProductFilterSidebar = () => {
 
   // Get count of selected values for an option
   const getOptionFilterCount = (optionName: string): number => {
-    const optionFilter = filter?.optionFilters?.find(
-      (f) => f.optionName === optionName,
-    );
+    const optionFilter = filter?.optionFilters?.find((f) => f.optionName === optionName);
     return optionFilter?.values.length ?? 0;
   };
 
   // Check if price filter is active
-  const isPriceFilterActive =
-    priceRange[0] !== MIN_PRICE || priceRange[1] !== MAX_PRICE;
+  const isPriceFilterActive = priceRange[0] !== MIN_PRICE || priceRange[1] !== MAX_PRICE;
 
   return (
     <FilterSidebar>
@@ -285,14 +255,10 @@ export const ProductFilterSidebar = () => {
         >
           <div className="space-y-5">
             {/* Price Display */}
-            <div className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2">
-              <span className="text-sm font-medium text-primary">
-                {formatPrice(priceRange[0])}
-              </span>
-              <span className="text-xs text-muted-foreground">to</span>
-              <span className="text-sm font-medium text-primary">
-                {formatPrice(priceRange[1])}
-              </span>
+            <div className="bg-muted/50 flex items-center justify-between rounded-lg px-3 py-2">
+              <span className="text-primary text-sm font-medium">{formatPrice(priceRange[0])}</span>
+              <span className="text-muted-foreground text-xs">to</span>
+              <span className="text-primary text-sm font-medium">{formatPrice(priceRange[1])}</span>
             </div>
 
             {/* Slider */}
@@ -312,12 +278,12 @@ export const ProductFilterSidebar = () => {
               <div className="flex-1 space-y-1.5">
                 <Label
                   htmlFor="min-price"
-                  className="text-xs text-muted-foreground"
+                  className="text-muted-foreground text-xs"
                 >
                   Min
                 </Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                  <span className="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2 text-xs">
                     $
                   </span>
                   <Input
@@ -326,22 +292,22 @@ export const ProductFilterSidebar = () => {
                     value={minInput}
                     onChange={handleMinInputChange}
                     onBlur={handleMinInputBlur}
-                    className="h-9 pl-6 pr-3 text-sm"
+                    className="h-9 pr-3 pl-6 text-sm"
                     min={MIN_PRICE}
                     max={priceRange[1] - 1}
                   />
                 </div>
               </div>
-              <div className="mt-6 h-px w-3 bg-border" />
+              <div className="bg-border mt-6 h-px w-3" />
               <div className="flex-1 space-y-1.5">
                 <Label
                   htmlFor="max-price"
-                  className="text-xs text-muted-foreground"
+                  className="text-muted-foreground text-xs"
                 >
                   Max
                 </Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                  <span className="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2 text-xs">
                     $
                   </span>
                   <Input
@@ -350,7 +316,7 @@ export const ProductFilterSidebar = () => {
                     value={maxInput}
                     onChange={handleMaxInputChange}
                     onBlur={handleMaxInputBlur}
-                    className="h-9 pl-6 pr-3 text-sm"
+                    className="h-9 pr-3 pl-6 text-sm"
                     min={priceRange[0] + 1}
                     max={MAX_PRICE}
                   />
@@ -367,20 +333,17 @@ export const ProductFilterSidebar = () => {
                 { label: "$250+", range: [250, MAX_PRICE] },
               ].map((preset) => {
                 const isActive =
-                  priceRange[0] === preset.range[0] &&
-                  priceRange[1] === preset.range[1];
+                  priceRange[0] === preset.range[0] && priceRange[1] === preset.range[1];
                 return (
                   <button
                     key={preset.label}
                     type="button"
-                    onClick={() =>
-                      handlePresetClick(preset.range[0], preset.range[1])
-                    }
+                    onClick={() => handlePresetClick(preset.range[0], preset.range[1])}
                     className={cn(
                       "rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-200",
-                      isActive
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border bg-transparent text-muted-foreground hover:border-primary/50 hover:text-foreground",
+                      isActive ?
+                        "border-primary bg-primary/10 text-primary"
+                      : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground bg-transparent"
                     )}
                   >
                     {preset.label}
@@ -407,16 +370,12 @@ export const ProductFilterSidebar = () => {
                 {option.values.map((value) => (
                   <label
                     key={value}
-                    className="flex cursor-pointer items-center gap-3 rounded-md px-1 py-1.5 transition-colors hover:bg-muted/50"
+                    className="hover:bg-muted/50 flex cursor-pointer items-center gap-3 rounded-md px-1 py-1.5 transition-colors"
                   >
                     <Checkbox
                       checked={isOptionValueSelected(option.name, value)}
                       onCheckedChange={(checked) =>
-                        handleOptionFilterChange(
-                          option.name,
-                          value,
-                          checked === true,
-                        )
+                        handleOptionFilterChange(option.name, value, checked === true)
                       }
                     />
                     <span className="text-sm">{value}</span>
@@ -474,25 +433,23 @@ function FilterSection({
     <Collapsible
       open={isOpen}
       onOpenChange={setIsOpen}
-      className="border-b border-border"
+      className="border-border border-b"
     >
-      <CollapsibleTrigger className="group flex w-full items-center justify-between py-3 transition-colors hover:text-primary">
+      <CollapsibleTrigger className="hover:text-primary group flex w-full items-center justify-between py-3 transition-colors">
         <span className="text-sm font-semibold tracking-tight">
           {title}
           {activeCount !== undefined && activeCount > 0 && (
-            <span className="ml-1.5 text-xs text-muted-foreground">
-              ({activeCount})
-            </span>
+            <span className="text-muted-foreground ml-1.5 text-xs">({activeCount})</span>
           )}
         </span>
         <ChevronDown
           className={cn(
-            "size-4 text-muted-foreground transition-transform duration-200",
-            isOpen && "rotate-180",
+            "text-muted-foreground size-4 transition-transform duration-200",
+            isOpen && "rotate-180"
           )}
         />
       </CollapsibleTrigger>
-      <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+      <CollapsibleContent className="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden">
         <div className="pb-4">
           {children}
           {onClear && (
@@ -505,9 +462,9 @@ function FilterSection({
               }}
               className={cn(
                 "mt-3 flex w-full items-center justify-center gap-1.5 rounded-md border border-dashed py-1.5 text-xs font-medium transition-colors",
-                clearDisabled
-                  ? "cursor-not-allowed border-muted text-muted-foreground/50"
-                  : "border-muted-foreground/30 text-muted-foreground hover:border-destructive/50 hover:bg-destructive/5 hover:text-destructive",
+                clearDisabled ?
+                  "border-muted text-muted-foreground/50 cursor-not-allowed"
+                : "border-muted-foreground/30 text-muted-foreground hover:border-destructive/50 hover:bg-destructive/5 hover:text-destructive"
               )}
             >
               <X className="size-3" />

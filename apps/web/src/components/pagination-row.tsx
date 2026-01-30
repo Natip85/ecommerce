@@ -1,13 +1,3 @@
-import { cn } from "../lib/utils";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
-
 import {
   Pagination,
   PaginationContent,
@@ -17,6 +7,15 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { cn } from "../lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 type PaginationData = {
   totalPages: number;
@@ -129,12 +128,7 @@ export const PaginationRow = ({
   const paginationData = getPaginationData({ total, limit, currentPage });
 
   return (
-    <div
-      className={cn(
-        "col-span-full flex items-center justify-between gap-5",
-        className,
-      )}
-    >
+    <div className={cn("col-span-full flex items-center justify-between gap-5", className)}>
       <Select
         value={limit.toString()}
         onValueChange={(value) => {
@@ -152,7 +146,10 @@ export const PaginationRow = ({
         <SelectContent>
           <SelectGroup>
             {pageSizeOptions.map((option) => (
-              <SelectItem key={option} value={option.toString()}>
+              <SelectItem
+                key={option}
+                value={option.toString()}
+              >
                 {option}
               </SelectItem>
             ))}
@@ -170,9 +167,7 @@ export const PaginationRow = ({
                       onPageChange(currentPage - 1);
                     }
                   }}
-                  className={
-                    currentPage === 1 ? "pointer-events-none opacity-50" : ""
-                  }
+                  className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
                 />
               </PaginationItem>
 
@@ -234,9 +229,9 @@ export const PaginationRow = ({
                     }
                   }}
                   className={
-                    currentPage === paginationData.totalPages
-                      ? "pointer-events-none opacity-50"
-                      : ""
+                    currentPage === paginationData.totalPages ?
+                      "pointer-events-none opacity-50"
+                    : ""
                   }
                 />
               </PaginationItem>

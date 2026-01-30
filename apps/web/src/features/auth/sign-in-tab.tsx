@@ -16,10 +16,7 @@ type SignInTabProps = {
   openForgotPassword: () => void;
 };
 
-export function SignInTab({
-  openEmailVerificationTab,
-  openForgotPassword,
-}: SignInTabProps) {
+export function SignInTab({ openEmailVerificationTab, openForgotPassword }: SignInTabProps) {
   const lastMethod = authClient.getLastUsedLoginMethod();
   const isEmailLastUsed = lastMethod === "email";
 
@@ -38,7 +35,7 @@ export function SignInTab({
             }
             toast.error(error.error.message || "Failed to sign in");
           },
-        },
+        }
       );
 
       if (res.error == null && !res.data.user.emailVerified) {
@@ -76,7 +73,10 @@ export function SignInTab({
               onChange={(e) => field.handleChange(e.target.value)}
             />
             {field.state.meta.errors.map((error) => (
-              <p key={error?.message} className="text-destructive text-sm">
+              <p
+                key={error?.message}
+                className="text-destructive text-sm"
+              >
                 {error?.message}
               </p>
             ))}
@@ -107,7 +107,10 @@ export function SignInTab({
               onChange={(e) => field.handleChange(e.target.value)}
             />
             {field.state.meta.errors.map((error) => (
-              <p key={error?.message} className="text-destructive text-sm">
+              <p
+                key={error?.message}
+                className="text-destructive text-sm"
+              >
                 {error?.message}
               </p>
             ))}

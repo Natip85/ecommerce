@@ -18,10 +18,7 @@ const themes = [
   { label: "System", value: "system" },
 ];
 
-export const ModeToggle = ({
-  className,
-  ...props
-}: React.ComponentProps<typeof Button>) => {
+export const ModeToggle = ({ className, ...props }: React.ComponentProps<typeof Button>) => {
   const { setTheme } = useTheme();
 
   return (
@@ -40,7 +37,10 @@ export const ModeToggle = ({
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         {themes.map(({ label, value }) => (
-          <DropdownMenuItem key={value} onClick={() => setTheme(value)}>
+          <DropdownMenuItem
+            key={value}
+            onClick={() => setTheme(value)}
+          >
             {label}
           </DropdownMenuItem>
         ))}

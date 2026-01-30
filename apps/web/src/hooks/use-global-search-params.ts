@@ -9,9 +9,7 @@ export const globalSearchParamsParser = {
 };
 
 export function useGlobalSearchParams() {
-  const [globalSearchParams, setGlobalSearchParams] = useQueryStates(
-    globalSearchParamsParser
-  );
+  const [globalSearchParams, setGlobalSearchParams] = useQueryStates(globalSearchParamsParser);
 
   const openGlobalSearch = () => {
     void setGlobalSearchParams((prev) => ({

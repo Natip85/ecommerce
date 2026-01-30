@@ -1,9 +1,9 @@
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 
 import { useTRPC } from "@/trpc";
 
@@ -15,7 +15,7 @@ export default function NewProductPage() {
 
   // Check for existing incomplete product
   const { data: incompleteProduct, isLoading: isChecking } = useQuery(
-    trpc.product.getIncompleteProduct.queryOptions(),
+    trpc.product.getIncompleteProduct.queryOptions()
   );
 
   // Mutation to create a new product
@@ -29,7 +29,7 @@ export default function NewProductPage() {
         // Redirect to edit page
         router.replace(`/admin/products/${product.id}`);
       },
-    }),
+    })
   );
 
   useEffect(() => {
@@ -56,13 +56,13 @@ export default function NewProductPage() {
   return (
     <div className="flex flex-1 items-center justify-center">
       <div className="flex flex-col items-center gap-4">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <p className="text-sm text-muted-foreground">
-          {isChecking
-            ? "Checking for incomplete products..."
-            : incompleteProduct
-              ? "Resuming product..."
-              : "Creating new product..."}
+        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
+        <p className="text-muted-foreground text-sm">
+          {isChecking ?
+            "Checking for incomplete products..."
+          : incompleteProduct ?
+            "Resuming product..."
+          : "Creating new product..."}
         </p>
       </div>
     </div>

@@ -2,15 +2,14 @@
 
 import { Activity, useState } from "react";
 
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmailVerification } from "./email-verification";
 import { ForgotPassword } from "./forgot-password";
 import { SignInTab } from "./sign-in-tab";
 import { SignUpTab } from "./sign-up-tab";
 import { SocialAuthButtons } from "./social-auth-buttons";
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type Tab = "signin" | "signup" | "email-verification" | "forgot-password";
 
@@ -48,7 +47,7 @@ export default function LoginPage() {
                 <Separator className="w-full" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">or</span>
+                <span className="bg-card text-muted-foreground px-2">or</span>
               </div>
             </div>
 
@@ -68,9 +67,7 @@ export default function LoginPage() {
       <TabsContent value="email-verification">
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl font-bold">
-              Verify Your Email
-            </CardTitle>
+            <CardTitle className="text-2xl font-bold">Verify Your Email</CardTitle>
           </CardHeader>
           <CardContent>
             <EmailVerification email={email} />
@@ -81,9 +78,7 @@ export default function LoginPage() {
       <TabsContent value="forgot-password">
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl font-bold">
-              Forgot Password
-            </CardTitle>
+            <CardTitle className="text-2xl font-bold">Forgot Password</CardTitle>
           </CardHeader>
           <CardContent>
             <ForgotPassword openSignInTab={() => setSelectedTab("signin")} />

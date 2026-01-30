@@ -1,8 +1,8 @@
 "use client";
 
-import { History, LogOut, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { History, LogOut, User } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -37,9 +37,7 @@ export function AdminNavUser() {
             src={session.user.image ?? undefined}
             alt={session.user.name ?? ""}
           />
-          <AvatarFallback>
-            {session.user.name?.slice(0, 2).toUpperCase() ?? "U"}
-          </AvatarFallback>
+          <AvatarFallback>{session.user.name?.slice(0, 2).toUpperCase() ?? "U"}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -54,15 +52,11 @@ export function AdminNavUser() {
                 src={session.user.image ?? undefined}
                 alt={session.user.name ?? ""}
               />
-              <AvatarFallback>
-                {session.user.name?.slice(0, 2).toUpperCase() ?? "U"}
-              </AvatarFallback>
+              <AvatarFallback>{session.user.name?.slice(0, 2).toUpperCase() ?? "U"}</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-medium">{session.user.name}</span>
-              <span className="text-muted-foreground truncate text-xs">
-                {session.user.email}
-              </span>
+              <span className="text-muted-foreground truncate text-xs">{session.user.email}</span>
             </div>
           </div>
         </DropdownMenuLabel>

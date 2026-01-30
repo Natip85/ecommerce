@@ -1,12 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import {
-  createJSONStorage,
-  devtools,
-  persist,
-  subscribeWithSelector,
-} from "zustand/middleware";
+import { createJSONStorage, devtools, persist, subscribeWithSelector } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 import { createSelectors } from "./store-utils";
@@ -89,7 +84,7 @@ export const cartStore = create<CartStore>()(
             if (existingItem) {
               // Increment quantity if item already exists
               set((state) => {
-                state.items[id]!.quantity += quantity;
+                state.items[id].quantity += quantity;
               });
               return true;
             }
@@ -125,7 +120,7 @@ export const cartStore = create<CartStore>()(
             }
 
             set((state) => {
-              state.items[itemId]!.quantity = quantity;
+              state.items[itemId].quantity = quantity;
             });
             return true;
           },
@@ -135,7 +130,7 @@ export const cartStore = create<CartStore>()(
             if (!item) return false;
 
             set((state) => {
-              state.items[itemId]!.quantity += 1;
+              state.items[itemId].quantity += 1;
             });
             return true;
           },
@@ -149,7 +144,7 @@ export const cartStore = create<CartStore>()(
             }
 
             set((state) => {
-              state.items[itemId]!.quantity -= 1;
+              state.items[itemId].quantity -= 1;
             });
             return true;
           },
@@ -170,9 +165,7 @@ export const cartStore = create<CartStore>()(
           },
 
           getAllItems: () => {
-            return Object.values(get().items).sort(
-              (a, b) => a.addedAt - b.addedAt
-            );
+            return Object.values(get().items).sort((a, b) => a.addedAt - b.addedAt);
           },
 
           getItemCount: () => {
@@ -180,10 +173,7 @@ export const cartStore = create<CartStore>()(
           },
 
           getTotalQuantity: () => {
-            return Object.values(get().items).reduce(
-              (total, item) => total + item.quantity,
-              0
-            );
+            return Object.values(get().items).reduce((total, item) => total + item.quantity, 0);
           },
 
           getSubtotal: () => {
@@ -196,9 +186,7 @@ export const cartStore = create<CartStore>()(
           getSavings: () => {
             return Object.values(get().items).reduce((total, item) => {
               if (item.compareAtPrice && item.compareAtPrice > item.price) {
-                return (
-                  total + (item.compareAtPrice - item.price) * item.quantity
-                );
+                return total + (item.compareAtPrice - item.price) * item.quantity;
               }
               return total;
             }, 0);

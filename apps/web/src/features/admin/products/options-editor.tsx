@@ -1,19 +1,13 @@
 "use client";
 
-import { Plus, X, GripVertical } from "lucide-react";
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
+import { GripVertical, Plus, X } from "lucide-react";
 
+import type { ProductOption } from "@/validation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { type ProductOption } from "@/validation";
 
 type OptionsEditorProps = {
   options: ProductOption[];
@@ -21,11 +15,7 @@ type OptionsEditorProps = {
   disabled?: boolean;
 };
 
-export function OptionsEditor({
-  options,
-  onChange,
-  disabled = false,
-}: OptionsEditorProps) {
+export function OptionsEditor({ options, onChange, disabled = false }: OptionsEditorProps) {
   const [newOptionName, setNewOptionName] = useState("");
   const [editingValueIndex, setEditingValueIndex] = useState<{
     optionIndex: number;
@@ -37,11 +27,7 @@ export function OptionsEditor({
     if (!newOptionName.trim()) return;
 
     // Check for duplicate option names
-    if (
-      options.some(
-        (o) => o.name.toLowerCase() === newOptionName.toLowerCase().trim(),
-      )
-    ) {
+    if (options.some((o) => o.name.toLowerCase() === newOptionName.toLowerCase().trim())) {
       return;
     }
 
@@ -59,7 +45,7 @@ export function OptionsEditor({
     (index: number) => {
       onChange(options.filter((_, i) => i !== index));
     },
-    [options, onChange],
+    [options, onChange]
   );
 
   const updateOptionName = useCallback(
@@ -68,7 +54,7 @@ export function OptionsEditor({
       updated[index] = { ...updated[index], name };
       onChange(updated);
     },
-    [options, onChange],
+    [options, onChange]
   );
 
   const addValue = useCallback(
@@ -77,11 +63,7 @@ export function OptionsEditor({
 
       const option = options[optionIndex];
       // Check for duplicate values
-      if (
-        option.values.some(
-          (v) => v.toLowerCase() === value.toLowerCase().trim(),
-        )
-      ) {
+      if (option.values.some((v) => v.toLowerCase() === value.toLowerCase().trim())) {
         return;
       }
 
@@ -92,7 +74,7 @@ export function OptionsEditor({
       };
       onChange(updated);
     },
-    [options, onChange],
+    [options, onChange]
   );
 
   const removeValue = useCallback(
@@ -104,7 +86,7 @@ export function OptionsEditor({
       };
       onChange(updated);
     },
-    [options, onChange],
+    [options, onChange]
   );
 
   const handleValueKeyDown = useCallback(
@@ -119,26 +101,24 @@ export function OptionsEditor({
         setEditingValueIndex(null);
       }
     },
-    [addValue, newValueText],
+    [addValue, newValueText]
   );
 
   return (
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-base">Options</CardTitle>
-        <CardDescription>
-          Add options like Size or Color to create variants
-        </CardDescription>
+        <CardDescription>Add options like Size or Color to create variants</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Existing Options */}
         {options.map((option, optionIndex) => (
           <div
             key={optionIndex}
-            className="rounded-md border bg-muted/30 p-3 space-y-3"
+            className="bg-muted/30 space-y-3 rounded-md border p-3"
           >
             <div className="flex items-center gap-2">
-              <GripVertical className="h-4 w-4 text-muted-foreground cursor-grab" />
+              <GripVertical className="text-muted-foreground h-4 w-4 cursor-grab" />
               <Input
                 value={option.name}
                 onChange={(e) => updateOptionName(optionIndex, e.target.value)}
@@ -150,7 +130,7 @@ export function OptionsEditor({
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                className="text-muted-foreground hover:text-destructive h-8 w-8"
                 onClick={() => removeOption(optionIndex)}
                 disabled={disabled}
               >
@@ -170,7 +150,7 @@ export function OptionsEditor({
                   <button
                     type="button"
                     onClick={() => removeValue(optionIndex, valueIndex)}
-                    className="ml-1 rounded-sm hover:bg-muted-foreground/20 p-0.5"
+                    className="hover:bg-muted-foreground/20 ml-1 rounded-sm p-0.5"
                     disabled={disabled}
                   >
                     <X className="h-3 w-3" />
@@ -179,8 +159,10 @@ export function OptionsEditor({
               ))}
 
               {/* Add Value Input */}
-              {editingValueIndex?.optionIndex === optionIndex &&
-              editingValueIndex?.valueIndex === "new" ? (
+              {(
+                editingValueIndex?.optionIndex === optionIndex &&
+                editingValueIndex?.valueIndex === "new"
+              ) ?
                 <Input
                   autoFocus
                   value={newValueText}
@@ -197,22 +179,21 @@ export function OptionsEditor({
                   className="h-6 w-24 text-xs"
                   disabled={disabled}
                 />
-              ) : (
-                <Button
+              : <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="h-6 px-2 text-xs text-muted-foreground"
+                  className="text-muted-foreground h-6 px-2 text-xs"
                   onClick={() => {
                     setEditingValueIndex({ optionIndex, valueIndex: "new" });
                     setNewValueText("");
                   }}
                   disabled={disabled}
                 >
-                  <Plus className="h-3 w-3 mr-1" />
+                  <Plus className="mr-1 h-3 w-3" />
                   Add value
                 </Button>
-              )}
+              }
             </div>
           </div>
         ))}
@@ -238,13 +219,13 @@ export function OptionsEditor({
             onClick={addOption}
             disabled={disabled || !newOptionName.trim()}
           >
-            <Plus className="h-4 w-4 mr-1" />
+            <Plus className="mr-1 h-4 w-4" />
             Add
           </Button>
         </div>
 
         {options.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-2">
+          <p className="text-muted-foreground py-2 text-center text-sm">
             No options defined. Add options to create product variants.
           </p>
         )}

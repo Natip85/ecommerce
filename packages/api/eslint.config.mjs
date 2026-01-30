@@ -1,13 +1,4 @@
-import { baseConfig, ignoresConfig } from "@ecommerce/config/eslint/base";
+import baseConfig from "@ecommerce/eslint-config/base";
 
-/** @type {import("eslint").Linter.Config[]} */
-export default [
-  ...ignoresConfig,
-  ...baseConfig,
-  {
-    files: ["**/*.ts"],
-    rules: {
-      // Add any package-specific overrides here
-    },
-  },
-];
+/** @type {import('typescript-eslint').Config} */
+export default [...baseConfig];

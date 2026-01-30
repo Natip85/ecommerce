@@ -1,9 +1,4 @@
-import {
-  createLoader,
-  parseAsInteger,
-  parseAsJson,
-  parseAsString,
-} from "nuqs/server";
+import { createLoader, parseAsInteger, parseAsJson, parseAsString } from "nuqs/server";
 import { z } from "zod/v4";
 
 import { collectionFilterSchema, defaultCollectionFilter } from "@/validation/collection";
@@ -22,11 +17,9 @@ export const adminCollectionSearchParamsParser = {
   sort: parseAsJson((value) => sortSchema.parse(value)).withDefault([
     { field: "createdAt", direction: "desc" as const },
   ]),
-  filter: parseAsJson((value) =>
-    collectionFilterSchema.optional().parse(value)
-  ).withDefault(defaultCollectionFilter),
+  filter: parseAsJson((value) => collectionFilterSchema.optional().parse(value)).withDefault(
+    defaultCollectionFilter
+  ),
 };
 
-export const loadAdminCollectionSearchParams = createLoader(
-  adminCollectionSearchParamsParser
-);
+export const loadAdminCollectionSearchParams = createLoader(adminCollectionSearchParamsParser);

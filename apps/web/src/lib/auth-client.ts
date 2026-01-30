@@ -1,22 +1,22 @@
 import {
- adminClient,
- inferAdditionalFields,
- lastLoginMethodClient,
- twoFactorClient,
+  adminClient,
+  inferAdditionalFields,
+  lastLoginMethodClient,
+  twoFactorClient,
 } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 
 import type { auth } from "@ecommerce/auth";
 
 export const authClient = createAuthClient({
- plugins: [
-  inferAdditionalFields<typeof auth>(),
-  twoFactorClient({
-   onTwoFactorRedirect: () => {
-    window.location.href = "/2fa";
-   },
-  }),
-  adminClient(),
-  lastLoginMethodClient(),
- ],
+  plugins: [
+    inferAdditionalFields<typeof auth>(),
+    twoFactorClient({
+      onTwoFactorRedirect: () => {
+        window.location.href = "/2fa";
+      },
+    }),
+    adminClient(),
+    lastLoginMethodClient(),
+  ],
 });

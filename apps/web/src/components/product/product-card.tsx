@@ -1,34 +1,24 @@
 "use client";
 
-import {
-  Heart,
-  ShoppingCart,
-  Star,
-  Eye,
-  Check,
-  Plus,
-  Minus,
-} from "lucide-react";
+import type { Route } from "next";
+import { createContext, useContext, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { createContext, useContext, useState, useRef } from "react";
-
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
+import { Check, Eye, Heart, Minus, Plus, ShoppingCart, Star } from "lucide-react";
 
 import type { RouterOutputs } from "@ecommerce/api";
-import type { Route } from "next";
 
 import { FlyingCartIcon } from "@/hooks/use-add-to-cart-animation";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/store";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
 
 // =============================================================================
 // TYPES
 // =============================================================================
 
-export type ProductCardData =
-  RouterOutputs["product"]["storefront"]["items"][number];
+export type ProductCardData = RouterOutputs["product"]["storefront"]["items"][number];
 
 type ProductCardContextType = {
   productId?: string;
@@ -83,9 +73,9 @@ export const ProductCard = ({
   const cardContent = (
     <div
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card transition-all duration-300 hover:shadow-xl hover:shadow-foreground/5",
+        "border-border bg-card hover:shadow-foreground/5 group relative flex h-full flex-col overflow-hidden rounded-xl border transition-all duration-300 hover:shadow-xl",
         (href || onClick) && "cursor-pointer",
-        className,
+        className
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -94,9 +84,9 @@ export const ProductCard = ({
       {children}
 
       {/* Bottom Progress Bar */}
-      <div className="h-1 w-full bg-muted">
+      <div className="bg-muted h-1 w-full">
         <div
-          className="h-full bg-linear-to-r from-primary to-primary/60 transition-all duration-500"
+          className="from-primary to-primary/60 h-full bg-linear-to-r transition-all duration-500"
           style={{ width: isHovered ? "100%" : "0%" }}
         />
       </div>
@@ -114,7 +104,9 @@ export const ProductCard = ({
         setIsWishlisted,
       }}
     >
-      {href ? <Link href={href}>{cardContent}</Link> : cardContent}
+      {href ?
+        <Link href={href}>{cardContent}</Link>
+      : cardContent}
     </ProductCardContext.Provider>
   );
 };
@@ -144,15 +136,14 @@ export const ProductCardImage = ({
   onAddToCart,
   onWishlist,
 }: ProductCardImageProps) => {
-  const { isHovered, isWishlisted, setIsWishlisted, productId, variantId } =
-    useProductCard();
+  const { isHovered, isWishlisted, setIsWishlisted, productId, variantId } = useProductCard();
   const [isAnimating, setIsAnimating] = useState(false);
   const [animationStartPos, setAnimationStartPos] = useState({ x: 0, y: 0 });
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   // Check if item is in cart
   const isInCart = useCartStore((state) =>
-    productId ? state.isInCart(productId, variantId) : false,
+    productId ? state.isInCart(productId, variantId) : false
   );
 
   const handleWishlist = (e: React.MouseEvent) => {
@@ -186,22 +177,19 @@ export const ProductCardImage = ({
   };
 
   return (
-    <div className="relative aspect-square overflow-hidden bg-muted">
+    <div className="bg-muted relative aspect-square overflow-hidden">
       <Image
         src={src || "/placeholder.svg"}
         alt={alt}
         fill
-        className={cn(
-          "object-cover transition-transform duration-500",
-          isHovered && "scale-110",
-        )}
+        className={cn("object-cover transition-transform duration-500", isHovered && "scale-110")}
       />
 
       {/* Overlay Actions */}
       <div
         className={cn(
-          "absolute inset-0 flex items-center justify-center gap-2 bg-foreground/10 opacity-0 backdrop-blur-xs transition-opacity duration-300",
-          isHovered && "opacity-100",
+          "bg-foreground/10 absolute inset-0 flex items-center justify-center gap-2 opacity-0 backdrop-blur-xs transition-opacity duration-300",
+          isHovered && "opacity-100"
         )}
       >
         <Button
@@ -223,16 +211,14 @@ export const ProductCardImage = ({
           variant={isInCart ? "default" : "secondary"}
           className={cn(
             "h-10 w-10 rounded-full shadow-lg transition-all hover:scale-110 disabled:opacity-100",
-            isInCart && "bg-primary hover:bg-primary/50",
+            isInCart && "bg-primary hover:bg-primary/50"
           )}
           onClick={handleAddToCart}
           disabled={!inStock || isInCart}
         >
-          {isInCart ? (
+          {isInCart ?
             <Check className="h-4 w-4" />
-          ) : (
-            <ShoppingCart className="h-4 w-4" />
-          )}
+          : <ShoppingCart className="h-4 w-4" />}
         </Button>
       </div>
 
@@ -248,31 +234,29 @@ export const ProductCardImage = ({
       <button
         onClick={handleWishlist}
         className={cn(
-          "absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-background/90 shadow-md backdrop-blur-sm transition-all duration-200 hover:scale-110",
-          isWishlisted && "bg-red-50 text-red-500 dark:bg-red-950",
+          "bg-background/90 absolute top-3 right-3 flex h-9 w-9 items-center justify-center rounded-full shadow-md backdrop-blur-sm transition-all duration-200 hover:scale-110",
+          isWishlisted && "bg-red-50 text-red-500 dark:bg-red-950"
         )}
       >
         <Heart className={cn("h-4 w-4", isWishlisted && "fill-current")} />
       </button>
 
       {/* Badges */}
-      <div className="absolute left-3 top-3 flex flex-col gap-1.5">
+      <div className="absolute top-3 left-3 flex flex-col gap-1.5">
         {badge && (
-          <Badge className="rounded-md bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground">
+          <Badge className="bg-primary text-primary-foreground rounded-md px-2 py-0.5 text-xs font-medium">
             {badge}
           </Badge>
         )}
         {!!discount && discount > 0 && (
-          <Badge className="rounded-md  px-2 py-0.5 text-xs font-medium ">
-            -{discount}%
-          </Badge>
+          <Badge className="rounded-md px-2 py-0.5 text-xs font-medium">-{discount}%</Badge>
         )}
       </div>
 
       {/* Out of Stock Overlay */}
       {!inStock && (
-        <div className="absolute inset-0 flex items-center justify-center bg-background/80">
-          <span className="rounded-full bg-muted px-4 py-2 text-sm font-medium text-muted-foreground">
+        <div className="bg-background/80 absolute inset-0 flex items-center justify-center">
+          <span className="bg-muted text-muted-foreground rounded-full px-4 py-2 text-sm font-medium">
             Out of Stock
           </span>
         </div>
@@ -310,28 +294,24 @@ export const ProductCardContent = ({
               key={i}
               className={cn(
                 "h-3.5 w-3.5",
-                i < Math.floor(rating)
-                  ? "fill-amber-400 text-amber-400"
-                  : i < rating
-                    ? "fill-amber-400/50 text-amber-400"
-                    : "fill-muted text-muted",
+                i < Math.floor(rating) ? "fill-amber-400 text-amber-400"
+                : i < rating ? "fill-amber-400/50 text-amber-400"
+                : "fill-muted text-muted"
               )}
             />
           ))}
         </div>
-        <span className="text-xs text-muted-foreground">
-          ({reviewCount.toLocaleString()})
-        </span>
+        <span className="text-muted-foreground text-xs">({reviewCount.toLocaleString()})</span>
       </div>
 
       {/* Title */}
-      <h3 className="mb-1 line-clamp-2 text-balance text-sm font-semibold leading-tight text-foreground transition-colors group-hover:text-primary">
+      <h3 className="text-foreground group-hover:text-primary mb-1 line-clamp-2 text-sm leading-tight font-semibold text-balance transition-colors">
         {title}
       </h3>
 
       {/* Description */}
       {description && (
-        <p className="mb-3 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+        <p className="text-muted-foreground mb-3 line-clamp-2 text-xs leading-relaxed">
           {description}
         </p>
       )}
@@ -391,13 +371,11 @@ const CartQuantityControl = ({
       >
         <Minus className="h-3 w-3" />
       </Button>
-      <span className="min-w-6 text-center text-xs font-semibold ">
-        {quantity}
-      </span>
+      <span className="min-w-6 text-center text-xs font-semibold">{quantity}</span>
       <Button
         size="icon"
         variant="ghost"
-        className="h-6 w-6 rounded-full "
+        className="h-6 w-6 rounded-full"
         onClick={handleIncrement}
       >
         <Plus className="h-3 w-3" />
@@ -421,15 +399,13 @@ export const ProductCardFooter = ({
   const cartItemId = productId ? getCartItemId(productId, variantId) : null;
 
   // Get cart item info
-  const cartItem = useCartStore((state) =>
-    cartItemId ? state.getItem(cartItemId) : undefined,
-  );
+  const cartItem = useCartStore((state) => (cartItemId ? state.getItem(cartItemId) : undefined));
   const isInCart = Boolean(cartItem);
 
   const discount =
-    compareAtPrice && compareAtPrice > price
-      ? Math.round(((compareAtPrice - price) / compareAtPrice) * 100)
-      : 0;
+    compareAtPrice && compareAtPrice > price ?
+      Math.round(((compareAtPrice - price) / compareAtPrice) * 100)
+    : 0;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -460,19 +436,12 @@ export const ProductCardFooter = ({
   };
 
   return (
-    <div
-      className={cn(
-        "flex gap-2 items-end justify-between px-4 pb-4",
-        className,
-      )}
-    >
+    <div className={cn("flex items-end justify-between gap-2 px-4 pb-4", className)}>
       <div className="flex flex-col">
         <div className="flex items-baseline gap-2">
-          <span className="text-lg font-bold text-foreground">
-            ${price.toFixed(2)}
-          </span>
+          <span className="text-foreground text-lg font-bold">${price.toFixed(2)}</span>
           {compareAtPrice && compareAtPrice > price && (
-            <span className="text-sm text-muted-foreground line-through">
+            <span className="text-muted-foreground text-sm line-through">
               ${compareAtPrice.toFixed(2)}
             </span>
           )}
@@ -486,23 +455,22 @@ export const ProductCardFooter = ({
 
       {/* Cart controls */}
       <div ref={containerRef}>
-        {isInCart && cartItemId && cartItem ? (
+        {isInCart && cartItemId && cartItem ?
           <CartQuantityControl
             itemId={cartItemId}
             quantity={cartItem.quantity}
             onIncrement={triggerFlyAnimation}
           />
-        ) : (
-          <Button
+        : <Button
             size="sm"
-            className="h-8 gap-1.5 rounded-full border-primary/20 bg-transparent px-3 text-xs font-medium text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+            className="border-primary/20 text-primary hover:bg-primary hover:text-primary-foreground h-8 gap-1.5 rounded-full bg-transparent px-3 text-xs font-medium transition-colors"
             onClick={handleAddToCart}
             disabled={!inStock}
           >
             <ShoppingCart className="h-3.5 w-3.5" />
             Add
           </Button>
-        )}
+        }
       </div>
 
       {/* Flying animation */}
@@ -535,9 +503,6 @@ export const isInStock = (variant?: {
   if (!variant) return true;
   const inventoryQuantity = variant.inventoryQuantity ?? 0;
   const inventoryTracked = variant.inventoryTracked ?? true;
-  const continueSellingWhenOutOfStock =
-    variant.continueSellingWhenOutOfStock ?? false;
-  return (
-    !inventoryTracked || inventoryQuantity > 0 || continueSellingWhenOutOfStock
-  );
+  const continueSellingWhenOutOfStock = variant.continueSellingWhenOutOfStock ?? false;
+  return !inventoryTracked || inventoryQuantity > 0 || continueSellingWhenOutOfStock;
 };

@@ -1,8 +1,8 @@
 "use client";
 
-import { Loader2, LogOut, User, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ChevronRight, Loader2, LogOut, User } from "lucide-react";
 
 import { ModeToggle } from "@/components/mode-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -29,8 +29,7 @@ export const AdminNavUser = () => {
   const { isMobile } = useSidebar();
   const { data: session, isPending } = authClient.useSession();
 
-  const initials =
-    (session?.user?.name?.[0] ?? "") + (session?.user?.name?.[1] ?? "");
+  const initials = (session?.user?.name?.[0] ?? "") + (session?.user?.name?.[1] ?? "");
 
   return (
     <SidebarMenu>
@@ -47,17 +46,13 @@ export const AdminNavUser = () => {
                   alt={session?.user?.name ?? ""}
                 />
                 <AvatarFallback className="bg-background rounded-full border-2">
-                  {isPending ? (
+                  {isPending ?
                     <Loader2 className="size-4 animate-spin" />
-                  ) : (
-                    initials
-                  )}
+                  : initials}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">
-                  {session?.user?.name}
-                </span>
+                <span className="truncate font-semibold">{session?.user?.name}</span>
                 <span className="truncate text-xs">{session?.user?.email}</span>
               </div>
               <ChevronRight className="ml-auto size-6!" />
@@ -82,9 +77,7 @@ export const AdminNavUser = () => {
                   <span className="truncate font-semibold">
                     {session?.user?.name} {session?.user?.name}
                   </span>
-                  <span className="truncate text-xs">
-                    {session?.user?.email}
-                  </span>
+                  <span className="truncate text-xs">{session?.user?.email}</span>
                 </div>
                 <ModeToggle />
               </div>

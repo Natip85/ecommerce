@@ -2,10 +2,8 @@
 
 import { toast } from "sonner";
 
-import {
-  UploadDropzone,
-  type ProductImageUploadResponse,
-} from "@/lib/uploadthing";
+import type { ProductImageUploadResponse } from "@/lib/uploadthing";
+import { UploadDropzone } from "@/lib/uploadthing";
 
 type Props = {
   productId: string;
@@ -22,9 +20,9 @@ export function ProductImageUpload({ productId, onImagesUploaded }: Props) {
       onClientUploadComplete={(res) => {
         onImagesUploaded(res as ProductImageUploadResponse);
         toast.success(
-          res.length === 1
-            ? "Image uploaded successfully"
-            : `${res.length} images uploaded successfully`,
+          res.length === 1 ?
+            "Image uploaded successfully"
+          : `${res.length} images uploaded successfully`
         );
       }}
       onUploadError={(error: Error) => {

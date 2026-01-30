@@ -1,21 +1,14 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import {
-  Tag,
-  TrendingUp,
-  ChevronRight,
-  LayoutGrid,
-  Folder,
-} from "lucide-react";
-
-import { useProductListSearchParams } from "./search-params";
+import { ChevronRight, Folder, LayoutGrid, Tag, TrendingUp } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useTRPC } from "@/trpc";
+import { useProductListSearchParams } from "./search-params";
 
 type QuickLink = {
   label: string;
@@ -44,18 +37,19 @@ export function ShopSidebar() {
   const { searchParams, setSearchParams } = useProductListSearchParams();
 
   const { data: collections, isLoading: collectionsLoading } = useQuery(
-    trpc.product.storefrontCollections.queryOptions(),
+    trpc.product.storefrontCollections.queryOptions()
   );
 
   const { data: tags, isLoading: tagsLoading } = useQuery(
-    trpc.product.storefrontTags.queryOptions(),
+    trpc.product.storefrontTags.queryOptions()
   );
 
   const handleCollectionClick = (collectionId: string) => {
     const currentCollections = searchParams.filter?.collectionIds ?? [];
     const isSelected = currentCollections.includes(collectionId);
-    const newCollections = isSelected
-      ? currentCollections.filter((id) => id !== collectionId)
+    const newCollections =
+      isSelected ?
+        currentCollections.filter((id) => id !== collectionId)
       : [...currentCollections, collectionId];
 
     const newFilter = {
@@ -65,7 +59,7 @@ export function ShopSidebar() {
 
     // Clean up undefined values
     const cleanFilter = Object.fromEntries(
-      Object.entries(newFilter).filter(([, v]) => v !== undefined),
+      Object.entries(newFilter).filter(([, v]) => v !== undefined)
     );
 
     void setSearchParams({
@@ -77,9 +71,8 @@ export function ShopSidebar() {
   const handleTagClick = (tagValue: string) => {
     const currentTags = searchParams.filter?.tags ?? [];
     const isSelected = currentTags.includes(tagValue);
-    const newTags = isSelected
-      ? currentTags.filter((t) => t !== tagValue)
-      : [...currentTags, tagValue];
+    const newTags =
+      isSelected ? currentTags.filter((t) => t !== tagValue) : [...currentTags, tagValue];
 
     const newFilter = {
       ...searchParams.filter,
@@ -88,7 +81,7 @@ export function ShopSidebar() {
 
     // Clean up undefined values
     const cleanFilter = Object.fromEntries(
-      Object.entries(newFilter).filter(([, v]) => v !== undefined),
+      Object.entries(newFilter).filter(([, v]) => v !== undefined)
     );
 
     void setSearchParams({
@@ -152,25 +145,24 @@ export function ShopSidebar() {
     searchParams.filter?.onSale;
 
   return (
-    <aside className="w-44 shrink-0 hidden md:block">
+    <aside className="hidden w-44 shrink-0 md:block">
       <div className="sticky top-20 space-y-6">
         {/* Shop by section */}
         <div>
-          <div className="flex items-center gap-2 mb-3">
-            <LayoutGrid className="size-4 text-muted-foreground" />
+          <div className="mb-3 flex items-center gap-2">
+            <LayoutGrid className="text-muted-foreground size-4" />
             <h3 className="text-lg font-semibold tracking-tight">Shop by</h3>
           </div>
           <nav className="space-y-1">
             {quickLinks.map((link) => {
               const Icon = link.icon;
               const isActive =
-                link.filter.onSale === true
-                  ? searchParams.filter?.onSale === true
-                  : link.filter.tags
-                    ? (link.filter.tags as string[]).every((t) =>
-                        searchParams.filter?.tags?.includes(t),
-                      )
-                    : false;
+                link.filter.onSale === true ? searchParams.filter?.onSale === true
+                : link.filter.tags ?
+                  (link.filter.tags as string[]).every((t) =>
+                    searchParams.filter?.tags?.includes(t)
+                  )
+                : false;
 
               return (
                 <button
@@ -178,25 +170,25 @@ export function ShopSidebar() {
                   onClick={() => handleQuickLinkClick(link.filter)}
                   className={cn(
                     "group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all",
-                    isActive
-                      ? "bg-primary/10 text-primary font-medium"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                    isActive ?
+                      "bg-primary/10 text-primary font-medium"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   )}
                 >
                   <Icon
                     className={cn(
                       "size-4 transition-colors",
-                      isActive
-                        ? "text-primary"
-                        : "text-muted-foreground group-hover:text-foreground",
+                      isActive ? "text-primary" : (
+                        "text-muted-foreground group-hover:text-foreground"
+                      )
                     )}
                   />
                   <span className="flex-1 text-left">{link.label}</span>
                   <ChevronRight
                     className={cn(
-                      "size-3.5 opacity-0 -translate-x-1 transition-all",
-                      "group-hover:opacity-100 group-hover:translate-x-0",
-                      isActive && "opacity-100 translate-x-0",
+                      "size-3.5 -translate-x-1 opacity-0 transition-all",
+                      "group-hover:translate-x-0 group-hover:opacity-100",
+                      isActive && "translate-x-0 opacity-100"
                     )}
                   />
                 </button>
@@ -209,37 +201,33 @@ export function ShopSidebar() {
 
         {/* Collections */}
         <div>
-          <div className="flex items-center gap-2 mb-3">
-            <Folder className="size-4 text-muted-foreground" />
-            <h3 className="text-lg font-semibold tracking-tight">
-              Collections
-            </h3>
+          <div className="mb-3 flex items-center gap-2">
+            <Folder className="text-muted-foreground size-4" />
+            <h3 className="text-lg font-semibold tracking-tight">Collections</h3>
           </div>
           <nav className="space-y-1">
-            {collectionsLoading ? (
+            {collectionsLoading ?
               <CollectionsSkeleton />
-            ) : collections && collections.length > 0 ? (
+            : collections && collections.length > 0 ?
               collections.map((collection) => (
                 <button
                   key={collection.id}
                   onClick={() => handleCollectionClick(collection.id)}
                   className={cn(
                     "group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all",
-                    isCollectionSelected(collection.id)
-                      ? "bg-primary/10 text-primary font-medium"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                    isCollectionSelected(collection.id) ?
+                      "bg-primary/10 text-primary font-medium"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   )}
                 >
-                  <span className="flex-1 text-left truncate">
-                    {collection.title}
-                  </span>
+                  <span className="flex-1 truncate text-left">{collection.title}</span>
                   {collection.productCount > 0 && (
                     <span
                       className={cn(
                         "text-xs tabular-nums",
-                        isCollectionSelected(collection.id)
-                          ? "text-primary/70"
-                          : "text-muted-foreground/60",
+                        isCollectionSelected(collection.id) ? "text-primary/70" : (
+                          "text-muted-foreground/60"
+                        )
                       )}
                     >
                       {collection.productCount}
@@ -247,11 +235,7 @@ export function ShopSidebar() {
                   )}
                 </button>
               ))
-            ) : (
-              <p className="text-xs text-muted-foreground px-3 py-2">
-                No collections yet
-              </p>
-            )}
+            : <p className="text-muted-foreground px-3 py-2 text-xs">No collections yet</p>}
           </nav>
         </div>
 
@@ -260,31 +244,28 @@ export function ShopSidebar() {
           <>
             <Separator />
             <div>
-              <div className="flex items-center gap-2 mb-3">
-                <Tag className="size-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold tracking-tight">
-                  Popular Tags
-                </h3>
+              <div className="mb-3 flex items-center gap-2">
+                <Tag className="text-muted-foreground size-4" />
+                <h3 className="text-lg font-semibold tracking-tight">Popular Tags</h3>
               </div>
               <div className="flex flex-wrap gap-1.5">
-                {tagsLoading ? (
+                {tagsLoading ?
                   <TagsSkeleton />
-                ) : (
-                  tags.slice(0, 10).map((tag) => (
+                : tags.slice(0, 10).map((tag) => (
                     <button
                       key={tag.id}
                       onClick={() => handleTagClick(tag.value)}
                       className={cn(
                         "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium transition-all",
-                        isTagSelected(tag.value)
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground",
+                        isTagSelected(tag.value) ?
+                          "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
                       )}
                     >
                       {tag.value}
                     </button>
                   ))
-                )}
+                }
               </div>
             </div>
           </>
@@ -292,9 +273,12 @@ export function ShopSidebar() {
 
         {/* Clear filters button */}
         {hasActiveFilters && (
-          <div className=" flex items-center gap-2 flex-col">
+          <div className="flex flex-col items-center gap-2">
             <Separator />
-            <Button onClick={handleClearAll} className="w-full">
+            <Button
+              onClick={handleClearAll}
+              className="w-full"
+            >
               Clear all filters
             </Button>
           </div>
@@ -308,7 +292,10 @@ function CollectionsSkeleton() {
   return (
     <div className="space-y-1">
       {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="flex items-center gap-3 px-3 py-2">
+        <div
+          key={i}
+          className="flex items-center gap-3 px-3 py-2"
+        >
           <Skeleton className="h-4 flex-1" />
           <Skeleton className="h-4 w-6" />
         </div>
@@ -321,7 +308,10 @@ function TagsSkeleton() {
   return (
     <>
       {[1, 2, 3, 4, 5].map((i) => (
-        <Skeleton key={i} className="h-6 w-16 rounded-full" />
+        <Skeleton
+          key={i}
+          className="h-6 w-16 rounded-full"
+        />
       ))}
     </>
   );

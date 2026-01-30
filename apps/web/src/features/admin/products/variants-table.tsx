@@ -2,13 +2,8 @@
 
 import { useCallback } from "react";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import type { ProductOption, ProductVariant } from "@/validation";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -18,11 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  type ProductOption,
-  type ProductVariant,
-  getVariantTitle,
-} from "@/validation";
+import { getVariantTitle } from "@/validation";
 
 type VariantsTableProps = {
   options: ProductOption[];
@@ -43,14 +34,14 @@ export function VariantsTable({
       updated[index] = { ...updated[index], [field]: value };
       onChange(updated);
     },
-    [variants, onChange],
+    [variants, onChange]
   );
 
   const applyToAll = useCallback(
     (field: "price" | "compareAtPrice" | "quantity", value: string) => {
       onChange(variants.map((v) => ({ ...v, [field]: value })));
     },
-    [variants, onChange],
+    [variants, onChange]
   );
 
   // Get unique option names for column headers
@@ -61,8 +52,7 @@ export function VariantsTable({
     return null;
   }
 
-  const hasOptions =
-    options.length > 0 && options.some((o) => o.values.length > 0);
+  const hasOptions = options.length > 0 && options.some((o) => o.values.length > 0);
 
   if (!hasOptions) {
     return null;
@@ -73,8 +63,7 @@ export function VariantsTable({
       <CardHeader className="pb-3">
         <CardTitle className="text-base">Variants</CardTitle>
         <CardDescription>
-          {variants.length} variant{variants.length !== 1 ? "s" : ""} generated
-          from your options
+          {variants.length} variant{variants.length !== 1 ? "s" : ""} generated from your options
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -82,7 +71,10 @@ export function VariantsTable({
           <TableHeader>
             <TableRow>
               {optionNames.map((name) => (
-                <TableHead key={name} className="font-medium">
+                <TableHead
+                  key={name}
+                  className="font-medium"
+                >
                   {name}
                 </TableHead>
               ))}
@@ -92,7 +84,7 @@ export function VariantsTable({
                   {variants.length > 1 && (
                     <button
                       type="button"
-                      className="text-xs text-muted-foreground hover:text-foreground underline"
+                      className="text-muted-foreground hover:text-foreground text-xs underline"
                       onClick={() => {
                         const firstPrice = variants[0]?.price;
                         if (firstPrice) applyToAll("price", firstPrice);
@@ -110,11 +102,10 @@ export function VariantsTable({
                   {variants.length > 1 && (
                     <button
                       type="button"
-                      className="text-xs text-muted-foreground hover:text-foreground underline"
+                      className="text-muted-foreground hover:text-foreground text-xs underline"
                       onClick={() => {
                         const firstCompareAt = variants[0]?.compareAtPrice;
-                        if (firstCompareAt)
-                          applyToAll("compareAtPrice", firstCompareAt);
+                        if (firstCompareAt) applyToAll("compareAtPrice", firstCompareAt);
                       }}
                       disabled={disabled}
                     >
@@ -130,7 +121,7 @@ export function VariantsTable({
                   {variants.length > 1 && (
                     <button
                       type="button"
-                      className="text-xs text-muted-foreground hover:text-foreground underline"
+                      className="text-muted-foreground hover:text-foreground text-xs underline"
                       onClick={() => {
                         const firstQty = variants[0]?.quantity;
                         if (firstQty) applyToAll("quantity", firstQty);
@@ -148,40 +139,39 @@ export function VariantsTable({
             {variants.map((variant, index) => (
               <TableRow key={index}>
                 {optionNames.map((name) => (
-                  <TableCell key={name} className="font-medium">
+                  <TableCell
+                    key={name}
+                    className="font-medium"
+                  >
                     {variant.optionValues[name] || "-"}
                   </TableCell>
                 ))}
                 <TableCell>
                   <div className="relative">
-                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">
+                    <span className="text-muted-foreground absolute top-1/2 left-2 -translate-y-1/2 text-xs">
                       $
                     </span>
                     <Input
                       type="text"
                       value={variant.price || ""}
-                      onChange={(e) =>
-                        updateVariant(index, "price", e.target.value)
-                      }
+                      onChange={(e) => updateVariant(index, "price", e.target.value)}
                       placeholder="0.00"
-                      className="pl-5 h-8"
+                      className="h-8 pl-5"
                       disabled={disabled}
                     />
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="relative">
-                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">
+                    <span className="text-muted-foreground absolute top-1/2 left-2 -translate-y-1/2 text-xs">
                       $
                     </span>
                     <Input
                       type="text"
                       value={variant.compareAtPrice || ""}
-                      onChange={(e) =>
-                        updateVariant(index, "compareAtPrice", e.target.value)
-                      }
+                      onChange={(e) => updateVariant(index, "compareAtPrice", e.target.value)}
                       placeholder="0.00"
-                      className="pl-5 h-8"
+                      className="h-8 pl-5"
                       disabled={disabled}
                     />
                   </div>
@@ -190,9 +180,7 @@ export function VariantsTable({
                   <Input
                     type="text"
                     value={variant.sku || ""}
-                    onChange={(e) =>
-                      updateVariant(index, "sku", e.target.value)
-                    }
+                    onChange={(e) => updateVariant(index, "sku", e.target.value)}
                     placeholder="SKU"
                     className="h-8"
                     disabled={disabled}
@@ -202,9 +190,7 @@ export function VariantsTable({
                   <Input
                     type="number"
                     value={variant.quantity || ""}
-                    onChange={(e) =>
-                      updateVariant(index, "quantity", e.target.value)
-                    }
+                    onChange={(e) => updateVariant(index, "quantity", e.target.value)}
                     placeholder="0"
                     className="h-8"
                     disabled={disabled}
@@ -216,7 +202,7 @@ export function VariantsTable({
         </Table>
 
         {variants.length > 5 && (
-          <p className="text-xs text-muted-foreground mt-3 text-center">
+          <p className="text-muted-foreground mt-3 text-center text-xs">
             Showing all {variants.length} variants
           </p>
         )}

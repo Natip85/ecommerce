@@ -1,12 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import {
-  createJSONStorage,
-  devtools,
-  persist,
-  subscribeWithSelector,
-} from "zustand/middleware";
+import { createJSONStorage, devtools, persist, subscribeWithSelector } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 import { createSelectors } from "./store-utils";
@@ -82,9 +77,7 @@ export const wishlistStore = create<WishlistStore>()(
           },
 
           getAllItems: () => {
-            return Object.values(get().items).sort(
-              (a, b) => b.addedAt - a.addedAt
-            );
+            return Object.values(get().items).sort((a, b) => b.addedAt - a.addedAt);
           },
 
           getItemCount: () => {

@@ -1,12 +1,12 @@
-import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 import AuthTabs from "@/features/auth/auth-tabs";
 
 export default function AuthPage() {
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
+    <div className="flex min-h-screen flex-col lg:flex-row">
       {/* Left Side - Image Panel */}
       <div className="relative hidden lg:block lg:w-1/2 xl:w-3/5">
         <Image
@@ -17,23 +17,24 @@ export default function AuthPage() {
           priority
         />
         {/* Overlay gradient */}
-        <div className="absolute inset-0 bg-foreground/10" />
+        <div className="bg-foreground/10 absolute inset-0" />
 
         {/* Brand & Content Overlay */}
         <div className="absolute inset-0 flex flex-col justify-between p-10 xl:p-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 text-card w-fit">
-            <div className="w-8 h-8 bg-card rounded-full flex items-center justify-center">
-              <span className="text-foreground font-serif text-sm font-semibold">
-                L
-              </span>
+          <Link
+            href="/"
+            className="text-card flex w-fit items-center gap-2"
+          >
+            <div className="bg-card flex h-8 w-8 items-center justify-center rounded-full">
+              <span className="text-foreground font-serif text-sm font-semibold">L</span>
             </div>
-            <span className="text-xl font-serif tracking-wide">Lumière</span>
+            <span className="font-serif text-xl tracking-wide">Lumière</span>
           </Link>
 
           {/* Quote */}
           <div className="max-w-lg">
-            <blockquote className="text-card text-2xl xl:text-3xl font-serif leading-relaxed text-balance">
+            <blockquote className="text-card font-serif text-2xl leading-relaxed text-balance xl:text-3xl">
               "Transform your space into a sanctuary of style and comfort."
             </blockquote>
             <p className="text-card/80 mt-4 text-sm tracking-wide uppercase">
@@ -44,41 +45,40 @@ export default function AuthPage() {
       </div>
 
       {/* Right Side - Form Panel */}
-      <div className="flex-1 flex flex-col min-h-screen lg:min-h-0">
+      <div className="flex min-h-screen flex-1 flex-col lg:min-h-0">
         {/* Mobile Header */}
-        <header className="lg:hidden flex items-center justify-between p-6 border-b border-border">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-foreground rounded-full flex items-center justify-center">
-              <span className="text-background font-serif text-sm font-semibold">
-                L
-              </span>
+        <header className="border-border flex items-center justify-between border-b p-6 lg:hidden">
+          <Link
+            href="/"
+            className="flex items-center gap-2"
+          >
+            <div className="bg-foreground flex h-8 w-8 items-center justify-center rounded-full">
+              <span className="text-background font-serif text-sm font-semibold">L</span>
             </div>
-            <span className="text-xl font-serif tracking-wide text-foreground">
-              Lumière
-            </span>
+            <span className="text-foreground font-serif text-xl tracking-wide">Lumière</span>
           </Link>
         </header>
 
         {/* Form Container */}
-        <div className="flex-1 flex flex-col justify-center px-6 py-12 lg:px-12 xl:px-20">
+        <div className="flex flex-1 flex-col justify-center px-6 py-12 lg:px-12 xl:px-20">
           {/* Back Link */}
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8 lg:mb-12 w-fit text-sm"
+            className="text-muted-foreground hover:text-foreground mb-8 inline-flex w-fit items-center gap-2 text-sm transition-colors lg:mb-12"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="h-4 w-4" />
             Back to store
           </Link>
 
           {/* Dynamic Card Container - Your forms go here */}
-          <div className="w-full flex justify-center mx-auto max-w-md">
+          <div className="mx-auto flex w-full max-w-md justify-center">
             {/* Placeholder for your dynamic cards */}
             <AuthTabs />
           </div>
 
           {/* Footer Links */}
-          <div className="mt-10 lg:mt-12 space-y-4">
-            <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
+          <div className="mt-10 space-y-4 lg:mt-12">
+            <div className="text-muted-foreground flex items-center justify-center gap-4 text-xs">
               <Link
                 href="#"
                 className="hover:text-foreground transition-colors"
@@ -104,10 +104,10 @@ export default function AuthPage() {
         </div>
 
         {/* Trust Badges - Desktop */}
-        <div className="hidden lg:flex items-center justify-center gap-8 py-6 border-t border-border px-12">
-          <div className="flex items-center gap-2 text-muted-foreground">
+        <div className="border-border hidden items-center justify-center gap-8 border-t px-12 py-6 lg:flex">
+          <div className="text-muted-foreground flex items-center gap-2">
             <svg
-              className="w-5 h-5"
+              className="h-5 w-5"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -121,9 +121,9 @@ export default function AuthPage() {
             </svg>
             <span className="text-xs">Secure checkout</span>
           </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
+          <div className="text-muted-foreground flex items-center gap-2">
             <svg
-              className="w-5 h-5"
+              className="h-5 w-5"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -137,9 +137,9 @@ export default function AuthPage() {
             </svg>
             <span className="text-xs">Free shipping over $100</span>
           </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
+          <div className="text-muted-foreground flex items-center gap-2">
             <svg
-              className="w-5 h-5"
+              className="h-5 w-5"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"

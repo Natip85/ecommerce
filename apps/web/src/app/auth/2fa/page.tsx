@@ -1,6 +1,7 @@
-import { auth } from "@ecommerce/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+
+import { auth } from "@ecommerce/auth";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,9 +16,7 @@ export default async function TwoFactorPage() {
     <div className="my-6 px-4">
       <Card className="mx-auto w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">
-            Two-Factor Authentication
-          </CardTitle>
+          <CardTitle className="text-2xl font-bold">Two-Factor Authentication</CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="totp">

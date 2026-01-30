@@ -1,8 +1,8 @@
 "use client";
 
-import { History, LogOut, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { History, LogOut, User } from "lucide-react";
 
 import { ModeToggle } from "@/components/mode-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -29,7 +29,10 @@ export function NavUser() {
 
   if (!session) {
     return (
-      <Button size="sm" asChild>
+      <Button
+        size="sm"
+        asChild
+      >
         <Link href="/auth/sign-in">Login</Link>
       </Button>
     );
@@ -43,9 +46,7 @@ export function NavUser() {
             src={session.user.image ?? undefined}
             alt={session.user.name ?? ""}
           />
-          <AvatarFallback>
-            {session.user.name?.slice(0, 2).toUpperCase() ?? "U"}
-          </AvatarFallback>
+          <AvatarFallback>{session.user.name?.slice(0, 2).toUpperCase() ?? "U"}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -60,15 +61,11 @@ export function NavUser() {
                 src={session.user.image ?? undefined}
                 alt={session.user.name ?? ""}
               />
-              <AvatarFallback>
-                {session.user.name?.slice(0, 2).toUpperCase() ?? "U"}
-              </AvatarFallback>
+              <AvatarFallback>{session.user.name?.slice(0, 2).toUpperCase() ?? "U"}</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-medium">{session.user.name}</span>
-              <span className="text-muted-foreground truncate text-xs">
-                {session.user.email}
-              </span>
+              <span className="text-muted-foreground truncate text-xs">{session.user.email}</span>
             </div>
             <ModeToggle />
           </div>

@@ -1,13 +1,12 @@
 "use client";
 
-import { FolderOpen, Eye, EyeOff } from "lucide-react";
-
-import { TableActions } from "./table-actions";
+import type { ColumnDef } from "@tanstack/react-table";
+import { Eye, EyeOff, FolderOpen } from "lucide-react";
 
 import type { RouterOutputs } from "@ecommerce/api";
-import type { ColumnDef } from "@tanstack/react-table";
 
 import { Checkbox } from "@/components/ui/checkbox";
+import { TableActions } from "./table-actions";
 
 // Collection type from the list query
 type Collection = RouterOutputs["collection"]["list"]["items"][number];
@@ -19,8 +18,7 @@ export const columns: ColumnDef<Collection>[] = [
     header: ({ table }) => (
       <Checkbox
         checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+          table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
@@ -52,12 +50,8 @@ export const columns: ColumnDef<Collection>[] = [
             <FolderOpen className="text-muted-foreground h-5 w-5" />
           </div>
           <div className="flex flex-col">
-            <span className="max-w-[200px] truncate font-medium">
-              {collection.title}
-            </span>
-            <span className="text-muted-foreground text-xs">
-              /{collection.handle}
-            </span>
+            <span className="max-w-[200px] truncate font-medium">{collection.title}</span>
+            <span className="text-muted-foreground text-xs">/{collection.handle}</span>
           </div>
         </div>
       );
@@ -73,17 +67,16 @@ export const columns: ColumnDef<Collection>[] = [
       const published = row.original.published;
       return (
         <div className="flex items-center gap-1.5">
-          {published ? (
+          {published ?
             <>
               <Eye className="h-4 w-4 text-green-500" />
               <span className="text-sm text-green-600">Visible</span>
             </>
-          ) : (
-            <>
-              <EyeOff className="h-4 w-4 text-muted-foreground" />
+          : <>
+              <EyeOff className="text-muted-foreground h-4 w-4" />
               <span className="text-muted-foreground text-sm">Hidden</span>
             </>
-          )}
+          }
         </div>
       );
     },
@@ -110,13 +103,9 @@ export const columns: ColumnDef<Collection>[] = [
     header: () => <div>Description</div>,
     cell: ({ row }) => {
       const description = row.original.description;
-      return description ? (
-        <span className="text-muted-foreground max-w-[200px] truncate">
-          {description}
-        </span>
-      ) : (
-        <span className="text-muted-foreground/50">—</span>
-      );
+      return description ?
+          <span className="text-muted-foreground max-w-[200px] truncate">{description}</span>
+        : <span className="text-muted-foreground/50">—</span>;
     },
   },
 

@@ -1,10 +1,9 @@
 "use client";
 
-import { MoreHorizontal } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-
 import type { UserWithRole } from "better-auth/plugins/admin";
+import { useRouter } from "next/navigation";
+import { MoreHorizontal } from "lucide-react";
+import { toast } from "sonner";
 
 import {
   AlertDialog,
@@ -38,13 +37,7 @@ import { authClient } from "@/lib/auth-client";
 
 const ROLES = ["user", "admin"] as const;
 
-export function UserRow({
-  user,
-  selfId,
-}: {
-  user: UserWithRole;
-  selfId: string;
-}) {
+export function UserRow({ user, selfId }: { user: UserWithRole; selfId: string }) {
   const { refetch } = authClient.useSession();
   const router = useRouter();
   const isSelf = user.id === selfId;
@@ -60,7 +53,7 @@ export function UserRow({
           void refetch();
           router.push("/");
         },
-      },
+      }
     );
   }
 
@@ -75,7 +68,7 @@ export function UserRow({
           toast.success("User banned");
           router.refresh();
         },
-      },
+      }
     );
   }
 
@@ -90,7 +83,7 @@ export function UserRow({
           toast.success("User unbanned");
           router.refresh();
         },
-      },
+      }
     );
   }
 
@@ -104,7 +97,7 @@ export function UserRow({
         onSuccess: () => {
           toast.success("User sessions revoked");
         },
-      },
+      }
     );
   }
 
@@ -119,7 +112,7 @@ export function UserRow({
           toast.success("User deleted");
           router.refresh();
         },
-      },
+      }
     );
   }
 
@@ -134,7 +127,7 @@ export function UserRow({
           toast.success(`Role changed to ${role}`);
           router.refresh();
         },
-      },
+      }
     );
   }
 
@@ -152,29 +145,27 @@ export function UserRow({
         </div>
       </TableCell>
       <TableCell>
-        {isSelf ? (
-          <Badge variant={user.role === "admin" ? "default" : "secondary"}>
-            {user.role}
-          </Badge>
-        ) : (
-          <Select
+        {isSelf ?
+          <Badge variant={user.role === "admin" ? "default" : "secondary"}>{user.role}</Badge>
+        : <Select
             value={user.role ?? "user"}
-            onValueChange={(role: (typeof ROLES)[number]) =>
-              handleSetRole(user.id, role)
-            }
+            onValueChange={(role: (typeof ROLES)[number]) => handleSetRole(user.id, role)}
           >
             <SelectTrigger className="w-24">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {ROLES.map((role) => (
-                <SelectItem key={role} value={role}>
+                <SelectItem
+                  key={role}
+                  value={role}
+                >
                   {role}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-        )}
+        }
       </TableCell>
       <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
       <TableCell>
@@ -182,34 +173,32 @@ export function UserRow({
           <AlertDialog>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                >
                   <MoreHorizontal />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem
-                  onClick={() => handleImpersonateUser(user.id)}
-                >
+                <DropdownMenuItem onClick={() => handleImpersonateUser(user.id)}>
                   Impersonate
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => handleRevokeSessions(user.id)}>
                   Revoke Sessions
                 </DropdownMenuItem>
-                {user.banned ? (
+                {user.banned ?
                   <DropdownMenuItem onClick={() => handleUnbanUser(user.id)}>
                     Unban User
                   </DropdownMenuItem>
-                ) : (
-                  <DropdownMenuItem onClick={() => handleBanUser(user.id)}>
+                : <DropdownMenuItem onClick={() => handleBanUser(user.id)}>
                     Ban User
                   </DropdownMenuItem>
-                )}
+                }
                 <DropdownMenuSeparator />
 
                 <AlertDialogTrigger asChild>
-                  <DropdownMenuItem variant="destructive">
-                    Delete User
-                  </DropdownMenuItem>
+                  <DropdownMenuItem variant="destructive">Delete User</DropdownMenuItem>
                 </AlertDialogTrigger>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -217,8 +206,7 @@ export function UserRow({
               <AlertDialogHeader>
                 <AlertDialogTitle>Delete User</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Are you sure you want to delete this user? This action cannot
-                  be undone.
+                  Are you sure you want to delete this user? This action cannot be undone.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

@@ -1,11 +1,6 @@
-import { z } from 'zod/v4'
+import { z } from "zod/v4";
 
-import {
-  PRODUCT_STATUSES,
-  priceSchema,
-  handleSchema,
-  optionalText,
-} from "./common";
+import { handleSchema, optionalText, priceSchema, PRODUCT_STATUSES } from "./common";
 
 export { PRODUCT_STATUSES } from "./common";
 
@@ -67,10 +62,7 @@ export const defaultVariant: ProductVariant = {
  */
 export const productSchema = z.object({
   // Basic Info
-  title: z
-    .string()
-    .min(1, "Title is required")
-    .max(255, "Title must be at most 255 characters"),
+  title: z.string().min(1, "Title is required").max(255, "Title must be at most 255 characters"),
   handle: handleSchema,
   description: optionalText(5000, "Description"),
 
@@ -227,23 +219,23 @@ export function generateVariants(
 ): ProductVariant[] {
   if (options.length === 0) {
     // No options = single default variant
-    return existingVariants.length > 0 && Object.keys(existingVariants[0]?.optionValues || {}).length === 0
-      ? [existingVariants[0]]
+    return (
+        existingVariants.length > 0 &&
+          Object.keys(existingVariants[0]?.optionValues || {}).length === 0
+      ) ?
+        [existingVariants[0]]
       : [{ ...defaultVariant }];
   }
 
   // Generate Cartesian product of all option values
-  const combinations = options.reduce<Array<Record<string, string>>>(
-    (acc, option) => {
-      if (acc.length === 0) {
-        return option.values.map((value) => ({ [option.name]: value }));
-      }
-      return acc.flatMap((combo) =>
-        option.values.map((value) => ({ ...combo, [option.name]: value }))
-      );
-    },
-    []
-  );
+  const combinations = options.reduce<Array<Record<string, string>>>((acc, option) => {
+    if (acc.length === 0) {
+      return option.values.map((value) => ({ [option.name]: value }));
+    }
+    return acc.flatMap((combo) =>
+      option.values.map((value) => ({ ...combo, [option.name]: value }))
+    );
+  }, []);
 
   // Map combinations to variants, preserving existing data where possible
   return combinations.map((optionValues) => {
@@ -269,10 +261,7 @@ export function generateVariants(
 /**
  * Check if two optionValues objects are equivalent
  */
-function isMatchingOptionValues(
-  a: Record<string, string>,
-  b: Record<string, string>
-): boolean {
+function isMatchingOptionValues(a: Record<string, string>, b: Record<string, string>): boolean {
   const keysA = Object.keys(a);
   const keysB = Object.keys(b);
   if (keysA.length !== keysB.length) return false;
@@ -288,15 +277,12 @@ export function getVariantTitle(optionValues: Record<string, string>): string {
   return values.length > 0 ? values.join(" / ") : "Default";
 }
 
-
 export const sortOptionSchema = z.object({
   field: z.string(),
-  direction: z.enum(['asc', 'desc']),
-})
+  direction: z.enum(["asc", "desc"]),
+});
 
-
-export const sortSchema = z.array(sortOptionSchema)
-
+export const sortSchema = z.array(sortOptionSchema);
 
 // =============================================================================
 // PRODUCT FILTER SCHEMAS
@@ -314,19 +300,19 @@ export const numberRangeSchema = z
   .refine(
     (data) => {
       if (data?.from !== undefined && data?.to !== undefined) {
-        return data.from <= data.to
+        return data.from <= data.to;
       }
-      return true
+      return true;
     },
-    { message: 'From must be less than or equal to To' }
+    { message: "From must be less than or equal to To" }
   )
   .transform((data) => {
     if (data?.from === undefined && data?.to === undefined) {
-      return undefined
+      return undefined;
     }
-    return data
-  })
-export type NumberRange = NonNullable<z.infer<typeof numberRangeSchema>>
+    return data;
+  });
+export type NumberRange = NonNullable<z.infer<typeof numberRangeSchema>>;
 
 /**
  * Date range schema - for createdAt, updatedAt filters
@@ -339,29 +325,29 @@ export const dateRangeSchema = z
   .optional()
   .transform((data) => {
     if (data?.from === undefined && data?.to === undefined) {
-      return undefined
+      return undefined;
     }
-    return data
-  })
-export type DateRange = NonNullable<z.infer<typeof dateRangeSchema>>
+    return data;
+  });
+export type DateRange = NonNullable<z.infer<typeof dateRangeSchema>>;
 
 /**
  * Ternary filter - for boolean-like filters with "all" option
  */
-export const filterTernarySchema = z.enum(['all', 'yes', 'no'])
-export type FilterTernary = z.infer<typeof filterTernarySchema>
+export const filterTernarySchema = z.enum(["all", "yes", "no"]);
+export type FilterTernary = z.infer<typeof filterTernarySchema>;
 
 /**
  * Product statuses for filtering
  */
-export const productStatusFilterSchema = z.enum(['draft', 'active', 'archived'])
-export type ProductStatusFilter = z.infer<typeof productStatusFilterSchema>
+export const productStatusFilterSchema = z.enum(["draft", "active", "archived"]);
+export type ProductStatusFilter = z.infer<typeof productStatusFilterSchema>;
 
 /**
  * Inventory status for filtering
  */
-export const inventoryStatusSchema = z.enum(['in_stock', 'out_of_stock', 'low_stock'])
-export type InventoryStatus = z.infer<typeof inventoryStatusSchema>
+export const inventoryStatusSchema = z.enum(["in_stock", "out_of_stock", "low_stock"]);
+export type InventoryStatus = z.infer<typeof inventoryStatusSchema>;
 
 /**
  * Option value filter - for filtering by specific option values (e.g., Color: Red)
@@ -369,8 +355,8 @@ export type InventoryStatus = z.infer<typeof inventoryStatusSchema>
 export const optionValueFilterSchema = z.object({
   optionName: z.string(), // e.g., "Color", "Size"
   values: z.array(z.string()), // e.g., ["Red", "Blue"]
-})
-export type OptionValueFilter = z.infer<typeof optionValueFilterSchema>
+});
+export type OptionValueFilter = z.infer<typeof optionValueFilterSchema>;
 
 /**
  * Main product filter schema
@@ -382,11 +368,11 @@ export const productFilterSchema = z.object({
   // Price filters (based on variant prices)
   price: numberRangeSchema,
   compareAtPrice: numberRangeSchema,
-  onSale: filterTernarySchema.default('all').optional(),
+  onSale: filterTernarySchema.default("all").optional(),
 
   // Status filters
   status: z.array(productStatusFilterSchema).optional(),
-  published: filterTernarySchema.default('all').optional(),
+  published: filterTernarySchema.default("all").optional(),
 
   // Organization filters
   vendors: z.array(z.string()).optional(),
@@ -403,11 +389,11 @@ export const productFilterSchema = z.object({
   // Inventory filters
   inventoryStatus: z.array(inventoryStatusSchema).optional(),
   inventoryQuantity: numberRangeSchema,
-  trackInventory: filterTernarySchema.default('all').optional(),
+  trackInventory: filterTernarySchema.default("all").optional(),
 
   // SKU/Barcode filters
-  hasSku: filterTernarySchema.default('all').optional(),
-  hasBarcode: filterTernarySchema.default('all').optional(),
+  hasSku: filterTernarySchema.default("all").optional(),
+  hasBarcode: filterTernarySchema.default("all").optional(),
 
   // Date filters
   createdAt: dateRangeSchema,
@@ -415,20 +401,20 @@ export const productFilterSchema = z.object({
 
   // Exclusions
   excludedProductIds: z.array(z.string().uuid()).optional(),
-})
+});
 
-export type ProductFilter = z.infer<typeof productFilterSchema>
+export type ProductFilter = z.infer<typeof productFilterSchema>;
 
 /**
  * Default filter values
  */
 export const defaultProductFilter: Partial<ProductFilter> = {
-  onSale: 'all',
-  published: 'all',
-  trackInventory: 'all',
-  hasSku: 'all',
-  hasBarcode: 'all',
-}
+  onSale: "all",
+  published: "all",
+  trackInventory: "all",
+  hasSku: "all",
+  hasBarcode: "all",
+};
 
 /**
  * Storefront filter schema - simplified for customer-facing filters
@@ -460,9 +446,9 @@ export const storefrontFilterSchema = z.object({
 
   // Availability
   inStock: z.coerce.boolean().optional(),
-})
+});
 
-export type StorefrontFilter = z.infer<typeof storefrontFilterSchema>
+export type StorefrontFilter = z.infer<typeof storefrontFilterSchema>;
 
 /**
  * Default storefront filter values
@@ -470,4 +456,4 @@ export type StorefrontFilter = z.infer<typeof storefrontFilterSchema>
 export const defaultStorefrontFilter: Partial<StorefrontFilter> = {
   inStock: undefined, // Show all by default
   onSale: undefined,
-}
+};

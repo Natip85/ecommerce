@@ -1,24 +1,17 @@
 "use client";
 "use no memo";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  ArrowLeft,
-  MoreHorizontal,
-  Eye,
-  Trash2,
-  Loader2,
-  Globe,
-  Package,
-} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowLeft, Eye, Globe, Loader2, MoreHorizontal, Package, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import type { CollectionForm } from "@/validation";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import {
   AlertDialog,
@@ -32,13 +25,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -60,12 +47,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { PageTitle } from "@/features/admin/page-title";
 import { createAdminCollectionDetailBreadcrumbs } from "@/lib/breadcrumbs";
 import { useTRPC } from "@/trpc";
-import {
-  collectionFormSchema,
-  type CollectionForm,
-  defaultCollectionForm,
-  generateHandle,
-} from "@/validation";
+import { collectionFormSchema, defaultCollectionForm, generateHandle } from "@/validation";
 
 type CollectionFormProps = {
   collectionId?: string;
@@ -107,7 +89,7 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
           description: error.message,
         });
       },
-    }),
+    })
   );
 
   // Update mutation
@@ -132,7 +114,7 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
           description: error.message,
         });
       },
-    }),
+    })
   );
 
   // Delete mutation
@@ -153,7 +135,7 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
           description: error.message,
         });
       },
-    }),
+    })
   );
 
   const isPending = isCreating || isUpdating;
@@ -169,11 +151,7 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
 
   // Auto-generate handle from title (only if not manually edited)
   useEffect(() => {
-    if (
-      titleValue &&
-      !handleManuallyEdited.current &&
-      formInitialized.current
-    ) {
+    if (titleValue && !handleManuallyEdited.current && formInitialized.current) {
       const handle = generateHandle(titleValue);
       form.setValue("handle", handle, { shouldValidate: true });
     }
@@ -211,7 +189,7 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
       });
     } else {
       await updateCollection({
-        collectionId: collectionId!,
+        collectionId: collectionId,
         title: data.title,
         handle: data.handle,
         description: data.description || undefined,
@@ -230,8 +208,8 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
     return (
       <div className="flex flex-1 items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">Loading collection...</p>
+          <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
+          <p className="text-muted-foreground text-sm">Loading collection...</p>
         </div>
       </div>
     );
@@ -242,8 +220,11 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
     return (
       <div className="flex flex-1 items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <p className="text-sm text-muted-foreground">Collection not found</p>
-          <Button asChild variant="outline">
+          <p className="text-muted-foreground text-sm">Collection not found</p>
+          <Button
+            asChild
+            variant="outline"
+          >
             <Link href="/admin/collections">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Collections
@@ -254,19 +235,15 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
     );
   }
 
-  const pageTitle = isCreateMode
-    ? "New Collection"
-    : collection?.title || "Edit Collection";
-  const breadcrumbs = isCreateMode
-    ? [
+  const pageTitle = isCreateMode ? "New Collection" : collection?.title || "Edit Collection";
+  const breadcrumbs =
+    isCreateMode ?
+      [
         { href: "/admin", label: "Admin" },
         { href: "/admin/collections", label: "Collections" },
         { href: "/admin/collections/new", label: "New Collection" },
       ]
-    : createAdminCollectionDetailBreadcrumbs(
-        collectionId!,
-        collection?.title || "Edit Collection",
-      );
+    : createAdminCollectionDetailBreadcrumbs(collectionId, collection?.title || "Edit Collection");
 
   return (
     <Form {...form}>
@@ -275,19 +252,24 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
         className="flex flex-1 flex-col gap-4 py-6 pr-4.5 pl-6"
       >
         {/* Header */}
-        <Breadcrumbs pages={breadcrumbs} className="mb-2" />
+        <Breadcrumbs
+          pages={breadcrumbs}
+          className="mb-2"
+        />
         <PageTitle
           title={pageTitle}
           statusBadge={
-            isCreateMode
-              ? undefined
-              : collection?.published
-                ? "Published"
-                : "Draft"
+            isCreateMode ? undefined
+            : collection?.published ?
+              "Published"
+            : "Draft"
           }
         >
           <div className="flex items-center gap-2">
-            <Button variant="outline" asChild>
+            <Button
+              variant="outline"
+              asChild
+            >
               <Link href="/admin/collections">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back
@@ -297,7 +279,10 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
             {!isCreateMode && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                  >
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -327,7 +312,10 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
               </DropdownMenu>
             )}
 
-            <Button type="submit" disabled={isPending}>
+            <Button
+              type="submit"
+              disabled={isPending}
+            >
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isCreateMode ? "Create" : "Save"}
             </Button>
@@ -342,9 +330,7 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
             <Card>
               <CardHeader>
                 <CardTitle>Collection Details</CardTitle>
-                <CardDescription>
-                  Basic information about this collection.
-                </CardDescription>
+                <CardDescription>Basic information about this collection.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <FormField
@@ -373,9 +359,7 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
                       <FormLabel>Handle</FormLabel>
                       <FormControl>
                         <div className="flex items-center gap-2">
-                          <span className="text-muted-foreground text-sm">
-                            /collections/
-                          </span>
+                          <span className="text-muted-foreground text-sm">/collections/</span>
                           <Input
                             placeholder="summer-collection"
                             disabled={isPending}
@@ -418,12 +402,10 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
               <Card>
                 <CardHeader>
                   <CardTitle>Products</CardTitle>
-                  <CardDescription>
-                    Products included in this collection.
-                  </CardDescription>
+                  <CardDescription>Products included in this collection.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {collection.products && collection.products.length > 0 ? (
+                  {collection.products && collection.products.length > 0 ?
                     <div className="space-y-2">
                       {collection.products.map((product) => (
                         <div
@@ -431,18 +413,17 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
                           className="flex items-center gap-3 rounded-lg border p-3"
                         >
                           <div className="bg-muted relative h-10 w-10 overflow-hidden rounded-md border">
-                            {product.image?.url ? (
+                            {product.image?.url ?
                               <Image
                                 src={product.image.url}
                                 alt={product.image.alt || product.title}
                                 fill
                                 className="object-cover"
                               />
-                            ) : (
-                              <div className="flex h-full w-full items-center justify-center">
+                            : <div className="flex h-full w-full items-center justify-center">
                                 <Package className="text-muted-foreground h-5 w-5" />
                               </div>
-                            )}
+                            }
                           </div>
                           <div className="flex-1">
                             <Link
@@ -455,18 +436,16 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
                         </div>
                       ))}
                     </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center py-8 text-center">
-                      <Package className="h-12 w-12 text-muted-foreground/50" />
-                      <p className="mt-2 text-sm text-muted-foreground">
+                  : <div className="flex flex-col items-center justify-center py-8 text-center">
+                      <Package className="text-muted-foreground/50 h-12 w-12" />
+                      <p className="text-muted-foreground mt-2 text-sm">
                         No products in this collection
                       </p>
-                      <p className="text-xs text-muted-foreground">
-                        Add products to this collection from the product edit
-                        page
+                      <p className="text-muted-foreground text-xs">
+                        Add products to this collection from the product edit page
                       </p>
                     </div>
-                  )}
+                  }
                 </CardContent>
               </Card>
             )}
@@ -490,7 +469,7 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
                     <FormItem className="flex items-center justify-between rounded-lg border p-3">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">Published</FormLabel>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-muted-foreground text-sm">
                           Show this collection on the storefront
                         </p>
                       </div>
@@ -506,7 +485,11 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
                 />
 
                 {collection?.published && (
-                  <Button variant="outline" className="w-full" asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    asChild
+                  >
                     <a
                       href={`/collections/${collection.handle}`}
                       target="_blank"
@@ -528,39 +511,27 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">
-                      Products
-                    </span>
+                    <span className="text-muted-foreground text-sm">Products</span>
                     <Badge variant="secondary">{collection.productCount}</Badge>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">
-                      Created
-                    </span>
+                    <span className="text-muted-foreground text-sm">Created</span>
                     <span className="text-sm">
-                      {new Date(collection.createdAt).toLocaleDateString(
-                        "en-US",
-                        {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        },
-                      )}
+                      {new Date(collection.createdAt).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">
-                      Updated
-                    </span>
+                    <span className="text-muted-foreground text-sm">Updated</span>
                     <span className="text-sm">
-                      {new Date(collection.updatedAt).toLocaleDateString(
-                        "en-US",
-                        {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        },
-                      )}
+                      {new Date(collection.updatedAt).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
                     </span>
                   </div>
                 </CardContent>
@@ -571,33 +542,31 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
       </form>
 
       {!isCreateMode && (
-        <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialog
+          open={showDeleteDialog}
+          onOpenChange={setShowDeleteDialog}
+        >
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Delete collection?</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to delete &quot;{collection?.title}&quot;?
-                Products will be removed from this collection but not deleted.
-                This action cannot be undone.
+                Are you sure you want to delete &quot;{collection?.title}&quot;? Products will be
+                removed from this collection but not deleted. This action cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={isDeleting}>
-                Cancel
-              </AlertDialogCancel>
+              <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
               <AlertDialogAction
                 variant="destructive"
                 onClick={handleDelete}
                 disabled={isDeleting}
               >
-                {isDeleting ? (
+                {isDeleting ?
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Deleting...
                   </>
-                ) : (
-                  "Delete"
-                )}
+                : "Delete"}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

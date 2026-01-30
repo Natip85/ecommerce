@@ -1,17 +1,16 @@
 import type { Metadata } from "next";
-
 import { Suspense } from "react";
+import { Geist, Geist_Mono } from "next/font/google";
 import { connection } from "next/server";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
-import { Geist, Geist_Mono } from "next/font/google";
 
 import "../index.css";
+
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 
-import { ourFileRouter } from "./api/uploadthing/core";
-
 import Providers from "@/components/providers";
+import { ourFileRouter } from "./api/uploadthing/core";
 
 async function UploadThingSSR() {
   await connection();
@@ -39,10 +38,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html
+      lang="en"
+      suppressHydrationWarning
+    >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <NuqsAdapter>
           <Providers>
             <Suspense>

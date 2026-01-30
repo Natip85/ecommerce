@@ -1,8 +1,8 @@
 "use client";
 
-import { Loader2, UserX } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Loader2, UserX } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -40,11 +40,9 @@ export function ImpersonationIndicator() {
         onClick={handleStopImpersonating}
         disabled={isLoading}
       >
-        {isLoading ? (
+        {isLoading ?
           <Loader2 className="size-4 animate-spin" />
-        ) : (
-          <UserX className="size-4" />
-        )}
+        : <UserX className="size-4" />}
       </Button>
     </div>
   );

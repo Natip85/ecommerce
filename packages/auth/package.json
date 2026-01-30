@@ -10,8 +10,9 @@
     }
   },
   "scripts": {
-    "lint": "eslint src/",
-    "lint:fix": "eslint src/ --fix"
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
+    "lint": "eslint"
   },
   "dependencies": {
     "@ecommerce/db": "workspace:*",
@@ -22,7 +23,12 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@ecommerce/config": "workspace:*",
+    "@ecommerce/eslint-config": "workspace:*",
+    "@ecommerce/prettier-config": "workspace:*",
+    "@ecommerce/typescript-config": "workspace:*",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "prettier": "@ecommerce/prettier-config"
 }

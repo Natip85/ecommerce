@@ -1,5 +1,9 @@
 "use client";
 
+import type { Route } from "next";
+import { useCallback, useRef, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { skipToken, useQuery } from "@tanstack/react-query";
 import {
   Check,
@@ -13,18 +17,9 @@ import {
   Tag,
   Truck,
 } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { useCallback, useState, useRef } from "react";
 
-import { useSidebarParams } from "./query-params";
-
-import type { Route } from "next";
-
-import {
-  VariantSelector,
-  type ProductVariant,
-} from "@/components/product/variant-selector";
+import type { ProductVariant } from "@/components/product/variant-selector";
+import { VariantSelector } from "@/components/product/variant-selector";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -33,6 +28,7 @@ import { useAddToCartAnimation } from "@/hooks/use-add-to-cart-animation";
 import { cn } from "@/lib/utils";
 import { cartStore, useCartStore } from "@/store/cart-store";
 import { useTRPC } from "@/trpc";
+import { useSidebarParams } from "./query-params";
 
 // =============================================================================
 // LOADING SKELETON
@@ -64,16 +60,12 @@ export const ProductInfoSidebar = () => {
   } = useSidebarParams();
 
   const { data, isFetching } = useQuery(
-    trpc.product.getById.queryOptions(
-      infoId ? { productId: infoId } : skipToken,
-    ),
+    trpc.product.getById.queryOptions(infoId ? { productId: infoId } : skipToken)
   );
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isWishlisted, setIsWishlisted] = useState(false);
-  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
-    null,
-  );
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
 
   // Handle variant selection change
   const handleVariantChange = useCallback((variant: ProductVariant | null) => {
@@ -87,8 +79,8 @@ export const ProductInfoSidebar = () => {
   if (!data) {
     return (
       <div className="flex h-full flex-col items-center justify-center p-8 text-center">
-        <Package className="mb-4 h-12 w-12 text-muted-foreground/50" />
-        <p className="text-sm text-muted-foreground">Product not found</p>
+        <Package className="text-muted-foreground/50 mb-4 h-12 w-12" />
+        <p className="text-muted-foreground text-sm">Product not found</p>
       </div>
     );
   }
@@ -99,47 +91,41 @@ export const ProductInfoSidebar = () => {
   // Transform variants for the VariantSelector component
   // Note: The API returns a minimal format for variants (id, optionValues, price, sku, quantity)
   // We use available data and derive inventory info from quantity
-  const transformedVariants: ProductVariant[] = (data.variants ?? []).map(
-    (v) => ({
-      id: v.id,
-      optionValues: v.optionValues as Record<string, string>,
-      price: v.price ?? "0",
-      compareAtPrice: null, // Not available in the transformed data
-      sku: v.sku,
-      inventoryQuantity: v.quantity ? parseInt(v.quantity, 10) : null,
-      inventoryTracked: defaultVariant?.inventoryTracked ?? true,
-      continueSellingWhenOutOfStock:
-        defaultVariant?.continueSellingWhenOutOfStock ?? false,
-    }),
-  );
+  const transformedVariants: ProductVariant[] = (data.variants ?? []).map((v) => ({
+    id: v.id,
+    optionValues: v.optionValues,
+    price: v.price ?? "0",
+    compareAtPrice: null, // Not available in the transformed data
+    sku: v.sku,
+    inventoryQuantity: v.quantity ? parseInt(v.quantity, 10) : null,
+    inventoryTracked: defaultVariant?.inventoryTracked ?? true,
+    continueSellingWhenOutOfStock: defaultVariant?.continueSellingWhenOutOfStock ?? false,
+  }));
 
   // Use selected variant if available, otherwise fall back to default
   const activeVariant =
     selectedVariant ??
-    (defaultVariant
-      ? {
-          id: defaultVariant.id,
-          optionValues:
-            (defaultVariant.optionValues as Record<string, string>) ?? {},
-          price: defaultVariant.price ?? "0",
-          compareAtPrice: defaultVariant.compareAtPrice,
-          sku: defaultVariant.sku,
-          inventoryQuantity: defaultVariant.inventoryQuantity,
-          inventoryTracked: defaultVariant.inventoryTracked,
-          continueSellingWhenOutOfStock:
-            defaultVariant.continueSellingWhenOutOfStock,
-        }
-      : null);
+    (defaultVariant ?
+      {
+        id: defaultVariant.id,
+        optionValues: (defaultVariant.optionValues as Record<string, string>) ?? {},
+        price: defaultVariant.price ?? "0",
+        compareAtPrice: defaultVariant.compareAtPrice,
+        sku: defaultVariant.sku,
+        inventoryQuantity: defaultVariant.inventoryQuantity,
+        inventoryTracked: defaultVariant.inventoryTracked,
+        continueSellingWhenOutOfStock: defaultVariant.continueSellingWhenOutOfStock,
+      }
+    : null);
 
   // Calculate pricing info from active variant
   const price = activeVariant ? Number(activeVariant.price) : 0;
-  const compareAtPrice = activeVariant?.compareAtPrice
-    ? Number(activeVariant.compareAtPrice)
-    : null;
+  const compareAtPrice =
+    activeVariant?.compareAtPrice ? Number(activeVariant.compareAtPrice) : null;
   const discount =
-    compareAtPrice && compareAtPrice > price
-      ? Math.round(((compareAtPrice - price) / compareAtPrice) * 100)
-      : 0;
+    compareAtPrice && compareAtPrice > price ?
+      Math.round(((compareAtPrice - price) / compareAtPrice) * 100)
+    : 0;
 
   // Check stock status from active variant
   const inventoryQty = activeVariant?.inventoryQuantity ?? 0;
@@ -156,7 +142,12 @@ export const ProductInfoSidebar = () => {
     <div className="flex h-full flex-col">
       {/* Header */}
       <div className="flex items-center justify-between border-b px-4 py-3">
-        <Button asChild variant="secondary" size="sm" className="gap-1.5">
+        <Button
+          asChild
+          variant="secondary"
+          size="sm"
+          className="gap-1.5"
+        >
           <Link href={productUrl}>
             <Eye className="h-3.5 w-3.5" />
             View Product Details
@@ -169,38 +160,33 @@ export const ProductInfoSidebar = () => {
         {/* Image Gallery */}
         <div className="relative">
           {/* Main Image */}
-          <div className="relative aspect-square bg-muted">
-            {mainImage ? (
+          <div className="bg-muted relative aspect-square">
+            {mainImage ?
               <Image
                 src={mainImage.url}
                 alt={mainImage.alt ?? data.title}
                 fill
                 className="object-cover"
               />
-            ) : (
-              <div className="flex h-full items-center justify-center">
-                <Package className="h-16 w-16 text-muted-foreground/30" />
+            : <div className="flex h-full items-center justify-center">
+                <Package className="text-muted-foreground/30 h-16 w-16" />
               </div>
-            )}
+            }
 
             {/* Discount Badge */}
             {discount > 0 && (
-              <Badge className="absolute left-3 top-3 rounded-md  ">
-                -{discount}% OFF
-              </Badge>
+              <Badge className="absolute top-3 left-3 rounded-md">-{discount}% OFF</Badge>
             )}
 
             {/* Wishlist Button */}
             <button
               onClick={() => setIsWishlisted(!isWishlisted)}
               className={cn(
-                "absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-background/90 shadow-md backdrop-blur-sm transition-all hover:scale-110",
-                isWishlisted && "bg-red-50 text-red-500 dark:bg-red-950",
+                "bg-background/90 absolute top-3 right-3 flex h-9 w-9 items-center justify-center rounded-full shadow-md backdrop-blur-sm transition-all hover:scale-110",
+                isWishlisted && "bg-red-50 text-red-500 dark:bg-red-950"
               )}
             >
-              <Heart
-                className={cn("h-4 w-4", isWishlisted && "fill-current")}
-              />
+              <Heart className={cn("h-4 w-4", isWishlisted && "fill-current")} />
             </button>
           </div>
 
@@ -213,9 +199,9 @@ export const ProductInfoSidebar = () => {
                   onClick={() => setSelectedImageIndex(idx)}
                   className={cn(
                     "relative h-14 w-14 shrink-0 overflow-hidden rounded-md border-2 transition-all",
-                    selectedImageIndex === idx
-                      ? "border-primary"
-                      : "border-transparent opacity-60 hover:opacity-100",
+                    selectedImageIndex === idx ? "border-primary" : (
+                      "border-transparent opacity-60 hover:opacity-100"
+                    )
                   )}
                 >
                   <Image
@@ -227,7 +213,7 @@ export const ProductInfoSidebar = () => {
                 </button>
               ))}
               {data.images.length > 5 && (
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-md bg-muted text-xs text-muted-foreground">
+                <div className="bg-muted text-muted-foreground flex h-14 w-14 shrink-0 items-center justify-center rounded-md text-xs">
                   +{data.images.length - 5}
                 </div>
               )}
@@ -239,7 +225,7 @@ export const ProductInfoSidebar = () => {
         <div className="space-y-4 p-4">
           {/* Vendor & Product Type */}
           {(data.vendor || data.productType) && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="text-muted-foreground flex items-center gap-2 text-xs">
               {data.vendor && <span>{data.vendor}</span>}
               {data.vendor && data.productType && <span>•</span>}
               {data.productType && <span>{data.productType}</span>}
@@ -247,7 +233,7 @@ export const ProductInfoSidebar = () => {
           )}
 
           {/* Title */}
-          <h2 className="text-xl font-semibold leading-tight">{data.title}</h2>
+          <h2 className="text-xl leading-tight font-semibold">{data.title}</h2>
 
           {/* Rating (placeholder - can be connected to reviews later) */}
           <div className="flex items-center gap-2">
@@ -257,21 +243,19 @@ export const ProductInfoSidebar = () => {
                   key={i}
                   className={cn(
                     "h-4 w-4",
-                    i < 4
-                      ? "fill-amber-400 text-amber-400"
-                      : "fill-muted text-muted",
+                    i < 4 ? "fill-amber-400 text-amber-400" : "fill-muted text-muted"
                   )}
                 />
               ))}
             </div>
-            <span className="text-sm text-muted-foreground">(128 reviews)</span>
+            <span className="text-muted-foreground text-sm">(128 reviews)</span>
           </div>
 
           {/* Price */}
           <div className="flex items-baseline gap-3">
             <span className="text-2xl font-bold">${price.toFixed(2)}</span>
             {compareAtPrice && compareAtPrice > price && (
-              <span className="text-base text-muted-foreground line-through">
+              <span className="text-muted-foreground text-base line-through">
                 ${compareAtPrice.toFixed(2)}
               </span>
             )}
@@ -287,54 +271,44 @@ export const ProductInfoSidebar = () => {
           {/* Stock Status */}
           <div className="flex items-center gap-2">
             <div
-              className={cn(
-                "h-2 w-2 rounded-full",
-                isInStock ? "bg-emerald-500" : "bg-red-500",
-              )}
+              className={cn("h-2 w-2 rounded-full", isInStock ? "bg-emerald-500" : "bg-red-500")}
             />
             <span
               className={cn(
                 "text-sm font-medium",
-                isInStock
-                  ? "text-emerald-600 dark:text-emerald-400"
-                  : "text-red-600 dark:text-red-400",
+                isInStock ?
+                  "text-emerald-600 dark:text-emerald-400"
+                : "text-red-600 dark:text-red-400"
               )}
             >
               {isInStock ? "In Stock" : "Out of Stock"}
             </span>
-            {isInStock &&
-              inventoryTracked &&
-              inventoryQty > 0 &&
-              inventoryQty <= 10 && (
-                <span className="text-xs text-muted-foreground">
-                  (Only {inventoryQty} left)
-                </span>
-              )}
+            {isInStock && inventoryTracked && inventoryQty > 0 && inventoryQty <= 10 && (
+              <span className="text-muted-foreground text-xs">(Only {inventoryQty} left)</span>
+            )}
           </div>
 
           {/* Description */}
           {data.description && (
-            <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+            <p className="text-muted-foreground line-clamp-3 text-sm leading-relaxed">
               {data.description}
             </p>
           )}
 
           {/* Variant Selector */}
-          {data.options &&
-            data.options.length > 0 &&
-            transformedVariants.length > 0 && (
-              <VariantSelector
-                options={data.options}
-                variants={transformedVariants}
-                selectedVariant={activeVariant}
-                onVariantChange={handleVariantChange}
-              />
-            )}
+          {data.options && data.options.length > 0 && transformedVariants.length > 0 && (
+            <VariantSelector
+              options={data.options}
+              variants={transformedVariants}
+              selectedVariant={activeVariant}
+              onVariantChange={handleVariantChange}
+            />
+          )}
 
           {/* Tags */}
           {tags.length > 0 && (
             <div className="flex flex-wrap items-center gap-1.5">
-              <Tag className="h-3.5 w-3.5 text-muted-foreground" />
+              <Tag className="text-muted-foreground h-3.5 w-3.5" />
               {tags.slice(0, 5).map((tagValue) => (
                 <Badge
                   key={tagValue}
@@ -345,9 +319,7 @@ export const ProductInfoSidebar = () => {
                 </Badge>
               ))}
               {tags.length > 5 && (
-                <span className="text-xs text-muted-foreground">
-                  +{tags.length - 5} more
-                </span>
+                <span className="text-muted-foreground text-xs">+{tags.length - 5} more</span>
               )}
             </div>
           )}
@@ -356,11 +328,11 @@ export const ProductInfoSidebar = () => {
 
           {/* Quick Info */}
           <div className="grid grid-cols-2 gap-3 text-xs">
-            <div className="flex items-center gap-2 text-muted-foreground">
+            <div className="text-muted-foreground flex items-center gap-2">
               <Truck className="h-4 w-4" />
               <span>Free shipping over $50</span>
             </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
+            <div className="text-muted-foreground flex items-center gap-2">
               <Package className="h-4 w-4" />
               <span>Easy returns</span>
             </div>
@@ -419,9 +391,7 @@ const SidebarCartFooter = ({
   const { triggerAnimation, AnimationComponent } = useAddToCartAnimation();
 
   // Get cart item info - this is a hook that subscribes to cart changes
-  const cartItem = useCartStore((state) =>
-    cartItemId ? state.getItem(cartItemId) : undefined,
-  );
+  const cartItem = useCartStore((state) => (cartItemId ? state.getItem(cartItemId) : undefined));
   const isItemInCart = Boolean(cartItem);
 
   const handleAddToCart = () => {
@@ -455,7 +425,7 @@ const SidebarCartFooter = ({
   return (
     <div className="border-t p-4">
       <div className="flex gap-2">
-        {isItemInCart && cartItem ? (
+        {isItemInCart && cartItem ?
           <div className="flex flex-1 flex-col gap-2">
             <div className="flex items-center justify-between rounded-lg px-4 py-2">
               <div className="flex items-center gap-2">
@@ -484,15 +454,19 @@ const SidebarCartFooter = ({
                 </Button>
               </div>
             </div>
-            <Button variant="secondary" className="w-full" size="lg" asChild>
+            <Button
+              variant="secondary"
+              className="w-full"
+              size="lg"
+              asChild
+            >
               <Link href="/cart">
                 <ShoppingCart className="h-4 w-4" />
                 Go to Cart
               </Link>
             </Button>
           </div>
-        ) : (
-          <div className="flex flex-1 gap-2 flex-col">
+        : <div className="flex flex-1 flex-col gap-2">
             <Button
               ref={addToCartButtonRef}
               className="w-full"
@@ -503,14 +477,19 @@ const SidebarCartFooter = ({
               <ShoppingCart className="h-4 w-4" />
               Add to Cart
             </Button>
-            <Button variant="secondary" className="w-full" size="lg" asChild>
+            <Button
+              variant="secondary"
+              className="w-full"
+              size="lg"
+              asChild
+            >
               <Link href="/cart">
                 <ShoppingCart className="h-4 w-4" />
                 Go to Cart
               </Link>
             </Button>
           </div>
-        )}
+        }
         {AnimationComponent}
       </div>
     </div>

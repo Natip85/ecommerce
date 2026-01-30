@@ -1,11 +1,10 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { createContext, useContext } from "react";
 
 import { cn } from "../lib/utils";
 import { Skeleton } from "./ui/skeleton";
-
-import type { ReactNode } from "react";
 
 type ViewMode = "carousel" | "grid" | "grid-detailed" | "list";
 
@@ -22,9 +21,7 @@ const ListRendererContext = createContext<ListRendererContextType | null>(null);
 function useListRendererContext() {
   const context = useContext(ListRendererContext);
   if (!context) {
-    throw new Error(
-      "ListRenderer compound components must be used within ListRenderer",
-    );
+    throw new Error("ListRenderer compound components must be used within ListRenderer");
   }
   return context;
 }
@@ -47,9 +44,7 @@ export function ListRenderer({
   children,
 }: ListRendererProps) {
   return (
-    <ListRendererContext.Provider
-      value={{ hasData, isLoading, hasSearch, viewMode, limit }}
-    >
+    <ListRendererContext.Provider value={{ hasData, isLoading, hasSearch, viewMode, limit }}>
       {children}
     </ListRendererContext.Provider>
   );
@@ -64,10 +59,7 @@ type CatalogListSkeletonProps = {
   limit?: number;
 };
 
-function CatalogListSkeleton({
-  viewMode,
-  limit = 12,
-}: CatalogListSkeletonProps) {
+function CatalogListSkeleton({ viewMode, limit = 12 }: CatalogListSkeletonProps) {
   const items = Array.from({ length: limit }, (_, i) => i);
 
   if (viewMode === "list") {
@@ -79,16 +71,19 @@ function CatalogListSkeleton({
           <Skeleton className="h-4 w-48" />
           <Skeleton className="h-4 w-24" />
           <Skeleton className="h-4 w-20" />
-          <Skeleton className="h-4 w-16 ml-auto" />
+          <Skeleton className="ml-auto h-4 w-16" />
         </div>
         {/* Table rows skeleton */}
         {items.map((i) => (
-          <div key={i} className="flex h-12 items-center gap-4 border-b px-4">
+          <div
+            key={i}
+            className="flex h-12 items-center gap-4 border-b px-4"
+          >
             <Skeleton className="h-4 w-8" />
             <Skeleton className="h-4 w-48" />
             <Skeleton className="h-4 w-24" />
             <Skeleton className="h-4 w-20" />
-            <Skeleton className="h-4 w-16 ml-auto" />
+            <Skeleton className="ml-auto h-4 w-16" />
           </div>
         ))}
       </div>
@@ -99,7 +94,10 @@ function CatalogListSkeleton({
     return (
       <div className="@2col:columns-2 @3col:columns-3 w-full columns-1 gap-3">
         {items.map((i) => (
-          <div key={i} className="mb-3 break-inside-avoid">
+          <div
+            key={i}
+            className="mb-3 break-inside-avoid"
+          >
             <div className="ring-foreground/10 flex flex-col gap-3 rounded-none p-4 ring-1">
               {/* Image skeleton with varying heights for masonry effect */}
               <Skeleton
@@ -176,7 +174,12 @@ export function ListRendererLoading({ children }: ListRendererChildProps) {
     return <>{children}</>;
   }
 
-  return <CatalogListSkeleton viewMode={viewMode} limit={limit} />;
+  return (
+    <CatalogListSkeleton
+      viewMode={viewMode}
+      limit={limit}
+    />
+  );
 }
 
 export function ListRendererEmpty({ children }: ListRendererChildProps) {
@@ -205,30 +208,25 @@ export function ListRendererList({
   if (isLoading || !hasData) return null;
 
   return (
-    <div {...props} className={cn("", className)}>
+    <div
+      {...props}
+      className={cn("", className)}
+    >
       {children}
     </div>
   );
 }
 
-export type ListRendererViewType =
-  | "carousel"
-  | "grid"
-  | "grid-detailed"
-  | "list";
+export type ListRendererViewType = "carousel" | "grid" | "grid-detailed" | "list";
 
 type ListRendererListItemProps = {
   type: ListRendererViewType | ListRendererViewType[];
   children: ReactNode;
 };
-export function ListRendererListItem({
-  type,
-  children,
-}: ListRendererListItemProps) {
+export function ListRendererListItem({ type, children }: ListRendererListItemProps) {
   const { viewMode } = useListRendererContext();
 
-  if (Array.isArray(type) ? !type.includes(viewMode) : viewMode !== type)
-    return null;
+  if (Array.isArray(type) ? !type.includes(viewMode) : viewMode !== type) return null;
 
   return <>{children}</>;
 }

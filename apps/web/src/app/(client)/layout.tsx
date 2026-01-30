@@ -7,11 +7,7 @@ import { Header } from "@/features/nav/header";
 import { RightSidebarContainer } from "@/features/right-sidebars";
 import { HydrateClient } from "@/trpc/server";
 
-export default function ClientLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function ClientLayout({ children }: { children: React.ReactNode }) {
   return (
     <HydrateClient>
       <SidebarProvider defaultLeftOpen={false}>

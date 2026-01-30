@@ -1,9 +1,8 @@
 "use client";
 
+import type { Row, Table } from "@tanstack/react-table";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MoreHorizontal, Trash } from "lucide-react";
-
-import type { Row, Table } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -33,7 +32,7 @@ export const CollectionTableBulkActions = <TData extends { id: string }>({
         queryClient.invalidateQueries(trpc.collection.list.pathFilter());
         table.resetRowSelection();
       },
-    }),
+    })
   );
 
   const collectionIds = selectedRows.map((row) => row.original.id);
@@ -49,7 +48,10 @@ export const CollectionTableBulkActions = <TData extends { id: string }>({
           <span className="sr-only">Open menu</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="min-w-48" align="end">
+      <DropdownMenuContent
+        className="min-w-48"
+        align="end"
+      >
         <DropdownMenuGroup>
           <DropdownMenuItem
             onClick={async () => {

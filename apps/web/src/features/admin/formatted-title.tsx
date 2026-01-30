@@ -10,13 +10,12 @@ type FormattedTitleProps = React.ComponentProps<"h2"> & {
   title: string;
 };
 
-export function FormattedTitle({
-  title,
-  className,
-  ...props
-}: FormattedTitleProps) {
+export function FormattedTitle({ title, className, ...props }: FormattedTitleProps) {
   return (
-    <h2 {...props} className={cn("break-words", className)}>
+    <h2
+      {...props}
+      className={cn("break-words", className)}
+    >
       {formatTitle(title)}
     </h2>
   );

@@ -1,44 +1,32 @@
 "use client";
 
-import { Package, Eye, EyeOff } from "lucide-react";
+import type { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
-
-import { TableActions } from "./table-actions";
+import { Eye, EyeOff, Package } from "lucide-react";
 
 import type { RouterOutputs } from "@ecommerce/api";
-import type { ColumnDef } from "@tanstack/react-table";
 
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { TableActions } from "./table-actions";
 
 // Product type from the list query
 type Product = RouterOutputs["product"]["list"]["items"][number];
 
 // Status badge variant mapping
-const statusVariants: Record<
-  string,
-  "default" | "secondary" | "destructive" | "outline"
-> = {
+const statusVariants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
   active: "default",
   draft: "secondary",
   archived: "outline",
 };
 
 // Creation status badge variant mapping
-const creationStatusVariants: Record<
-  string,
-  "default" | "secondary" | "destructive" | "outline"
-> = {
-  in_progress: "outline",
-  completed: "default",
-};
+const creationStatusVariants: Record<string, "default" | "secondary" | "destructive" | "outline"> =
+  {
+    in_progress: "outline",
+    completed: "default",
+  };
 
 // Creation status display names
 const creationStatusLabels: Record<string, string> = {
@@ -77,9 +65,8 @@ function getPriceRange(variants: Product["variants"]): string {
 function getTotalInventory(variants: Product["variants"]): number {
   if (!variants || variants.length === 0) return 0;
   return variants.reduce(
-    (sum: number, v: Product["variants"][number]) =>
-      sum + (v.inventoryQuantity || 0),
-    0,
+    (sum: number, v: Product["variants"][number]) => sum + (v.inventoryQuantity || 0),
+    0
   );
 }
 
@@ -93,8 +80,7 @@ export const columns: ColumnDef<Product>[] = [
     header: ({ table }) => (
       <Checkbox
         checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+          table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
@@ -124,27 +110,22 @@ export const columns: ColumnDef<Product>[] = [
       return (
         <div className="flex items-center gap-3">
           <div className="bg-muted relative h-10 w-10 overflow-hidden rounded-md border">
-            {firstImage?.url ? (
+            {firstImage?.url ?
               <Image
                 src={firstImage.url}
                 alt={firstImage.alt || product.title}
                 fill
                 className="object-cover"
               />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center">
+            : <div className="flex h-full w-full items-center justify-center">
                 <Package className="text-muted-foreground h-5 w-5" />
               </div>
-            )}
+            }
           </div>
           <div className="flex flex-col">
-            <span className="max-w-[200px] truncate font-medium">
-              {product.title}
-            </span>
+            <span className="max-w-[200px] truncate font-medium">{product.title}</span>
             {product.vendor && (
-              <span className="text-muted-foreground text-xs">
-                {product.vendor}
-              </span>
+              <span className="text-muted-foreground text-xs">{product.vendor}</span>
             )}
           </div>
         </div>
@@ -191,17 +172,16 @@ export const columns: ColumnDef<Product>[] = [
       const published = row.original.published;
       return (
         <div className="flex items-center gap-1.5">
-          {published ? (
+          {published ?
             <>
               <Eye className="h-4 w-4 text-green-500" />
               <span className="text-sm text-green-600">Visible</span>
             </>
-          ) : (
-            <>
-              <EyeOff className="h-4 w-4 text-muted-foreground" />
+          : <>
+              <EyeOff className="text-muted-foreground h-4 w-4" />
               <span className="text-muted-foreground text-sm">Hidden</span>
             </>
-          )}
+          }
         </div>
       );
     },
@@ -220,13 +200,19 @@ export const columns: ColumnDef<Product>[] = [
         <div className="flex items-center gap-2">
           <span
             className={
-              isOut ? "text-destructive" : isLow ? "text-amber-500" : ""
+              isOut ? "text-destructive"
+              : isLow ?
+                "text-amber-500"
+              : ""
             }
           >
             {total} in stock
           </span>
           {isOut && (
-            <Badge variant="destructive" className="text-xs">
+            <Badge
+              variant="destructive"
+              className="text-xs"
+            >
               Out
             </Badge>
           )}
@@ -251,11 +237,9 @@ export const columns: ColumnDef<Product>[] = [
     header: () => <div>Type</div>,
     cell: ({ row }) => {
       const type = row.original.productType;
-      return type ? (
-        <span className="text-muted-foreground">{type}</span>
-      ) : (
-        <span className="text-muted-foreground/50">—</span>
-      );
+      return type ?
+          <span className="text-muted-foreground">{type}</span>
+        : <span className="text-muted-foreground/50">—</span>;
     },
   },
 
@@ -290,7 +274,11 @@ export const columns: ColumnDef<Product>[] = [
       return (
         <div className="flex items-center gap-1">
           {displayTags.map((tag: string) => (
-            <Badge key={tag} variant="outline" className="text-xs">
+            <Badge
+              key={tag}
+              variant="outline"
+              className="text-xs"
+            >
               {tag}
             </Badge>
           ))}
@@ -298,7 +286,10 @@ export const columns: ColumnDef<Product>[] = [
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Badge variant="outline" className="text-xs">
+                  <Badge
+                    variant="outline"
+                    className="text-xs"
+                  >
                     +{remainingCount}
                   </Badge>
                 </TooltipTrigger>

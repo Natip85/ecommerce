@@ -1,18 +1,13 @@
 "use client";
 
-import { Download, ChevronDown  } from "lucide-react";
+import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ChevronDown, Download } from "lucide-react";
 
 import type { NavigationItems } from "./nav-types";
-import type { Route } from "next";
-
 import { Button } from "@/components/ui/button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   SidebarGroup,
   SidebarMenu,
@@ -25,15 +20,9 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
-
 type NavMainProps = NavigationItems & React.ComponentProps<typeof SidebarGroup>;
 
-export function NavMain({
-  items,
-  footerItems,
-  children,
-  ...props
-}: NavMainProps) {
+export function NavMain({ items, footerItems, children, ...props }: NavMainProps) {
   const pathname = usePathname();
   const { state } = useSidebar();
 
@@ -45,16 +34,14 @@ export function NavMain({
 
           {items.map((item) => {
             const isActive =
-              pathname === item.url ||
-              (item.url !== "/" && pathname.startsWith(item.url + "/"));
+              pathname === item.url || (item.url !== "/" && pathname.startsWith(item.url + "/"));
             const hasSubmenu = item.submenu && item.submenu.length > 0;
             const isSubmenuActive =
               hasSubmenu &&
               item.submenu?.some(
                 (subItem) =>
                   pathname === subItem.url ||
-                  (subItem.url !== "/" &&
-                    pathname.startsWith(subItem.url + "/")),
+                  (subItem.url !== "/" && pathname.startsWith(subItem.url + "/"))
               );
 
             if (hasSubmenu) {
@@ -79,7 +66,10 @@ export function NavMain({
                         </Link>
                       </SidebarMenuButton>
                       {state !== "collapsed" && (
-                        <CollapsibleTrigger asChild className="mr-3 shrink-0">
+                        <CollapsibleTrigger
+                          asChild
+                          className="mr-3 shrink-0"
+                        >
                           <Button
                             type="button"
                             variant="ghost"
@@ -96,8 +86,7 @@ export function NavMain({
                         {item.submenu?.map((subItem) => {
                           const isSubActive =
                             pathname === subItem.url ||
-                            (subItem.url !== "/" &&
-                              pathname.startsWith(subItem.url + "/"));
+                            (subItem.url !== "/" && pathname.startsWith(subItem.url + "/"));
 
                           return (
                             <SidebarMenuSubItem key={subItem.title}>
@@ -149,8 +138,7 @@ export function NavMain({
         <SidebarMenu>
           {footerItems.map((item) => {
             const isActive =
-              pathname === item.url ||
-              (item.url !== "/" && pathname.startsWith(item.url + "/"));
+              pathname === item.url || (item.url !== "/" && pathname.startsWith(item.url + "/"));
             return (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton

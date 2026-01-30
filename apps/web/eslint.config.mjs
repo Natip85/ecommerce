@@ -1,34 +1,14 @@
-import { baseConfig, ignoresConfig } from "@ecommerce/config/eslint/base";
-import { reactConfig } from "@ecommerce/config/eslint/react";
-import { nextConfig } from "@ecommerce/config/eslint/next";
+import baseConfig, { restrictEnvAccess } from "@ecommerce/eslint-config/base";
+import nextjsConfig from "@ecommerce/eslint-config/nextjs";
+import reactConfig from "@ecommerce/eslint-config/react";
 
-/** @type {import("eslint").Linter.Config[]} */
+/** @type {import('typescript-eslint').Config} */
 export default [
-  ...ignoresConfig,
+  {
+    ignores: [".next/**"],
+  },
   ...baseConfig,
   ...reactConfig,
-  ...nextConfig,
-  {
-    files: ["**/*.ts", "**/*.tsx"],
-    rules: {
-      // Add any app-specific overrides here
-    },
-  },
-  {
-    // Relaxed rules for shadcn/ui components
-    files: ["**/components/ui/**/*.tsx"],
-    rules: {
-      "jsx-a11y/anchor-has-content": "off",
-      "jsx-a11y/label-has-associated-control": "off",
-      "jsx-a11y/no-autofocus": "off",
-      "react/prop-types": "off",
-    },
-  },
-  {
-    // Allow autoFocus in specific admin components (intentional UX)
-    files: ["**/features/admin/**/*.tsx", "**/features/global-search/**/*.tsx"],
-    rules: {
-      "jsx-a11y/no-autofocus": "warn",
-    },
-  },
+  ...nextjsConfig,
+  ...restrictEnvAccess,
 ];

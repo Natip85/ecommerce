@@ -8,8 +8,9 @@
     "./web": "./src/web.ts"
   },
   "scripts": {
-    "lint": "eslint src/",
-    "lint:fix": "eslint src/ --fix"
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
+    "lint": "eslint"
   },
   "dependencies": {
     "@t3-oss/env-core": "^0.13.1",
@@ -18,8 +19,13 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@ecommerce/config": "workspace:*",
-    "@types/node": "^22.13.14",
+    "@ecommerce/eslint-config": "workspace:*",
+    "@ecommerce/prettier-config": "workspace:*",
+    "@ecommerce/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "prettier": "@ecommerce/prettier-config"
 }

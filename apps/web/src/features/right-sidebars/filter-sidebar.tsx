@@ -1,11 +1,8 @@
 "use client";
 
+import { createContext, useContext, useId, useState } from "react";
 import { Trash } from "lucide-react";
 import { motion } from "motion/react";
-import { createContext, useContext, useId, useState } from "react";
-
-
-import { cn } from "../../lib/utils";
 
 import type { Product } from "@ecommerce/db/schema/product";
 
@@ -24,7 +21,7 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar";
 import { Switch } from "@/components/ui/switch";
-
+import { cn } from "../../lib/utils";
 
 export type FilterSidebarContextType = {
   item?: Pick<
@@ -44,23 +41,17 @@ export type FilterSidebarContextType = {
 };
 
 const FilterSidebarContext = createContext<FilterSidebarContextType>(
-  {} as FilterSidebarContextType,
+  {} as FilterSidebarContextType
 );
 
 export { FilterSidebarContext };
 
-export type FilterSidebarProps = Partial<
-  Pick<FilterSidebarContextType, "item">
-> & {
+export type FilterSidebarProps = Partial<Pick<FilterSidebarContextType, "item">> & {
   children: React.ReactNode;
 };
 
 export function FilterSidebar({ children, item }: FilterSidebarProps) {
-  return (
-    <FilterSidebarContext.Provider value={{ item }}>
-      {children}
-    </FilterSidebarContext.Provider>
-  );
+  return <FilterSidebarContext.Provider value={{ item }}>{children}</FilterSidebarContext.Provider>;
 }
 
 export function FilterSidebarHeader({
@@ -88,10 +79,7 @@ export const FilterSidebarContent = ({
   return (
     <SidebarContent
       {...props}
-      className={cn(
-        "scrollbar-gutter-stable flex-1 overflow-y-auto p-3",
-        className,
-      )}
+      className={cn("scrollbar-gutter-stable flex-1 overflow-y-auto p-3", className)}
     >
       {children}
     </SidebarContent>
@@ -166,10 +154,9 @@ type FilterSidebarSectionContextType = {
   id: string;
 };
 
-const FilterSidebarSectionContext =
-  createContext<FilterSidebarSectionContextType>(
-    {} as FilterSidebarSectionContextType,
-  );
+const FilterSidebarSectionContext = createContext<FilterSidebarSectionContextType>(
+  {} as FilterSidebarSectionContextType
+);
 
 export const FilterSidebarSection = ({
   children,
@@ -215,7 +202,7 @@ export const FilterSidebarSectionTitle = ({
     <AccordionTrigger
       className={cn(
         "flex items-center justify-between px-3 py-2 text-sm font-medium text-neutral-700 hover:text-neutral-950 hover:no-underline",
-        className,
+        className
       )}
       onClick={(e) => {
         setIsOpen(!isOpen);
@@ -275,7 +262,7 @@ export const FilterSidebarFooter = ({
   return (
     <SidebarFooter
       {...props}
-      className={cn("flex items-center  gap-4 border-t p-3", className)}
+      className={cn("flex items-center gap-4 border-t p-3", className)}
     >
       {children}
     </SidebarFooter>

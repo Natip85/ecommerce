@@ -1,0 +1,38 @@
+<svg
+  width="400"
+  height="300"
+  viewBox="0 0 400 300"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <rect width="400" height="300" fill="#e5e7eb" />
+
+  <rect
+    x="60"
+    y="60"
+    width="280"
+    height="180"
+    rx="8"
+    fill="none"
+    stroke="#9ca3af"
+    stroke-width="2"
+  />
+
+  <circle cx="150" cy="120" r="14" fill="#9ca3af" />
+  <polyline
+    points="100,210 170,150 220,180 300,130"
+    fill="none"
+    stroke="#9ca3af"
+    stroke-width="2"
+  />
+
+  <text
+    x="200"
+    y="260"
+    text-anchor="middle"
+    font-size="14"
+    fill="#9ca3af"
+    font-family="system-ui, sans-serif"
+  >
+    No image available
+  </text>
+</svg>

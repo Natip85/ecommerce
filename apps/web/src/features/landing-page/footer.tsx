@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import type { Route } from "next";
+import Link from "next/link";
 
 const footerLinks = {
   shop: [
@@ -25,24 +24,25 @@ const footerLinks = {
 
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-background">
+    <footer className="border-border bg-background border-t">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <Link href="/" className="inline-block">
-              <span className="text-xl font-semibold tracking-tight text-foreground">
-                Lumière
-              </span>
+            <Link
+              href="/"
+              className="inline-block"
+            >
+              <span className="text-foreground text-xl font-semibold tracking-tight">Lumière</span>
             </Link>
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
+            <p className="text-muted-foreground mt-4 max-w-xs text-sm leading-relaxed">
               We dream up products that bring otherworldly comfort to the home.
             </p>
           </div>
 
           {/* Links */}
           <div>
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">
+            <h3 className="text-foreground mb-4 text-sm font-semibold tracking-wider uppercase">
               Shop
             </h3>
             <ul className="space-y-3">
@@ -50,7 +50,7 @@ export function Footer() {
                 <li key={link.name}>
                   <Link
                     href={link.href as Route}
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="text-muted-foreground hover:text-foreground text-sm transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -60,7 +60,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">
+            <h3 className="text-foreground mb-4 text-sm font-semibold tracking-wider uppercase">
               About
             </h3>
             <ul className="space-y-3">
@@ -68,7 +68,7 @@ export function Footer() {
                 <li key={link.name}>
                   <Link
                     href={link.href as Route}
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="text-muted-foreground hover:text-foreground text-sm transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -78,7 +78,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">
+            <h3 className="text-foreground mb-4 text-sm font-semibold tracking-wider uppercase">
               Support
             </h3>
             <ul className="space-y-3">
@@ -86,7 +86,7 @@ export function Footer() {
                 <li key={link.name}>
                   <Link
                     href={link.href as Route}
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="text-muted-foreground hover:text-foreground text-sm transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -97,20 +97,18 @@ export function Footer() {
         </div>
 
         {/* Bottom */}
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 sm:flex-row">
-          <p className="text-sm text-muted-foreground">
-            © 2026 Lumière. All rights reserved.
-          </p>
+        <div className="border-border mt-12 flex flex-col items-center justify-between gap-4 border-t pt-8 sm:flex-row">
+          <p className="text-muted-foreground text-sm">© 2026 Lumière. All rights reserved.</p>
           <div className="flex gap-6">
             <Link
               href="#"
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground text-sm transition-colors"
             >
               Privacy Policy
             </Link>
             <Link
               href="#"
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground text-sm transition-colors"
             >
               Terms of Service
             </Link>

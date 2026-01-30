@@ -2,12 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query";
 
+import { useTRPC } from "@/trpc";
 import { ProductTableBulkActions } from "./bulk-actions";
 import { DataTable } from "./data-table";
 import { columns } from "./product-columns";
 import { useAdminProductSearchParams } from "./search-params";
-
-import { useTRPC } from "@/trpc";
 
 export function AdminProductsList() {
   const trpc = useTRPC();
@@ -20,7 +19,10 @@ export function AdminProductsList() {
       columns={columns}
       data={data?.items ?? []}
       renderBulkActions={({ selectedRows, table }) => (
-        <ProductTableBulkActions selectedRows={selectedRows} table={table} />
+        <ProductTableBulkActions
+          selectedRows={selectedRows}
+          table={table}
+        />
       )}
     />
   );

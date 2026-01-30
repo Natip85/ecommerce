@@ -1,24 +1,14 @@
-import { auth } from "@ecommerce/auth";
-import { Key, LinkIcon, Loader2Icon, Shield, Trash2, User } from "lucide-react";
+import type { ReactNode } from "react";
+import { Suspense } from "react";
 import { headers } from "next/headers";
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import { Suspense } from "react";
+import { Key, LinkIcon, Loader2Icon, Shield, Trash2, User } from "lucide-react";
 
-import type { ReactNode } from "react";
-
-// Skip static generation - render dynamically at request time
-// Required because layout components use nuqs/useSearchParams
-export const dynamic = "force-dynamic";
+import { auth } from "@ecommerce/auth";
 
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AccountDeletion } from "@/features/auth/account-deletion";
 import { AccountLinking } from "@/features/auth/account-linking";
@@ -41,7 +31,7 @@ export default async function ProfilePage() {
       <div className="mb-8">
         <div className="flex items-center space-x-4">
           <div className="bg-muted flex size-16 items-center justify-center overflow-hidden rounded-full">
-            {session.user.image ? (
+            {session.user.image ?
               <Image
                 width={64}
                 height={64}
@@ -49,15 +39,11 @@ export default async function ProfilePage() {
                 alt="User Avatar"
                 className="object-cover"
               />
-            ) : (
-              <User className="text-muted-foreground size-8" />
-            )}
+            : <User className="text-muted-foreground size-8" />}
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-5">
-              <h1 className="text-3xl font-bold">
-                {session.user.name || "User Profile"}
-              </h1>
+              <h1 className="text-3xl font-bold">{session.user.name || "User Profile"}</h1>
               <Badge>{session.user.role}</Badge>
             </div>
             <p className="text-muted-foreground">{session.user.email}</p>
@@ -65,7 +51,10 @@ export default async function ProfilePage() {
         </div>
       </div>
 
-      <Tabs className="space-y-2 " defaultValue="profile">
+      <Tabs
+        className="space-y-2"
+        defaultValue="profile"
+      >
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="profile">
             <User />
@@ -145,26 +134,21 @@ async function SecurityTab({
     auth.api.listUserAccounts({ headers: await headers() }),
   ]);
 
-  const hasPasswordAccount = accounts.some(
-    (a) => a.providerId === "credential",
-  );
+  const hasPasswordAccount = accounts.some((a) => a.providerId === "credential");
 
   return (
     <div className="space-y-6">
-      {hasPasswordAccount ? (
+      {hasPasswordAccount ?
         <Card>
           <CardHeader>
             <CardTitle>Change Password</CardTitle>
-            <CardDescription>
-              Update your password for improved security.
-            </CardDescription>
+            <CardDescription>Update your password for improved security.</CardDescription>
           </CardHeader>
           <CardContent>
             <ChangePasswordForm />
           </CardContent>
         </Card>
-      ) : (
-        <Card>
+      : <Card>
           <CardHeader>
             <CardTitle>Set Password</CardTitle>
             <CardDescription>
@@ -175,7 +159,7 @@ async function SecurityTab({
             <SetPasswordButton email={email} />
           </CardContent>
         </Card>
-      )}
+      }
       {hasPasswordAccount && (
         <Card>
           <CardHeader className="flex items-center justify-between gap-2">
@@ -212,9 +196,7 @@ async function LinkedAccountsTab() {
   const accounts = await auth.api.listUserAccounts({
     headers: await headers(),
   });
-  const nonCredentialAccounts = accounts.filter(
-    (a) => a.providerId !== "credential",
-  );
+  const nonCredentialAccounts = accounts.filter((a) => a.providerId !== "credential");
 
   return (
     <Card>
@@ -227,8 +209,6 @@ async function LinkedAccountsTab() {
 
 function LoadingSuspense({ children }: { children: ReactNode }) {
   return (
-    <Suspense fallback={<Loader2Icon className="size-20 animate-spin" />}>
-      {children}
-    </Suspense>
+    <Suspense fallback={<Loader2Icon className="size-20 animate-spin" />}>{children}</Suspense>
   );
 }

@@ -9,12 +9,7 @@ export type RightSidebarProps = React.ComponentProps<typeof Sidebar> & {
   onClose?: () => void;
 };
 
-export const RightSidebar = ({
-  children,
-  className,
-  onClose,
-  ...props
-}: RightSidebarProps) => {
+export const RightSidebar = ({ children, className, onClose, ...props }: RightSidebarProps) => {
   return (
     <Sidebar
       side="right"

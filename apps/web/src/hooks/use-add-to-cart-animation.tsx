@@ -1,8 +1,8 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
 import { ShoppingCart } from "lucide-react";
 import { motion } from "motion/react";
-import { useCallback, useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 
 // =============================================================================
@@ -18,14 +18,9 @@ type FlyingCartIconProps = {
  * Flying cart icon that animates from a starting position to the header cart icon.
  * Used to provide visual feedback when adding items to cart.
  */
-export const FlyingCartIcon = ({
-  startPos,
-  onComplete,
-}: FlyingCartIconProps) => {
+export const FlyingCartIcon = ({ startPos, onComplete }: FlyingCartIconProps) => {
   const [mounted, setMounted] = useState(false);
-  const [targetPos, setTargetPos] = useState<{ x: number; y: number } | null>(
-    null,
-  );
+  const [targetPos, setTargetPos] = useState<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -43,7 +38,7 @@ export const FlyingCartIcon = ({
 
   return createPortal(
     <motion.div
-      className="pointer-events-none fixed z-9999 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg"
+      className="bg-primary text-primary-foreground pointer-events-none fixed z-9999 flex h-10 w-10 items-center justify-center rounded-full shadow-lg"
       initial={{
         left: startPos.x,
         top: startPos.y,
@@ -68,7 +63,7 @@ export const FlyingCartIcon = ({
     >
       <ShoppingCart className="h-4 w-4" />
     </motion.div>,
-    document.body,
+    document.body
   );
 };
 
@@ -149,9 +144,13 @@ export const useAddToCartAnimation = (): UseAddToCartAnimationReturn => {
     setIsAnimating(false);
   }, []);
 
-  const AnimationComponent = isAnimating ? (
-    <FlyingCartIcon startPos={animationStartPos} onComplete={stopAnimation} />
-  ) : null;
+  const AnimationComponent =
+    isAnimating ?
+      <FlyingCartIcon
+        startPos={animationStartPos}
+        onComplete={stopAnimation}
+      />
+    : null;
 
   return {
     isAnimating,

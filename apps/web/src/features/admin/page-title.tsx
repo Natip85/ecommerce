@@ -1,9 +1,8 @@
-import { FormattedTitle } from "./formatted-title";
-
 import type { ReactNode } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { FormattedTitle } from "./formatted-title";
 
 type Props = React.ComponentProps<"div"> & {
   title: string;
@@ -13,22 +12,13 @@ type Props = React.ComponentProps<"div"> & {
   statusBadge?: string;
 };
 
-export function PageTitle({
-  title,
-  children,
-  subTitle,
-  className,
-  statusBadge,
-  ...props
-}: Props) {
+export function PageTitle({ title, children, subTitle, className, statusBadge, ...props }: Props) {
   return (
-    <div className={cn("flex flex-col gap-4", className)} {...props}>
-      <div
-        className={cn(
-          "flex flex-wrap items-center justify-between gap-4",
-          className,
-        )}
-      >
+    <div
+      className={cn("flex flex-col gap-4", className)}
+      {...props}
+    >
+      <div className={cn("flex flex-wrap items-center justify-between gap-4", className)}>
         <div className="flex max-w-3/5 min-w-0 flex-1 items-center gap-4">
           <FormattedTitle
             title={title}
@@ -36,25 +26,14 @@ export function PageTitle({
           />
           {statusBadge && <Badge>{statusBadge}</Badge>}
         </div>
-        {children && (
-          <div className="flex flex-shrink-0 items-center gap-3">
-            {children}
-          </div>
-        )}
+        {children && <div className="flex flex-shrink-0 items-center gap-3">{children}</div>}
       </div>
-      {subTitle && (
-        <PageSubtitle className="line-clamp-3 max-w-3/5">
-          {subTitle}
-        </PageSubtitle>
-      )}
+      {subTitle && <PageSubtitle className="line-clamp-3 max-w-3/5">{subTitle}</PageSubtitle>}
     </div>
   );
 }
 
-export const PageSubtitle = ({
-  className,
-  ...props
-}: React.ComponentProps<"p">) => {
+export const PageSubtitle = ({ className, ...props }: React.ComponentProps<"p">) => {
   return (
     <p
       className={cn("text-xs text-neutral-900 capitalize", className)}

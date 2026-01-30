@@ -1,15 +1,6 @@
 "use client";
 "use no memo";
 
-import {
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import { useState } from "react";
-
 import type {
   ColumnDef,
   ColumnFiltersState,
@@ -19,6 +10,14 @@ import type {
   SortingState,
   Table as TanTable,
   VisibilityState,
+} from "@tanstack/react-table";
+import { useState } from "react";
+import {
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  useReactTable,
 } from "@tanstack/react-table";
 
 import {
@@ -49,13 +48,11 @@ export const DataTable = <TData, TValue>({
 }: DataTableProps<TData, TValue>) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [internalColumnVisibility, setInternalColumnVisibility] =
-    useState<VisibilityState>({});
+  const [internalColumnVisibility, setInternalColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   // Use external column visibility if provided, otherwise use internal state
-  const setColumnVisibility =
-    onColumnVisibilityChange ?? setInternalColumnVisibility;
+  const setColumnVisibility = onColumnVisibilityChange ?? setInternalColumnVisibility;
 
   const table = useReactTable({
     data,
@@ -92,7 +89,7 @@ export const DataTable = <TData, TValue>({
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow
               key={headerGroup.id}
-              className={cn(hasSelection && "border-b ")}
+              className={cn(hasSelection && "border-b")}
             >
               {headerGroup.headers.map((header) => {
                 const isSelectHeader = header.column.id === "select";
@@ -105,9 +102,9 @@ export const DataTable = <TData, TValue>({
                         className={cn(
                           "text-foreground",
                           isSelectHeader &&
-                            'after:content-[" "] sticky left-0 z-30 bg-muted px-3 text-center after:absolute after:top-0 after:right-0 after:bottom-0 after:w-px after:bg-muted dark:after:bg-muted',
+                            'after:content-[" "] bg-muted after:bg-muted dark:after:bg-muted sticky left-0 z-30 px-3 text-center after:absolute after:top-0 after:right-0 after:bottom-0 after:w-px',
                           isActionsHeader &&
-                            'after:content-[" "] sticky right-0 z-30 bg-muted pr-3 pl-4 text-right after:absolute after:top-0 after:bottom-0 after:left-0 after:w-px after:bg-muted dark:after:bg-muted',
+                            'after:content-[" "] bg-muted after:bg-muted dark:after:bg-muted sticky right-0 z-30 pr-3 pl-4 text-right after:absolute after:top-0 after:bottom-0 after:left-0 after:w-px'
                         )}
                       >
                         {selectedRows.length} row
@@ -121,18 +118,13 @@ export const DataTable = <TData, TValue>({
                         key={header.id}
                         style={{
                           width:
-                            header.column.getSize() !== 150
-                              ? header.column.getSize()
-                              : undefined,
+                            header.column.getSize() !== 150 ? header.column.getSize() : undefined,
                           minWidth: header.column.columnDef.minSize,
                           maxWidth: header.column.columnDef.maxSize,
                         }}
-                        className='after:content-[" "] sticky left-0 z-30 bg-muted px-3 text-center after:absolute after:top-0 after:right-0 after:bottom-0 after:w-px after:bg-muted dark:after:bg-muted'
+                        className='after:content-[" "] bg-muted after:bg-muted dark:after:bg-muted sticky left-0 z-30 px-3 text-center after:absolute after:top-0 after:right-0 after:bottom-0 after:w-px'
                       >
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
+                        {flexRender(header.column.columnDef.header, header.getContext())}
                       </TableHead>
                     );
                   }
@@ -140,7 +132,7 @@ export const DataTable = <TData, TValue>({
                     return (
                       <TableHead
                         key={header.id}
-                        className='after:content-[" "] sticky right-0 z-30 bg-muted pr-3 pl-4 text-right after:absolute after:top-0 after:bottom-0 after:left-0 after:w-px after:bg-muted dark:after:bg-muted'
+                        className='after:content-[" "] bg-muted after:bg-muted dark:after:bg-muted sticky right-0 z-30 pr-3 pl-4 text-right after:absolute after:top-0 after:bottom-0 after:left-0 after:w-px'
                       >
                         {renderBulkActions?.({ selectedRows, table })}
                       </TableHead>
@@ -151,27 +143,21 @@ export const DataTable = <TData, TValue>({
                   <TableHead
                     key={header.id}
                     style={{
-                      width:
-                        header.column.getSize() !== 150
-                          ? header.column.getSize()
-                          : undefined,
+                      width: header.column.getSize() !== 150 ? header.column.getSize() : undefined,
                       minWidth: header.column.columnDef.minSize,
                       maxWidth: header.column.columnDef.maxSize,
                     }}
                     className={cn(
                       hasSelection && header.id !== "select" && "opacity-0",
                       isSelectHeader &&
-                        'after:content-[" "] sticky left-0 z-30 bg-muted px-3 text-center after:absolute after:top-0 after:right-0 after:bottom-0 after:w-px after:bg-muted dark:after:bg-muted',
+                        'after:content-[" "] bg-muted after:bg-muted dark:after:bg-muted sticky left-0 z-30 px-3 text-center after:absolute after:top-0 after:right-0 after:bottom-0 after:w-px',
                       isActionsHeader &&
-                        'after:content-[" "] sticky right-0 z-30 bg-muted pr-3 pl-4 text-right after:absolute after:top-0 after:bottom-0 after:left-0 after:w-px after:bg-muted dark:after:bg-muted',
+                        'after:content-[" "] bg-muted after:bg-muted dark:after:bg-muted sticky right-0 z-30 pr-3 pl-4 text-right after:absolute after:top-0 after:bottom-0 after:left-0 after:w-px'
                     )}
                   >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
+                    {header.isPlaceholder ? null : (
+                      flexRender(header.column.columnDef.header, header.getContext())
+                    )}
                   </TableHead>
                 );
               })}
@@ -180,7 +166,7 @@ export const DataTable = <TData, TValue>({
         </TableHeader>
         {/* } */}
         <TableBody>
-          {table.getRowModel().rows?.length ? (
+          {table.getRowModel().rows?.length ?
             table.getRowModel().rows.map((row) => (
               <TableRow
                 className="hover:bg-muted/50 data-[state=selected]:bg-muted cursor-pointer border-b transition-colors"
@@ -194,19 +180,16 @@ export const DataTable = <TData, TValue>({
                     <TableCell
                       key={cell.id}
                       style={{
-                        width:
-                          cell.column.getSize() !== 150
-                            ? cell.column.getSize()
-                            : undefined,
+                        width: cell.column.getSize() !== 150 ? cell.column.getSize() : undefined,
                         minWidth: cell.column.columnDef.minSize,
                         maxWidth: cell.column.columnDef.maxSize,
                       }}
                       className={cn(
                         isSelectCell &&
-                          'after:content-[" "] sticky left-0 z-20 bg-muted px-3 text-center will-change-transform after:absolute after:top-0 after:right-0 after:bottom-0 after:w-px after:bg-muted dark:after:bg-muted',
+                          'after:content-[" "] bg-muted after:bg-muted dark:after:bg-muted sticky left-0 z-20 px-3 text-center will-change-transform after:absolute after:top-0 after:right-0 after:bottom-0 after:w-px',
                         isActionsCell &&
-                          'after:content-[" "] sticky right-0 z-20 bg-muted pr-3 pl-4 text-right will-change-transform after:absolute after:top-0 after:bottom-0 after:left-0 after:w-px after:bg-muted dark:after:bg-muted',
-                        isActionsCell && hasSelection && "pointer-events-none",
+                          'after:content-[" "] bg-muted after:bg-muted dark:after:bg-muted sticky right-0 z-20 pr-3 pl-4 text-right will-change-transform after:absolute after:top-0 after:bottom-0 after:left-0 after:w-px',
+                        isActionsCell && hasSelection && "pointer-events-none"
                       )}
                     >
                       {flexRender(cell.column.columnDef.cell, {
@@ -218,11 +201,10 @@ export const DataTable = <TData, TValue>({
                 })}
               </TableRow>
             ))
-          ) : (
-            <TableRow>
+          : <TableRow>
               <TableCell colSpan={columns.length}>No results.</TableCell>
             </TableRow>
-          )}
+          }
         </TableBody>
       </Table>
     </div>

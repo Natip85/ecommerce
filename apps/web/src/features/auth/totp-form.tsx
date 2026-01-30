@@ -1,7 +1,7 @@
 "use client";
 
-import { useForm } from "@tanstack/react-form";
 import { useRouter } from "next/navigation";
+import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import z from "zod";
 
@@ -57,7 +57,10 @@ export function TotpForm() {
               onChange={(e) => field.handleChange(e.target.value)}
             />
             {field.state.meta.errors.map((error) => (
-              <p key={error?.message} className="text-destructive text-sm">
+              <p
+                key={error?.message}
+                className="text-destructive text-sm"
+              >
                 {error?.message}
               </p>
             ))}

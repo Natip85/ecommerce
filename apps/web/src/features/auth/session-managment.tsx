@@ -1,12 +1,11 @@
 "use client";
 
-import { Monitor, Smartphone, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import type { Session } from "better-auth";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Monitor, Smartphone, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { UAParser } from "ua-parser-js";
-
-import type { Session } from "better-auth";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -45,7 +44,10 @@ export function SessionManagement({
   return (
     <div className="space-y-6">
       {currentSession && (
-        <SessionCard session={currentSession} isCurrentSession />
+        <SessionCard
+          session={currentSession}
+          isCurrentSession
+        />
       )}
 
       <div className="space-y-4">
@@ -63,19 +65,21 @@ export function SessionManagement({
           )}
         </div>
 
-        {otherSessions.length === 0 ? (
+        {otherSessions.length === 0 ?
           <Card>
             <CardContent className="text-muted-foreground py-8 text-center">
               No other active sessions
             </CardContent>
           </Card>
-        ) : (
-          <div className="space-y-3">
+        : <div className="space-y-3">
             {otherSessions.map((session) => (
-              <SessionCard key={session.id} session={session} />
+              <SessionCard
+                key={session.id}
+                session={session}
+              />
             ))}
           </div>
-        )}
+        }
       </div>
     </div>
   );
@@ -138,11 +142,9 @@ function SessionCard({
       <CardContent>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {userAgentInfo?.device.type === "mobile" ? (
+            {userAgentInfo?.device.type === "mobile" ?
               <Smartphone />
-            ) : (
-              <Monitor />
-            )}
+            : <Monitor />}
             <div>
               <p className="text-muted-foreground text-sm">
                 Created: {formatDate(session.createdAt)}

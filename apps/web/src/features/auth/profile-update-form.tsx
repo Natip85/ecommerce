@@ -1,7 +1,7 @@
 "use client";
 
-import { useForm } from "@tanstack/react-form";
 import { useRouter } from "next/navigation";
+import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import z from "zod";
 
@@ -37,7 +37,7 @@ export function ProfileUpdateForm({ user }: ProfileUpdateFormProps) {
           authClient.changeEmail({
             newEmail: value.email,
             callbackURL: "/settings/profile",
-          }),
+          })
         );
       }
 
@@ -47,16 +47,12 @@ export function ProfileUpdateForm({ user }: ProfileUpdateFormProps) {
       const emailResult = res[1] ?? { error: false };
 
       if (updateUserResult.error) {
-        toast.error(
-          updateUserResult.error.message ?? "Failed to update profile",
-        );
+        toast.error(updateUserResult.error.message ?? "Failed to update profile");
       } else if (emailResult.error) {
         toast.error(emailResult.error.message ?? "Failed to change email");
       } else {
         if (value.email !== user.email) {
-          toast.success(
-            "Verify your new email address to complete the change.",
-          );
+          toast.success("Verify your new email address to complete the change.");
         } else {
           toast.success("Profile updated successfully");
         }
@@ -92,7 +88,10 @@ export function ProfileUpdateForm({ user }: ProfileUpdateFormProps) {
               onChange={(e) => field.handleChange(e.target.value)}
             />
             {field.state.meta.errors.map((error) => (
-              <p key={error?.message} className="text-destructive text-sm">
+              <p
+                key={error?.message}
+                className="text-destructive text-sm"
+              >
                 {error?.message}
               </p>
             ))}
@@ -113,7 +112,10 @@ export function ProfileUpdateForm({ user }: ProfileUpdateFormProps) {
               onChange={(e) => field.handleChange(e.target.value)}
             />
             {field.state.meta.errors.map((error) => (
-              <p key={error?.message} className="text-destructive text-sm">
+              <p
+                key={error?.message}
+                className="text-destructive text-sm"
+              >
                 {error?.message}
               </p>
             ))}

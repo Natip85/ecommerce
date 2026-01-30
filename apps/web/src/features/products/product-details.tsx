@@ -1,20 +1,14 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
-import { ProductDetailsComponents } from "./product-details-components";
+import { useQuery } from "@tanstack/react-query";
 
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { createProductDetailBreadcrumbs } from "@/lib/breadcrumbs";
-import {
-  cartStore,
-  wishlistStore,
-  useWishlistStore,
-  useCartStore,
-} from "@/store";
+import { cartStore, useCartStore, useWishlistStore, wishlistStore } from "@/store";
 import { useTRPC } from "@/trpc";
+import { ProductDetailsComponents } from "./product-details-components";
 
 interface ProductDetailsProps {
   id: string;
@@ -37,7 +31,7 @@ export default function ProductDetails({ id }: ProductDetailsProps) {
 
   if (isLoading) {
     return (
-      <main className="min-h-screen bg-background">
+      <main className="bg-background min-h-screen">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <ProductDetailsSkeleton />
         </div>
@@ -50,16 +44,13 @@ export default function ProductDetails({ id }: ProductDetailsProps) {
       <main className=" ">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-foreground">
-              Product Not Found
-            </h1>
-            <p className="mt-2 text-muted-foreground">
-              The product you&apos;re looking for doesn&apos;t exist or is no
-              longer available.
+            <h1 className="text-foreground text-2xl font-bold">Product Not Found</h1>
+            <p className="text-muted-foreground mt-2">
+              The product you&apos;re looking for doesn&apos;t exist or is no longer available.
             </p>
             <Link
               href="/shop"
-              className="mt-4 inline-block text-primary hover:underline"
+              className="text-primary mt-4 inline-block hover:underline"
             >
               Back to Shop
             </Link>
@@ -72,10 +63,8 @@ export default function ProductDetails({ id }: ProductDetailsProps) {
   return (
     <main>
       {/* Breadcrumbs */}
-      <div className="flex flex-1 flex-col gap-4 py-6 px-2">
-        <Breadcrumbs
-          pages={createProductDetailBreadcrumbs(product.id, product.title)}
-        />
+      <div className="flex flex-1 flex-col gap-4 px-2 py-6">
+        <Breadcrumbs pages={createProductDetailBreadcrumbs(product.id, product.title)} />
       </div>
       {/* Product Detail */}
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -118,15 +107,14 @@ export default function ProductDetails({ id }: ProductDetailsProps) {
                 variantOptions: selectedVariant?.optionValues ?? {},
                 title: product.title,
                 description: product.description,
-                price: selectedVariant?.price
-                  ? parseFloat(selectedVariant.price)
-                  : product.price,
-                compareAtPrice: selectedVariant?.compareAtPrice
-                  ? parseFloat(selectedVariant.compareAtPrice)
+                price: selectedVariant?.price ? parseFloat(selectedVariant.price) : product.price,
+                compareAtPrice:
+                  selectedVariant?.compareAtPrice ?
+                    parseFloat(selectedVariant.compareAtPrice)
                   : product.originalPrice,
                 imageUrl: product.images[0]?.src,
               },
-              quantity,
+              quantity
             );
           }}
           onUpdateCartQuantity={(cartItemId, newQuantity) => {
@@ -160,12 +148,12 @@ function ProductDetailsSkeleton() {
       <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
         {/* Image Gallery Skeleton */}
         <div className="flex flex-col gap-4">
-          <div className="aspect-square animate-pulse rounded-2xl bg-muted" />
+          <div className="bg-muted aspect-square animate-pulse rounded-2xl" />
           <div className="flex gap-3">
             {[...Array(4)].map((_, i) => (
               <div
                 key={i}
-                className="h-20 w-20 animate-pulse rounded-lg bg-muted"
+                className="bg-muted h-20 w-20 animate-pulse rounded-lg"
               />
             ))}
           </div>
@@ -173,17 +161,17 @@ function ProductDetailsSkeleton() {
 
         {/* Product Info Skeleton */}
         <div className="flex flex-col gap-4">
-          <div className="h-4 w-20 animate-pulse rounded bg-muted" />
-          <div className="h-8 w-3/4 animate-pulse rounded bg-muted" />
-          <div className="h-4 w-40 animate-pulse rounded bg-muted" />
-          <div className="h-24 w-full animate-pulse rounded-xl bg-muted" />
-          <div className="h-4 w-24 animate-pulse rounded bg-muted" />
-          <div className="h-20 w-full animate-pulse rounded bg-muted" />
-          <div className="h-12 w-full animate-pulse rounded bg-muted" />
-          <div className="h-12 w-full animate-pulse rounded bg-muted" />
+          <div className="bg-muted h-4 w-20 animate-pulse rounded" />
+          <div className="bg-muted h-8 w-3/4 animate-pulse rounded" />
+          <div className="bg-muted h-4 w-40 animate-pulse rounded" />
+          <div className="bg-muted h-24 w-full animate-pulse rounded-xl" />
+          <div className="bg-muted h-4 w-24 animate-pulse rounded" />
+          <div className="bg-muted h-20 w-full animate-pulse rounded" />
+          <div className="bg-muted h-12 w-full animate-pulse rounded" />
+          <div className="bg-muted h-12 w-full animate-pulse rounded" />
           <div className="flex gap-3">
-            <div className="h-12 flex-1 animate-pulse rounded-full bg-muted" />
-            <div className="h-12 flex-1 animate-pulse rounded-full bg-muted" />
+            <div className="bg-muted h-12 flex-1 animate-pulse rounded-full" />
+            <div className="bg-muted h-12 flex-1 animate-pulse rounded-full" />
           </div>
         </div>
       </div>

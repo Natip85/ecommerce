@@ -1,9 +1,9 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
+import { useEffect } from "react";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { AnimatePresence, motion } from "motion/react";
 
 import { useSidebarParams } from "./query-params";
 import { RightSidebar, useSidebar } from "./right-sidebar";
@@ -11,21 +11,20 @@ import { RightSidebar, useSidebar } from "./right-sidebar";
 const ProductInfoSidebar = dynamic(() =>
   import("./product-info-sidebar").then((mod) => ({
     default: mod.ProductInfoSidebar,
-  })),
+  }))
 );
 
 const ProductFilterSidebar = dynamic(() =>
   import("./product-filter-sidebar").then((mod) => ({
     default: mod.ProductFilterSidebar,
-  })),
+  }))
 );
 
 export const RightSidebarContainer = () => {
   const { sidebarParams, setSidebarParams } = useSidebarParams();
 
   const pathname = usePathname();
-  const { setOpen, setOpenMobile, open, openMobile, isMobile } =
-    useSidebar("right");
+  const { setOpen, setOpenMobile, open, openMobile, isMobile } = useSidebar("right");
 
   const hasSidebarParams = Object.values(sidebarParams).some(Boolean);
   const isOpen = isMobile ? openMobile : open;
@@ -66,8 +65,7 @@ export const RightSidebarContainer = () => {
   const getActiveKey = () => {
     if (sidebarParams.infoId) return "asset-info";
     if (sidebarParams.filterSaving) return "create-smart-list";
-    if (sidebarParams.filterOpen && !sidebarParams.filterSaving)
-      return "product-filter";
+    if (sidebarParams.filterOpen && !sidebarParams.filterSaving) return "product-filter";
     return null;
   };
 
@@ -89,9 +87,7 @@ export const RightSidebarContainer = () => {
             className="flex h-svh flex-col"
           >
             {sidebarParams.infoId && <ProductInfoSidebar />}
-            {sidebarParams.filterOpen && !sidebarParams.filterSaving && (
-              <ProductFilterSidebar />
-            )}
+            {sidebarParams.filterOpen && !sidebarParams.filterSaving && <ProductFilterSidebar />}
           </motion.div>
         )}
       </AnimatePresence>

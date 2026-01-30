@@ -1,6 +1,7 @@
-import { auth } from "@ecommerce/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+
+import { auth } from "@ecommerce/auth";
 
 export default async function AdminPage() {
   const session = await auth.api.getSession({ headers: await headers() });

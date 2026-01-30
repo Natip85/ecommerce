@@ -28,7 +28,7 @@ export function SignUpTab({ openEmailVerificationTab }: SignUpTabProps) {
           onError: (error) => {
             toast.error(error.error.message || "Failed to sign up");
           },
-        },
+        }
       );
 
       if (res.error == null && !res.data.user.emailVerified) {
@@ -66,7 +66,10 @@ export function SignUpTab({ openEmailVerificationTab }: SignUpTabProps) {
               onChange={(e) => field.handleChange(e.target.value)}
             />
             {field.state.meta.errors.map((error) => (
-              <p key={error?.message} className="text-destructive text-sm">
+              <p
+                key={error?.message}
+                className="text-destructive text-sm"
+              >
                 {error?.message}
               </p>
             ))}
@@ -88,7 +91,10 @@ export function SignUpTab({ openEmailVerificationTab }: SignUpTabProps) {
               onChange={(e) => field.handleChange(e.target.value)}
             />
             {field.state.meta.errors.map((error) => (
-              <p key={error?.message} className="text-destructive text-sm">
+              <p
+                key={error?.message}
+                className="text-destructive text-sm"
+              >
                 {error?.message}
               </p>
             ))}
@@ -109,7 +115,10 @@ export function SignUpTab({ openEmailVerificationTab }: SignUpTabProps) {
               onChange={(e) => field.handleChange(e.target.value)}
             />
             {field.state.meta.errors.map((error) => (
-              <p key={error?.message} className="text-destructive text-sm">
+              <p
+                key={error?.message}
+                className="text-destructive text-sm"
+              >
                 {error?.message}
               </p>
             ))}

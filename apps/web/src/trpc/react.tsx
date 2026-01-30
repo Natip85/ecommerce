@@ -1,22 +1,16 @@
 "use client";
 
-import { QueryClientProvider } from "@tanstack/react-query";
-import {
-  createTRPCClient,
-  httpBatchStreamLink,
-  loggerLink,
-} from "@trpc/client";
-import { createContext, useContext, useState } from "react";
-import SuperJSON from "superjson";
-
-
-import { createQueryClient } from "./query-client";
-
-import { TRPCProvider } from "./";
-
-import type { AppRouter } from "@ecommerce/api";
 import type { QueryClient } from "@tanstack/react-query";
 import type { TRPCClient } from "@trpc/client";
+import { createContext, useContext, useState } from "react";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { createTRPCClient, httpBatchStreamLink, loggerLink } from "@trpc/client";
+import SuperJSON from "superjson";
+
+import type { AppRouter } from "@ecommerce/api";
+
+import { TRPCProvider } from "./";
+import { createQueryClient } from "./query-client";
 
 const TRPCClientContext = createContext<TRPCClient<AppRouter> | null>(null);
 
@@ -76,13 +70,16 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
           },
         }),
       ],
-    }),
+    })
   );
 
   return (
     <QueryClientProvider client={queryClient}>
       <TRPCClientContext.Provider value={trpcClient}>
-        <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
+        <TRPCProvider
+          trpcClient={trpcClient}
+          queryClient={queryClient}
+        >
           {props.children}
         </TRPCProvider>
       </TRPCClientContext.Provider>

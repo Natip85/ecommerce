@@ -42,16 +42,13 @@ export function useDebouncedValue<T>({
     [delay]
   );
 
-  const clear = useCallback(
-    (resetValue: T) => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-      setValue(resetValue);
-      onDebouncedChangeRef.current?.(resetValue);
-    },
-    []
-  );
+  const clear = useCallback((resetValue: T) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    setValue(resetValue);
+    onDebouncedChangeRef.current?.(resetValue);
+  }, []);
 
   // Cleanup on unmount
   useEffect(() => {

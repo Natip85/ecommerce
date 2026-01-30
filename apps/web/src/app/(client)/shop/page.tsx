@@ -7,10 +7,6 @@ import { ShopSidebar } from "@/features/products/shop-sidebar";
 import { shopBreadcrumbs } from "@/lib/breadcrumbs";
 import { prefetch, trpc } from "@/trpc/server";
 
-// Skip static generation - render dynamically at request time
-// Required because layout components use nuqs/useSearchParams
-export const dynamic = "force-dynamic";
-
 type PageProps = {
   searchParams: Promise<SearchParams>;
 };
@@ -21,11 +17,14 @@ export default async function ShopPage({ searchParams }: PageProps) {
   prefetch(trpc.product.storefrontTags.queryOptions());
 
   return (
-    <div className="flex flex-1 flex-col gap-4 py-6 px-2">
-      <Breadcrumbs pages={shopBreadcrumbs} className="px-2" />
+    <div className="flex flex-1 flex-col gap-4 px-2 py-6">
+      <Breadcrumbs
+        pages={shopBreadcrumbs}
+        className="px-2"
+      />
       <div className="flex flex-1 gap-3">
         <ShopSidebar />
-        <main className="flex-1 min-w-0">
+        <main className="min-w-0 flex-1">
           <ProductList />
         </main>
       </div>

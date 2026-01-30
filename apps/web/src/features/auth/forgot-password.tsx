@@ -60,7 +60,10 @@ export function ForgotPassword({ openSignInTab }: ForgotPasswordProps) {
               onChange={(e) => field.handleChange(e.target.value)}
             />
             {field.state.meta.errors.map((error) => (
-              <p key={error?.message} className="text-destructive text-sm">
+              <p
+                key={error?.message}
+                className="text-destructive text-sm"
+              >
                 {error?.message}
               </p>
             ))}
@@ -71,7 +74,11 @@ export function ForgotPassword({ openSignInTab }: ForgotPasswordProps) {
       <form.Subscribe>
         {(state) => (
           <div className="flex gap-2">
-            <Button type="button" variant="outline" onClick={openSignInTab}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={openSignInTab}
+            >
               Back
             </Button>
             <Button

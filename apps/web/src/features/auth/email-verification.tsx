@@ -61,8 +61,8 @@ export function EmailVerification({ email }: EmailVerificationProps) {
   return (
     <div className="space-y-4">
       <p className="text-muted-foreground text-sm">
-        We sent you a verification link to <strong>{email}</strong>. Please
-        check your email and click the link to verify your account.
+        We sent you a verification link to <strong>{email}</strong>. Please check your email and
+        click the link to verify your account.
       </p>
 
       <Button
@@ -71,11 +71,11 @@ export function EmailVerification({ email }: EmailVerificationProps) {
         onClick={handleResendVerification}
         disabled={isDisabled}
       >
-        {isResending
-          ? "Sending..."
-          : timeToNextResend > 0
-            ? `Resend Email (${timeToNextResend})`
-            : "Resend Email"}
+        {isResending ?
+          "Sending..."
+        : timeToNextResend > 0 ?
+          `Resend Email (${timeToNextResend})`
+        : "Resend Email"}
       </Button>
     </div>
   );

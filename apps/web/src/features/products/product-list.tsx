@@ -1,12 +1,10 @@
 "use client";
 
+import type { RefObject } from "react";
+import { useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Filter, ChevronDown } from "lucide-react";
-import { useRef, type RefObject } from "react";
+import { ChevronDown, Filter } from "lucide-react";
 import { useResizeObserver } from "usehooks-ts";
-
-import { useProductListSearchParams } from "./search-params";
-import { SortMenu } from "./sort-menu";
 
 import {
   ListRenderer,
@@ -18,12 +16,12 @@ import {
 } from "@/components/list-renderer";
 import { PaginationRow } from "@/components/pagination-row";
 import {
-  ProductCard,
-  ProductCardImage,
-  ProductCardContent,
-  ProductCardFooter,
   calcDiscount,
   isInStock,
+  ProductCard,
+  ProductCardContent,
+  ProductCardFooter,
+  ProductCardImage,
 } from "@/components/product/product-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,6 +29,8 @@ import { useSidebarParams } from "@/features/right-sidebars/query-params";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/store";
 import { useTRPC } from "@/trpc";
+import { useProductListSearchParams } from "./search-params";
+import { SortMenu } from "./sort-menu";
 
 // Grid breakpoints based on container width
 const GRID_5_COLS = 1300;
@@ -49,8 +49,7 @@ const getGridCols = (width: number) => {
 export const ProductList = () => {
   const trpc = useTRPC();
   const { searchParams, setSearchParams } = useProductListSearchParams();
-  const { toggleFilterOpen, toggleInfoSidebarId, sidebarParams } =
-    useSidebarParams();
+  const { toggleFilterOpen, toggleInfoSidebarId, sidebarParams } = useSidebarParams();
 
   const ref = useRef<HTMLDivElement>(null);
   const { width = 0 } = useResizeObserver({
@@ -60,19 +59,20 @@ export const ProductList = () => {
 
   const gridCols = getGridCols(width);
 
-  const { data, isPending } = useQuery(
-    trpc.product.storefront.queryOptions(searchParams),
-  );
+  const { data, isPending } = useQuery(trpc.product.storefront.queryOptions(searchParams));
 
   const hasQuery = Boolean(searchParams.q && searchParams.q.length > 0);
 
   return (
     <div>
-      <div className="flex justify-between items-center gap-3 mb-5 px-3 ">
+      <div className="mb-5 flex items-center justify-between gap-3 px-3">
         {data?.total !== undefined && (
           <div className="flex items-center gap-2">
             <p>Results: </p>
-            <Badge variant="outline" className="h-8">
+            <Badge
+              variant="outline"
+              className="h-8"
+            >
               {data.total} {data.total === 1 ? "product" : "products"}
             </Badge>
           </div>
@@ -84,19 +84,22 @@ export const ProductList = () => {
             onClick={() => toggleFilterOpen("new")}
             className="flex transition-all duration-300 ease-in-out"
           >
-            <Filter className="size-4 mr-3" />
+            <Filter className="mr-3 size-4" />
             Filters
             <ChevronDown
               className={cn(
                 "size-4 transition-transform duration-200",
-                sidebarParams.filterOpen && "rotate-270",
+                sidebarParams.filterOpen && "rotate-270"
               )}
             />
           </Button>
         </div>
       </div>
       <div className="flex flex-col gap-3">
-        <div ref={ref} className="mb-10">
+        <div
+          ref={ref}
+          className="mb-10"
+        >
           <ListRenderer
             hasData={Boolean(data?.items && data.items.length > 0)}
             isLoading={isPending}
@@ -127,12 +130,9 @@ export const ProductList = () => {
                 >
                   {data?.items.map((item) => {
                     const variant = item.variants?.[0];
-                    const price = variant?.price
-                      ? parseFloat(variant.price)
-                      : 0;
-                    const compareAtPrice = variant?.compareAtPrice
-                      ? parseFloat(variant.compareAtPrice)
-                      : undefined;
+                    const price = variant?.price ? parseFloat(variant.price) : 0;
+                    const compareAtPrice =
+                      variant?.compareAtPrice ? parseFloat(variant.compareAtPrice) : undefined;
                     const inStock = isInStock(variant);
 
                     return (
@@ -153,8 +153,7 @@ export const ProductList = () => {
                               productId: item.id,
                               variantId: variant?.id,
                               title: item.title,
-                              description: (item as { description?: string })
-                                .description,
+                              description: (item as { description?: string }).description,
                               price,
                               compareAtPrice,
                               imageUrl: item.images?.[0]?.url,
@@ -163,9 +162,7 @@ export const ProductList = () => {
                         />
                         <ProductCardContent
                           title={item.title}
-                          description={
-                            (item as { description?: string }).description
-                          }
+                          description={(item as { description?: string }).description}
                         />
                         <ProductCardFooter
                           price={price}
@@ -176,8 +173,7 @@ export const ProductList = () => {
                               productId: item.id,
                               variantId: variant?.id,
                               title: item.title,
-                              description: (item as { description?: string })
-                                .description,
+                              description: (item as { description?: string }).description,
                               price,
                               compareAtPrice,
                               imageUrl: item.images?.[0]?.url,

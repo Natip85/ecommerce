@@ -30,7 +30,10 @@ export function SocialAuthButtons() {
         <Icon />
         {SUPPORTED_OAUTH_PROVIDER_DETAILS[provider].name}
         {isLastUsed && (
-          <Badge variant="secondary" className="absolute -top-2 -right-2 ml-2">
+          <Badge
+            variant="secondary"
+            className="absolute -top-2 -right-2 ml-2"
+          >
             Last used
           </Badge>
         )}
