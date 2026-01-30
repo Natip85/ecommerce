@@ -75,7 +75,7 @@ export const ProductList = () => {
           <div className="flex items-center gap-2">
             <p>Results: </p>
             <Badge
-              variant="outline"
+              variant="secondary"
               className="h-8"
             >
               {data.total} {data.total === 1 ? "product" : "products"}
