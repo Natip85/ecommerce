@@ -2,11 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-interface UseDebouncedValueOptions<T> {
+type UseDebouncedValueOptions<T> = {
   initialValue: T;
   delay: number;
   onDebouncedChange?: (value: T) => void;
-}
+};
 
 export function useDebouncedValue<T>({
   initialValue,

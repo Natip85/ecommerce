@@ -329,5 +329,3 @@ const OptionButton = ({
     </button>
   );
 };
-
-export default VariantSelector;

@@ -1,7 +1,7 @@
 "use client";
 "use no memo";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -80,8 +80,8 @@ type ProductFormProps = {
 };
 
 export function ProductForm({ productId }: ProductFormProps) {
-  const [images, setImages] = useState<{ id: string; url: string }[]>([]);
   const [isEditingSeo, setIsEditingSeo] = useState(false);
+  const [deletedImageIds, setDeletedImageIds] = useState<Set<string>>(new Set());
   // Track if user has manually edited the handle field
   const handleManuallyEdited = useRef(false);
   // Track if form has been initialized with product data
@@ -94,14 +94,22 @@ export function ProductForm({ productId }: ProductFormProps) {
     trpc.product.getById.queryOptions({ productId })
   );
 
+  // Derive images from product data, filtering out deleted ones
+  const images = useMemo(() => {
+    if (!product?.images) return [];
+    return product.images
+      .filter((img) => !deletedImageIds.has(img.id))
+      .map((img) => ({ id: img.id, url: img.url }));
+  }, [product, deletedImageIds]);
+
   // Update mutation
   const { mutateAsync: updateProduct, isPending } = useMutation(
     trpc.product.update.mutationOptions({
       onSuccess: () => {
-        queryClient.invalidateQueries({
+        void queryClient.invalidateQueries({
           queryKey: trpc.product.getById.queryKey({ productId }),
         });
-        queryClient.invalidateQueries({
+        void queryClient.invalidateQueries({
           queryKey: trpc.product.list.queryKey(),
         });
         toast.success("Product saved");
@@ -118,7 +126,9 @@ export function ProductForm({ productId }: ProductFormProps) {
   const { mutateAsync: deleteImage } = useMutation(
     trpc.product.deleteImage.mutationOptions({
       onSuccess: () => {
-        queryClient.invalidateQueries({
+        // Clear deleted IDs since data will refresh
+        setDeletedImageIds(new Set());
+        void queryClient.invalidateQueries({
           queryKey: trpc.product.getById.queryKey({ productId }),
         });
       },
@@ -131,8 +141,8 @@ export function ProductForm({ productId }: ProductFormProps) {
   );
 
   async function handleDeleteImage(imageId: string) {
-    // Optimistically remove from UI
-    setImages((prev) => prev.filter((img) => img.id !== imageId));
+    // Optimistically mark as deleted
+    setDeletedImageIds((prev) => new Set(prev).add(imageId));
     // Delete from database
     await deleteImage({ imageId });
   }
@@ -169,38 +179,33 @@ export function ProductForm({ productId }: ProductFormProps) {
       const variant = product.defaultVariant;
 
       // Parse options and variants from product data
-      const productOptions = (product as { options?: ProductOption[] }).options || [];
+      const productOptions = (product as { options?: ProductOption[] }).options ?? [];
       // Variants are already transformed by the API to form format
-      const productVariants = (product as { variants?: ProductVariant[] }).variants || [];
+      const productVariants = (product as { variants?: ProductVariant[] }).variants ?? [];
 
       form.reset({
         title: product.title || "",
         handle: product.handle || "",
-        description: product.description || "",
+        description: product.description ?? "",
         price: variant?.price || "",
-        compareAtPrice: variant?.compareAtPrice || "",
+        compareAtPrice: variant?.compareAtPrice ?? "",
         chargeTax: variant?.chargeTax ?? true,
-        sku: variant?.sku || "",
-        barcode: variant?.barcode || "",
+        sku: variant?.sku ?? "",
+        barcode: variant?.barcode ?? "",
         trackQuantity: variant?.inventoryTracked ?? true,
         quantity: String(variant?.inventoryQuantity ?? 0),
         continueSellingWhenOutOfStock: variant?.continueSellingWhenOutOfStock ?? false,
         options: productOptions,
         variants: productVariants,
-        productType: product.productType || "",
-        vendor: product.vendor || "",
+        productType: product.productType ?? "",
+        vendor: product.vendor ?? "",
         tags: product.tags?.join(", ") || "",
-        collections: product.collections || [],
+        collections: product.collections ?? [],
         status: product.status || "draft",
-        published: product.published || false,
-        metaTitle: metadata?.metaTitle || "",
-        metaDescription: metadata?.metaDescription || "",
+        published: product.published ?? false,
+        metaTitle: metadata?.metaTitle ?? "",
+        metaDescription: metadata?.metaDescription ?? "",
       });
-
-      // Set images from product
-      if (product.images) {
-        setImages(product.images.map((img) => ({ id: img.id, url: img.url })));
-      }
     }
   }, [product, form]);
 
@@ -217,8 +222,8 @@ export function ProductForm({ productId }: ProductFormProps) {
     name: "metaDescription",
   });
   const publishedValue = useWatch({ control: form.control, name: "published" });
-  const optionsValue = useWatch({ control: form.control, name: "options" }) || [];
-  const variantsValue = useWatch({ control: form.control, name: "variants" }) || [];
+  const optionsValue = useWatch({ control: form.control, name: "options" }) ?? [];
+  const variantsValue = useWatch({ control: form.control, name: "variants" }) ?? [];
 
   // Check if product has variants (more than just the default)
   const hasVariants =
@@ -229,7 +234,7 @@ export function ProductForm({ productId }: ProductFormProps) {
     (newOptions: ProductOption[]) => {
       form.setValue("options", newOptions);
       // Regenerate variants from new options, preserving existing data
-      const currentVariants = form.getValues("variants") || [];
+      const currentVariants = form.getValues("variants") ?? [];
       const newVariants = generateVariants(newOptions, currentVariants);
       form.setValue("variants", newVariants);
     },
@@ -255,12 +260,12 @@ export function ProductForm({ productId }: ProductFormProps) {
   async function handleFormSubmit(data: ProductForm) {
     try {
       // Only include metadata if there's actual SEO content
-      const hasMetadata = data.metaTitle || data.metaDescription;
+      const hasMetadata = data.metaTitle ?? data.metaDescription;
       const metadata =
         hasMetadata ?
           {
-            metaTitle: data.metaTitle || undefined,
-            metaDescription: data.metaDescription || undefined,
+            metaTitle: data.metaTitle ?? undefined,
+            metaDescription: data.metaDescription ?? undefined,
           }
         : undefined;
 
@@ -281,14 +286,14 @@ export function ProductForm({ productId }: ProductFormProps) {
         productId,
         title: data.title,
         handle: data.handle,
-        description: data.description || undefined,
-        vendor: data.vendor || undefined,
-        productType: data.productType || undefined,
+        description: data.description ?? undefined,
+        vendor: data.vendor ?? undefined,
+        productType: data.productType ?? undefined,
         status: data.status,
         creationStatus: "completed", // Mark product creation as complete
         published: data.published,
         tags: tagsArray,
-        collections: data.collections || [],
+        collections: data.collections ?? [],
         metadata,
         // Include options and variants if they exist
         options: data.options,
@@ -297,9 +302,9 @@ export function ProductForm({ productId }: ProductFormProps) {
             data.variants?.map((v) => ({
               id: v.id,
               optionValues: v.optionValues,
-              price: v.price || "0",
-              compareAtPrice: v.compareAtPrice || undefined,
-              sku: v.sku || undefined,
+              price: v.price ?? "0",
+              compareAtPrice: v.compareAtPrice ?? undefined,
+              sku: v.sku ?? undefined,
               quantity: v.quantity ? parseInt(v.quantity, 10) : 0,
             }))
           : undefined,
@@ -307,11 +312,11 @@ export function ProductForm({ productId }: ProductFormProps) {
         variant:
           !hasProductVariants ?
             {
-              price: data.price || undefined,
+              price: data.price ?? undefined,
               // Always send compareAtPrice (even empty string) so API can clear it
               compareAtPrice: data.compareAtPrice,
-              sku: data.sku || undefined,
-              barcode: data.barcode || undefined,
+              sku: data.sku ?? undefined,
+              barcode: data.barcode ?? undefined,
               inventoryQuantity: data.quantity ? parseInt(data.quantity, 10) : 0,
               inventoryTracked: data.trackQuantity,
               chargeTax: data.chargeTax,
@@ -319,10 +324,10 @@ export function ProductForm({ productId }: ProductFormProps) {
             }
           : undefined,
       });
-    } catch (_error) {
-      // Error handled by mutation's onError
-    } finally {
-      // Error handled by mutation's onError
+    } catch (error) {
+      toast.error("Failed to save product", {
+        description: (error as Error).message ?? "An unknown error occurred",
+      });
     }
   }
 
@@ -538,13 +543,8 @@ export function ProductForm({ productId }: ProductFormProps) {
                         )}
                         <ProductImageUpload
                           productId={productId}
-                          onImagesUploaded={(uploadedImages) => {
-                            const newImages = uploadedImages.map((file) => ({
-                              id: file.serverData.imageId,
-                              url: file.ufsUrl,
-                            }));
-                            setImages((prev) => [...prev, ...newImages]);
-                            queryClient.invalidateQueries({
+                          onImagesUploaded={() => {
+                            void queryClient.invalidateQueries({
                               queryKey: trpc.product.getById.queryKey({
                                 productId,
                               }),
@@ -1028,7 +1028,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                   />
                                 </FormControl>
                                 <p className="text-muted-foreground text-xs">
-                                  {(field.value || "").length}/70 characters
+                                  {(field.value ?? "").length}/70 characters
                                 </p>
                                 <FormMessage />
                               </FormItem>
@@ -1043,7 +1043,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                 <FormControl>
                                   <Textarea
                                     placeholder={
-                                      descriptionValue ||
+                                      descriptionValue ??
                                       "Enter a description for search engines..."
                                     }
                                     rows={3}
@@ -1052,7 +1052,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                   />
                                 </FormControl>
                                 <p className="text-muted-foreground text-xs">
-                                  {(field.value || "").length}/160 characters
+                                  {(field.value ?? "").length}/160 characters
                                 </p>
                                 <FormMessage />
                               </FormItem>
@@ -1061,15 +1061,15 @@ export function ProductForm({ productId }: ProductFormProps) {
                         </div>
                       : <div className="bg-muted/50 space-y-1 rounded-lg border p-4">
                           <p className="text-lg text-[#1a0dab]">
-                            {metaTitleValue || titleValue || "Product title"}
+                            {metaTitleValue ?? titleValue ?? "Product title"}
                           </p>
                           <p className="text-sm text-[#006621]">
                             https://yourstore.com/products/
                             {handleValue || "product-handle"}
                           </p>
                           <p className="text-muted-foreground line-clamp-2 text-sm">
-                            {metaDescriptionValue ||
-                              descriptionValue ||
+                            {metaDescriptionValue ??
+                              descriptionValue ??
                               "Product description will appear here..."}
                           </p>
                         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useEffectEvent, useState } from "react";
 import { ShoppingCart } from "lucide-react";
 import { motion } from "motion/react";
 import { createPortal } from "react-dom";
@@ -22,7 +22,7 @@ export const FlyingCartIcon = ({ startPos, onComplete }: FlyingCartIconProps) =>
   const [mounted, setMounted] = useState(false);
   const [targetPos, setTargetPos] = useState<{ x: number; y: number } | null>(null);
 
-  useEffect(() => {
+  const initializeAnimation = useEffectEvent(() => {
     setMounted(true);
     const cartIcon = document.getElementById("header-cart-icon");
     if (cartIcon) {
@@ -32,6 +32,10 @@ export const FlyingCartIcon = ({ startPos, onComplete }: FlyingCartIconProps) =>
         y: rect.top + rect.height / 2,
       });
     }
+  });
+
+  useEffect(() => {
+    initializeAnimation();
   }, []);
 
   if (!mounted || !targetPos) return null;

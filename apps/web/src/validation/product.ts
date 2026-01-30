@@ -228,7 +228,7 @@ export function generateVariants(
   }
 
   // Generate Cartesian product of all option values
-  const combinations = options.reduce<Array<Record<string, string>>>((acc, option) => {
+  const combinations = options.reduce<Record<string, string>[]>((acc, option) => {
     if (acc.length === 0) {
       return option.values.map((value) => ({ [option.name]: value }));
     }

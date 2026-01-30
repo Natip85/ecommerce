@@ -53,7 +53,9 @@ export const orderRouter = createTRPCRouter({
       // Get unique product and variant IDs
       const productIds = [...new Set(items.map((item) => item.productId))];
       const variantIds = [
-        ...new Set(items.filter((item) => item.variantId).map((item) => item.variantId!)),
+        ...new Set(
+          items.map((item) => item.variantId).filter((id): id is string => id !== undefined)
+        ),
       ];
 
       // Fetch products from database to verify prices
@@ -203,8 +205,14 @@ export const orderRouter = createTRPCRouter({
         }
       }
 
-      // Calculate total (for now just subtotal, can add tax/shipping later)
-      const total = subtotal;
+      // Calculate shipping (free for orders $50+, otherwise $9.99)
+      const shipping = subtotal >= toCents(50) ? 0 : toCents(9.99);
+
+      // Calculate tax (8%)
+      const tax = Math.round(subtotal * 0.08);
+
+      // Calculate total
+      const total = subtotal + shipping + tax;
 
       // Create Stripe PaymentIntent
       const paymentIntent = await stripe.paymentIntents.create({
@@ -224,8 +232,8 @@ export const orderRouter = createTRPCRouter({
         status: "pending",
         stripePaymentIntentId: paymentIntent.id,
         subtotal,
-        tax: 0,
-        shipping: 0,
+        tax,
+        shipping,
         total,
         shippingAddress,
         customerEmail: shippingAddress.email,
@@ -266,7 +274,7 @@ export const orderRouter = createTRPCRouter({
       });
 
       return {
-        clientSecret: paymentIntent.client_secret!,
+        clientSecret: paymentIntent.client_secret,
         orderId: order.id,
         total,
       };

@@ -1,4 +1,4 @@
-import ProductDetails from "@/features/products/product-details";
+import { ProductDetails } from "@/features/products/product-details";
 import { prefetch, trpc } from "@/trpc/server";
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {

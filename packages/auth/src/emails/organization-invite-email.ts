@@ -1,4 +1,4 @@
-import { env } from "@math-wiz/env/server";
+import { env } from "@ecommerce/env/src/server";
 
 import { sendEmail } from "./send-email";
 

@@ -2,13 +2,11 @@
 
 import type * as React from "react";
 import { Suspense } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import {
   ChevronsLeft,
   ChevronsRight,
   FolderOpen,
-  Key,
   LayoutDashboard,
   ShoppingBag,
   Users2,

@@ -32,13 +32,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAddToCartAnimation } from "@/hooks/use-add-to-cart-animation";
 import { cn } from "@/lib/utils";
 
-interface ProductImage {
+type ProductImage = {
   id: string;
   src: string;
   alt: string;
-}
+};
 
-interface ProductReview {
+type ProductReview = {
   id: string;
   author: string;
   avatar?: string;
@@ -48,13 +48,13 @@ interface ProductReview {
   content: string;
   verified?: boolean;
   helpful?: number;
-}
+};
 
-interface CartItemInfo {
+type CartItemInfo = {
   quantity: number;
-}
+};
 
-interface ProductDetailProps {
+type ProductDetailProps = {
   productId: string;
   images: ProductImage[];
   title: string;
@@ -79,7 +79,7 @@ interface ProductDetailProps {
   onUpdateCartQuantity?: (cartItemId: string, quantity: number) => void;
   onWishlist?: () => void;
   onViewCart?: () => void;
-}
+};
 
 export function ProductDetailsComponents({
   productId,
@@ -122,7 +122,7 @@ export function ProductDetailsComponents({
   }, []);
 
   // Compute cart item ID for the currently selected variant
-  const selectedVariantCartItemId = `${productId}-${selectedVariant?.id || "default"}`;
+  const selectedVariantCartItemId = `${productId}-${selectedVariant?.id ?? "default"}`;
 
   // Get the cart quantity for the selected variant specifically
   const variantCartQuantity = cartItems[selectedVariantCartItemId]?.quantity ?? 0;
@@ -150,7 +150,7 @@ export function ProductDetailsComponents({
   };
 
   const handleQuantityChange = (delta: number) => {
-    setQuantity((prev) => Math.max(1, Math.min(prev + delta, displayStockCount || 99)));
+    setQuantity((prev) => Math.max(1, Math.min(prev + delta, displayStockCount ?? 99)));
   };
 
   const handleAddToCartClick = () => {
@@ -288,7 +288,7 @@ export function ProductDetailsComponents({
           {/* Rating & Reviews */}
           <div className="mb-4 flex items-center gap-3">
             <div className="flex items-center gap-1">
-              {[...Array(5)].map((_, i) => (
+              {Array.from({ length: 5 }).map((_, i) => (
                 <Star
                   key={i}
                   className={cn(
@@ -406,7 +406,7 @@ export function ProductDetailsComponents({
                     onClick={() =>
                       onUpdateCartQuantity?.(selectedVariantCartItemId, variantCartQuantity + 1)
                     }
-                    disabled={variantCartQuantity >= (displayStockCount || 99)}
+                    disabled={variantCartQuantity >= (displayStockCount ?? 99)}
                     className="hover:bg-muted flex h-11 w-11 items-center justify-center rounded-r-full transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <Plus className="h-4 w-4" />
@@ -437,7 +437,7 @@ export function ProductDetailsComponents({
                   </span>
                   <button
                     onClick={() => handleQuantityChange(1)}
-                    disabled={quantity >= (displayStockCount || 99)}
+                    disabled={quantity >= (displayStockCount ?? 99)}
                     className="hover:bg-muted flex h-11 w-11 items-center justify-center rounded-r-full transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <Plus className="h-4 w-4" />
@@ -628,7 +628,7 @@ export function ProductDetailsComponents({
                           </div>
                         </div>
                         <div className="flex items-center">
-                          {[...Array(5)].map((_, i) => (
+                          {Array.from({ length: 5 }).map((_, i) => (
                             <Star
                               key={i}
                               className={cn(

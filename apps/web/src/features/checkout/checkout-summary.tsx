@@ -5,7 +5,6 @@ import { ShieldCheck, Truck } from "lucide-react";
 
 import type { CartItem } from "@/store/cart-store";
 import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
 
 type CheckoutSummaryProps = {
   items: CartItem[];
@@ -24,7 +23,7 @@ export function CheckoutSummary({
   tax = 0,
   itemCount,
 }: CheckoutSummaryProps) {
-  const total = subtotal - discount + shipping + tax;
+  const total = subtotal + shipping + tax;
 
   return (
     <div className="border-border bg-card rounded-xl border">

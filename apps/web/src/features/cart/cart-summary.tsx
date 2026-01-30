@@ -183,7 +183,7 @@ export const CartSummary = ({
       {/* Bottom accent */}
       <div
         className={cn(
-          "from-primary to-primary/60 h-1 w-full bg-gradient-to-r transition-all duration-500"
+          "from-primary to-primary/60 h-1 w-full bg-linear-to-r transition-all duration-500"
         )}
         style={{ opacity: isHovered ? 1 : 0.3 }}
       />

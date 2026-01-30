@@ -43,11 +43,7 @@ export type ProductStatusFilter = z.infer<typeof productStatusFilterSchema>;
 /**
  * Inventory status for filtering
  */
-export const inventoryStatusSchema = z.enum([
-  "in_stock",
-  "out_of_stock",
-  "low_stock",
-]);
+export const inventoryStatusSchema = z.enum(["in_stock", "out_of_stock", "low_stock"]);
 export type InventoryStatus = z.infer<typeof inventoryStatusSchema>;
 
 /**

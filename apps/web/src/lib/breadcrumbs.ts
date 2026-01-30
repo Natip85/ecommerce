@@ -49,7 +49,7 @@ export function createAdminProductDetailBreadcrumbs(
   return [
     adminBreadcrumb,
     { href: "/admin/products", label: "Products" },
-    { href: `/admin/products/${productId}`, label: productTitle || "Edit Product" },
+    { href: `/admin/products/${productId}`, label: productTitle ?? "Edit Product" },
   ];
 }
 
@@ -60,6 +60,6 @@ export function createAdminCollectionDetailBreadcrumbs(
   return [
     adminBreadcrumb,
     { href: "/admin/collections", label: "Collections" },
-    { href: `/admin/collections/${collectionId}`, label: collectionTitle || "Edit Collection" },
+    { href: `/admin/collections/${collectionId}`, label: collectionTitle ?? "Edit Collection" },
   ];
 }

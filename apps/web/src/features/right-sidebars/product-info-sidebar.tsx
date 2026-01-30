@@ -224,7 +224,7 @@ export const ProductInfoSidebar = () => {
         {/* Product Info */}
         <div className="space-y-4 p-4">
           {/* Vendor & Product Type */}
-          {(data.vendor || data.productType) && (
+          {(data.vendor ?? data.productType) && (
             <div className="text-muted-foreground flex items-center gap-2 text-xs">
               {data.vendor && <span>{data.vendor}</span>}
               {data.vendor && data.productType && <span>•</span>}
@@ -238,7 +238,7 @@ export const ProductInfoSidebar = () => {
           {/* Rating (placeholder - can be connected to reviews later) */}
           <div className="flex items-center gap-2">
             <div className="flex items-center">
-              {[...Array(5)].map((_, i) => (
+              {Array.from({ length: 5 }).map((_, i) => (
                 <Star
                   key={i}
                   className={cn(
@@ -373,7 +373,7 @@ type SidebarCartFooterProps = {
 };
 
 const getCartItemId = (productId: string, variantId?: string) =>
-  `${productId}-${variantId || "default"}`;
+  `${productId}-${variantId ?? "default"}`;
 
 const SidebarCartFooter = ({
   productId,

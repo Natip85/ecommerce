@@ -1,6 +1,7 @@
-import { env } from "@ecommerce/env/server";
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
+
+import { env } from "@ecommerce/env/server";
 
 import * as schema from "./schema";
 

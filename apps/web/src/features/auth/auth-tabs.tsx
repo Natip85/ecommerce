@@ -13,7 +13,7 @@ import { SocialAuthButtons } from "./social-auth-buttons";
 
 type Tab = "signin" | "signup" | "email-verification" | "forgot-password";
 
-export default function LoginPage() {
+export function AuthTabs() {
   const [email, setEmail] = useState("");
   const [selectedTab, setSelectedTab] = useState<Tab>("signin");
 

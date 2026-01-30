@@ -29,7 +29,7 @@ export const CollectionTableBulkActions = <TData extends { id: string }>({
   const { mutateAsync: deleteMany } = useMutation(
     trpc.collection.deleteMany.mutationOptions({
       onSuccess: () => {
-        queryClient.invalidateQueries(trpc.collection.list.pathFilter());
+        void queryClient.invalidateQueries(trpc.collection.list.pathFilter());
         table.resetRowSelection();
       },
     })

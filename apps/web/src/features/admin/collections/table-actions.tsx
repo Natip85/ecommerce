@@ -43,10 +43,10 @@ export function TableActions({ collection }: TableActionsProps) {
   const { mutate: deleteCollection, isPending } = useMutation(
     trpc.collection.delete.mutationOptions({
       onSuccess: () => {
-        queryClient.invalidateQueries({
+        void queryClient.invalidateQueries({
           queryKey: trpc.collection.list.queryKey(),
         });
-        queryClient.invalidateQueries({
+        void queryClient.invalidateQueries({
           queryKey: trpc.product.listCollections.queryKey(),
         });
         toast.success("Collection deleted");

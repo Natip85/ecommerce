@@ -65,7 +65,7 @@ function getPriceRange(variants: Product["variants"]): string {
 function getTotalInventory(variants: Product["variants"]): number {
   if (!variants || variants.length === 0) return 0;
   return variants.reduce(
-    (sum: number, v: Product["variants"][number]) => sum + (v.inventoryQuantity || 0),
+    (sum: number, v: Product["variants"][number]) => sum + (v.inventoryQuantity ?? 0),
     0
   );
 }
@@ -113,7 +113,7 @@ export const columns: ColumnDef<Product>[] = [
             {firstImage?.url ?
               <Image
                 src={firstImage.url}
-                alt={firstImage.alt || product.title}
+                alt={firstImage.alt ?? product.title}
                 fill
                 className="object-cover"
               />

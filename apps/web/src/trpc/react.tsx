@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-properties */
 "use client";
 
 import type { QueryClient } from "@tanstack/react-query";

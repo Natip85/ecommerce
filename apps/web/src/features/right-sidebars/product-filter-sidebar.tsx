@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useEffectEvent, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, X } from "lucide-react";
 
@@ -63,9 +63,13 @@ export const ProductFilterSidebar = () => {
   const [maxInput, setMaxInput] = useState(priceRange[1].toString());
 
   // Sync local input state when filter changes externally
-  useEffect(() => {
+  const syncPriceInputs = useEffectEvent(() => {
     setMinInput((filter?.minPrice ?? MIN_PRICE).toString());
     setMaxInput((filter?.maxPrice ?? MAX_PRICE).toString());
+  });
+
+  useEffect(() => {
+    syncPriceInputs();
   }, [filter?.minPrice, filter?.maxPrice]);
 
   // Unified filter change handler - handles all filter updates including clears
@@ -200,7 +204,7 @@ export const ProductFilterSidebar = () => {
     setMaxInput(MAX_PRICE.toString());
 
     // Create new filter by spreading existing and removing only price-related fields
-    const { minPrice, maxPrice, ...restFilter } = filter ?? {};
+    const { minPrice: _minPrice, maxPrice: _maxPrice, ...restFilter } = filter ?? {};
 
     // Use null to clear the filter completely if no other filters remain
     void setSearchParams({

@@ -44,10 +44,7 @@ export const createBasicListInput = <T extends readonly string[]>(
  * @param sortableColumns - Array of column names that can be sorted
  * @param filterSchema - Zod schema for the filter object
  */
-export const createListInput = <
-  T extends readonly string[],
-  F extends z.ZodTypeAny,
->(
+export const createListInput = <T extends readonly string[], F extends z.ZodTypeAny>(
   sortableColumns: T,
   filterSchema: F
 ) =>
@@ -62,7 +59,6 @@ export type BasicListInput<T extends readonly string[]> = z.infer<
   ReturnType<typeof createBasicListInput<T>>
 >;
 
-export type ListInput<
-  T extends readonly string[],
-  F extends z.ZodTypeAny,
-> = z.infer<ReturnType<typeof createListInput<T, F>>>;
+export type ListInput<T extends readonly string[], F extends z.ZodTypeAny> = z.infer<
+  ReturnType<typeof createListInput<T, F>>
+>;

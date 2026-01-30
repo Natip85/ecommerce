@@ -1,9 +1,10 @@
-import { auth } from "@ecommerce/auth";
-import { db } from "@ecommerce/db";
-import { initTRPC, TRPCError } from "@trpc/server";
 import { headers } from "next/headers";
+import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
+
+import { auth } from "@ecommerce/auth";
+import { db } from "@ecommerce/db";
 
 type AuthSession = Awaited<ReturnType<typeof auth.api.getSession>>;
 
@@ -96,6 +97,7 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
   const result = await next();
 
   const end = Date.now();
+  // eslint-disable-next-line no-console
   console.log(`[TRPC] ${path} took ${end - start}ms to execute`);
 
   return result;
@@ -118,19 +120,17 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
  *
  * @see https://trpc.io/docs/procedures
  */
-export const protectedProcedure = t.procedure
-  .use(timingMiddleware)
-  .use(({ ctx, next }) => {
-    if (!ctx.session) {
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "Authentication required",
-      });
-    }
-    return next({
-      ctx: {
-        ...ctx,
-        session: ctx.session,
-      },
+export const protectedProcedure = t.procedure.use(timingMiddleware).use(({ ctx, next }) => {
+  if (!ctx.session) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Authentication required",
     });
+  }
+  return next({
+    ctx: {
+      ...ctx,
+      session: ctx.session,
+    },
   });
+});

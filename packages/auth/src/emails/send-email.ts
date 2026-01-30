@@ -1,5 +1,6 @@
-import { env } from "@ecommerce/env/server";
 import { Resend } from "resend";
+
+import { env } from "@ecommerce/env/server";
 
 const resend = new Resend(env.RESEND_API_KEY);
 

@@ -1,21 +1,11 @@
-import { products } from "@ecommerce/db/schema/product";
+import type { SQL } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
-import {
-  and,
-  asc,
-  desc,
-  eq,
-  gte,
-  ilike,
-  inArray,
-  lte,
-  or,
-  sql,
-  type SQL,
-} from "drizzle-orm";
+import { and, asc, desc, eq, gte, ilike, inArray, lte, or, sql } from "drizzle-orm";
 import { getTableColumns } from "drizzle-orm/utils";
 
-import type { ProductFilter, StorefrontFilter, OptionValueFilter } from "./product-filter-types";
+import { products } from "@ecommerce/db/schema/product";
+
+import type { OptionValueFilter, ProductFilter, StorefrontFilter } from "./product-filter-types";
 
 // =============================================================================
 // TYPES
@@ -84,7 +74,7 @@ export function buildFuzzySearchSql(
   column: typeof products.title,
   searchQuery?: string
 ): { fuzzyWhere?: SQL; fuzzyOrderBy?: SQL } {
-  if (!searchQuery || !searchQuery.trim()) {
+  if (!searchQuery?.trim()) {
     return {};
   }
 
@@ -96,7 +86,7 @@ export function buildFuzzySearchSql(
     ilike(products.handle, searchTerm),
     ilike(products.vendor, searchTerm),
     ilike(products.productType, searchTerm)
-  ) as SQL;
+  );
 
   // Fuzzy relevance scoring - exact match > starts with > contains
   const fuzzyOrderBy = sql`CASE 
@@ -125,10 +115,7 @@ export const buildProductWhereConditions = ({
   const whereConditions: SQL[] = [...additionalConditions];
 
   // Add fuzzy search on product title
-  const { fuzzyWhere, fuzzyOrderBy } = buildFuzzySearchSql(
-    products.title,
-    searchQuery
-  );
+  const { fuzzyWhere, fuzzyOrderBy } = buildFuzzySearchSql(products.title, searchQuery);
   if (fuzzyWhere) {
     whereConditions.push(fuzzyWhere);
   }
@@ -141,12 +128,13 @@ export const buildProductWhereConditions = ({
   if (filter.search?.trim()) {
     const searchTerm = `%${filter.search.trim()}%`;
     whereConditions.push(
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       or(
         ilike(products.title, searchTerm),
         ilike(products.handle, searchTerm),
         ilike(products.vendor, searchTerm),
         ilike(products.productType, searchTerm)
-      ) as SQL
+      )!
     );
   }
 
@@ -214,10 +202,7 @@ export const buildStorefrontWhereConditions = ({
   whereConditions.push(eq(products.status, "active"));
 
   // Add fuzzy search on product title
-  const { fuzzyWhere, fuzzyOrderBy } = buildFuzzySearchSql(
-    products.title,
-    searchQuery
-  );
+  const { fuzzyWhere, fuzzyOrderBy } = buildFuzzySearchSql(products.title, searchQuery);
   if (fuzzyWhere) {
     whereConditions.push(fuzzyWhere);
   }
@@ -230,10 +215,8 @@ export const buildStorefrontWhereConditions = ({
   if (filter.search?.trim()) {
     const searchTerm = `%${filter.search.trim()}%`;
     whereConditions.push(
-      or(
-        ilike(products.title, searchTerm),
-        ilike(products.handle, searchTerm)
-      ) as SQL
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      or(ilike(products.title, searchTerm), ilike(products.handle, searchTerm))!
     );
   }
 
@@ -282,9 +265,7 @@ export const buildProductOrderBy = ({
   allowedColumns,
 }: BuildProductOrderByOptions) => {
   // Use allowedColumns if provided, otherwise use all product columns (except metadata)
-  const validColumns = allowedColumns
-    ? new Set(allowedColumns)
-    : new Set(PRODUCT_SORTABLE_COLUMNS);
+  const validColumns = allowedColumns ? new Set(allowedColumns) : new Set(PRODUCT_SORTABLE_COLUMNS);
 
   // Special sort fields that require subquery-based sorting
   const specialFields = new Set<string>(SPECIAL_SORTABLE_FIELDS);
@@ -338,9 +319,7 @@ export const buildProductOrderBy = ({
  */
 export function buildTagFilterSubquery(tagIds: string[]) {
   // Use raw SQL to avoid Drizzle column reference issues in subqueries
-  const escapedIds = tagIds
-    .map((id) => `'${id.replace(/'/g, "''")}'`)
-    .join(", ");
+  const escapedIds = tagIds.map((id) => `'${id.replace(/'/g, "''")}'`).join(", ");
 
   return sql.raw(`EXISTS (
     SELECT 1 FROM "product_tags"
@@ -354,9 +333,7 @@ export function buildTagFilterSubquery(tagIds: string[]) {
  */
 export function buildCollectionFilterSubquery(collectionIds: string[]) {
   // Use raw SQL to avoid Drizzle column reference issues in subqueries
-  const escapedIds = collectionIds
-    .map((id) => `'${id.replace(/'/g, "''")}'`)
-    .join(", ");
+  const escapedIds = collectionIds.map((id) => `'${id.replace(/'/g, "''")}'`).join(", ");
 
   return sql.raw(`EXISTS (
     SELECT 1 FROM "product_collections"
@@ -370,9 +347,7 @@ export function buildCollectionFilterSubquery(collectionIds: string[]) {
  */
 export function buildTagValueFilterSubquery(tagValues: string[]) {
   // Use raw SQL to avoid Drizzle column reference issues in subqueries
-  const escapedValues = tagValues
-    .map((v) => `'${v.toLowerCase().replace(/'/g, "''")}'`)
-    .join(", ");
+  const escapedValues = tagValues.map((v) => `'${v.toLowerCase().replace(/'/g, "''")}'`).join(", ");
 
   return sql.raw(`EXISTS (
     SELECT 1 FROM "product_tags"
@@ -445,9 +420,7 @@ export function buildOptionFilterSubquery(optionFilters: OptionValueFilter[]) {
   // with any of the specified values for that option
   const conditions = optionFilters.map((filter) => {
     // Escape values for safe SQL injection
-    const escapedValues = filter.values
-      .map((v) => `'${v.replace(/'/g, "''")}'`)
-      .join(", ");
+    const escapedValues = filter.values.map((v) => `'${v.replace(/'/g, "''")}'`).join(", ");
     const escapedOptionName = filter.optionName.replace(/'/g, "''");
 
     return sql.raw(`EXISTS (

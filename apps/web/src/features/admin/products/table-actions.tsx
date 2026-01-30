@@ -43,7 +43,7 @@ export function TableActions({ product }: TableActionsProps) {
   const { mutate: deleteProduct, isPending } = useMutation(
     trpc.product.delete.mutationOptions({
       onSuccess: () => {
-        queryClient.invalidateQueries({
+        void queryClient.invalidateQueries({
           queryKey: trpc.product.list.queryKey(),
         });
         toast.success("Product deleted");

@@ -1,15 +1,15 @@
 import { relations } from "drizzle-orm";
 import {
+  boolean,
+  index,
+  integer,
+  jsonb,
+  numeric,
   pgTable,
-  uuid,
+  primaryKey,
   text,
   timestamp,
-  boolean,
-  integer,
-  numeric,
-  jsonb,
-  index,
-  primaryKey,
+  uuid,
 } from "drizzle-orm/pg-core";
 
 export const productStatuses = ["draft", "active", "archived"] as const;
@@ -283,81 +283,66 @@ export const productRelations = relations(products, ({ many }) => ({
 /**
  * Product Option Relations
  */
-export const productOptionRelations = relations(
-  productOptions,
-  ({ one, many }) => ({
-    product: one(products, {
-      fields: [productOptions.productId],
-      references: [products.id],
-    }),
-    values: many(productOptionValues),
-  })
-);
+export const productOptionRelations = relations(productOptions, ({ one, many }) => ({
+  product: one(products, {
+    fields: [productOptions.productId],
+    references: [products.id],
+  }),
+  values: many(productOptionValues),
+}));
 
 /**
  * Product Option Value Relations
  */
-export const productOptionValueRelations = relations(
-  productOptionValues,
-  ({ one, many }) => ({
-    option: one(productOptions, {
-      fields: [productOptionValues.optionId],
-      references: [productOptions.id],
-    }),
-    variantOptionValues: many(variantOptionValues),
-  })
-);
+export const productOptionValueRelations = relations(productOptionValues, ({ one, many }) => ({
+  option: one(productOptions, {
+    fields: [productOptionValues.optionId],
+    references: [productOptions.id],
+  }),
+  variantOptionValues: many(variantOptionValues),
+}));
 
 /**
  * Product Variant Relations
  */
-export const productVariantRelations = relations(
-  productVariants,
-  ({ one, many }) => ({
-    product: one(products, {
-      fields: [productVariants.productId],
-      references: [products.id],
-    }),
-    images: many(productImages),
-    variantOptionValues: many(variantOptionValues),
-    variantImages: many(variantImages),
-  })
-);
+export const productVariantRelations = relations(productVariants, ({ one, many }) => ({
+  product: one(products, {
+    fields: [productVariants.productId],
+    references: [products.id],
+  }),
+  images: many(productImages),
+  variantOptionValues: many(variantOptionValues),
+  variantImages: many(variantImages),
+}));
 
 /**
  * Product Image Relations
  */
-export const productImageRelations = relations(
-  productImages,
-  ({ one, many }) => ({
-    product: one(products, {
-      fields: [productImages.productId],
-      references: [products.id],
-    }),
-    variant: one(productVariants, {
-      fields: [productImages.variantId],
-      references: [productVariants.id],
-    }),
-    variantImages: many(variantImages),
-  })
-);
+export const productImageRelations = relations(productImages, ({ one, many }) => ({
+  product: one(products, {
+    fields: [productImages.productId],
+    references: [products.id],
+  }),
+  variant: one(productVariants, {
+    fields: [productImages.variantId],
+    references: [productVariants.id],
+  }),
+  variantImages: many(variantImages),
+}));
 
 /**
  * Variant Option Value Relations (Join Table)
  */
-export const variantOptionValueRelations = relations(
-  variantOptionValues,
-  ({ one }) => ({
-    variant: one(productVariants, {
-      fields: [variantOptionValues.variantId],
-      references: [productVariants.id],
-    }),
-    optionValue: one(productOptionValues, {
-      fields: [variantOptionValues.optionValueId],
-      references: [productOptionValues.id],
-    }),
-  })
-);
+export const variantOptionValueRelations = relations(variantOptionValues, ({ one }) => ({
+  variant: one(productVariants, {
+    fields: [variantOptionValues.variantId],
+    references: [productVariants.id],
+  }),
+  optionValue: one(productOptionValues, {
+    fields: [variantOptionValues.optionValueId],
+    references: [productOptionValues.id],
+  }),
+}));
 
 /**
  * Collection Relations
@@ -369,19 +354,16 @@ export const collectionRelations = relations(collections, ({ many }) => ({
 /**
  * Product Collection Relations (Join Table)
  */
-export const productCollectionRelations = relations(
-  productCollections,
-  ({ one }) => ({
-    product: one(products, {
-      fields: [productCollections.productId],
-      references: [products.id],
-    }),
-    collection: one(collections, {
-      fields: [productCollections.collectionId],
-      references: [collections.id],
-    }),
-  })
-);
+export const productCollectionRelations = relations(productCollections, ({ one }) => ({
+  product: one(products, {
+    fields: [productCollections.productId],
+    references: [products.id],
+  }),
+  collection: one(collections, {
+    fields: [productCollections.collectionId],
+    references: [collections.id],
+  }),
+}));
 
 /**
  * Tag Relations

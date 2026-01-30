@@ -1,36 +1,34 @@
-import { db } from "@ecommerce/db";
-import {
-  products,
-  productImages,
-  productVariants,
-  productOptions,
-  productOptionValues,
-  variantOptionValues,
-  tags,
-  productTags,
-  productCollections,
-  collections,
-} from "@ecommerce/db/schema/product";
 import { TRPCError } from "@trpc/server";
 import { and, count as drizzleCount, eq, ilike, or } from "drizzle-orm";
 import { z } from "zod";
 
+import { db } from "@ecommerce/db";
+import {
+  collections,
+  productCollections,
+  productImages,
+  productOptions,
+  productOptionValues,
+  products,
+  productTags,
+  productVariants,
+  tags,
+  variantOptionValues,
+} from "@ecommerce/db/schema/product";
+
 import { createListInput } from "../lib/list-input";
+import { productFilterSchema, storefrontFilterSchema } from "../lib/product-filter-types";
 import {
-  productFilterSchema,
-  storefrontFilterSchema,
-} from "../lib/product-filter-types";
-import {
+  buildCollectionFilterSubquery,
+  buildInStockSubquery,
+  buildOnSaleSubquery,
+  buildOptionFilterSubquery,
+  buildPriceRangeSubquery,
+  buildProductOrderBy,
   buildProductWhereConditions,
   buildStorefrontWhereConditions,
-  buildProductOrderBy,
   buildTagFilterSubquery,
-  buildCollectionFilterSubquery,
   buildTagValueFilterSubquery,
-  buildPriceRangeSubquery,
-  buildOnSaleSubquery,
-  buildInStockSubquery,
-  buildOptionFilterSubquery,
   PRODUCT_SORTABLE_COLUMNS,
 } from "../lib/product-query-builder";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
@@ -112,9 +110,7 @@ export const insertProductImageSchema = z.object({
  * Insert a product image into the database
  * Can be called directly from uploadthing or via tRPC
  */
-export async function insertProductImage(
-  input: z.infer<typeof insertProductImageSchema>
-) {
+export async function insertProductImage(input: z.infer<typeof insertProductImageSchema>) {
   // If no position provided, get the next position
   const getPosition = async (): Promise<number> => {
     if (input.position !== undefined) {
@@ -154,19 +150,17 @@ export const productRouter = createTRPCRouter({
   /**
    * Add an image to a product
    */
-  addImage: protectedProcedure
-    .input(insertProductImageSchema)
-    .mutation(async ({ ctx, input }) => {
-      // Check if user is admin
-      if (ctx.session.user.role !== "admin") {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Admin access required",
-        });
-      }
+  addImage: protectedProcedure.input(insertProductImageSchema).mutation(async ({ ctx, input }) => {
+    // Check if user is admin
+    if (ctx.session.user.role !== "admin") {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Admin access required",
+      });
+    }
 
-      return insertProductImage(input);
-    }),
+    return insertProductImage(input);
+  }),
 
   /**
    * Get all images for a product
@@ -219,47 +213,45 @@ export const productRouter = createTRPCRouter({
   /**
    * Create a new draft product with default variant
    */
-  create: protectedProcedure
-    .input(createProductSchema)
-    .mutation(async ({ ctx, input }) => {
-      if (ctx.session.user.role !== "admin") {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Admin access required",
-        });
-      }
-
-      const title = input.title || "Untitled product";
-      const handle = `untitled-product-${Date.now()}`;
-
-      const [product] = await db
-        .insert(products)
-        .values({
-          title,
-          handle,
-          status: "draft",
-          creationStatus: "in_progress",
-        })
-        .returning();
-
-      if (!product) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to create product",
-        });
-      }
-
-      // Create default variant
-      await db.insert(productVariants).values({
-        productId: product.id,
-        title: "Default Title",
-        price: "0",
-        optionValues: {},
-        position: 1,
+  create: protectedProcedure.input(createProductSchema).mutation(async ({ ctx, input }) => {
+    if (ctx.session.user.role !== "admin") {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Admin access required",
       });
+    }
 
-      return product;
-    }),
+    const title = input.title ?? "Untitled product";
+    const handle = `untitled-product-${Date.now()}`;
+
+    const [product] = await db
+      .insert(products)
+      .values({
+        title,
+        handle,
+        status: "draft",
+        creationStatus: "in_progress",
+      })
+      .returning();
+
+    if (!product) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to create product",
+      });
+    }
+
+    // Create default variant
+    await db.insert(productVariants).values({
+      productId: product.id,
+      title: "Default Title",
+      price: "0",
+      optionValues: {},
+      position: 1,
+    });
+
+    return product;
+  }),
 
   /**
    * Get a product by ID with all related data
@@ -329,8 +321,8 @@ export const productRouter = createTRPCRouter({
         id: v.id,
         optionValues: (v.optionValues as Record<string, string>) || {},
         price: v.price || "",
-        compareAtPrice: v.compareAtPrice || "",
-        sku: v.sku || "",
+        compareAtPrice: v.compareAtPrice ?? "",
+        sku: v.sku ?? "",
         quantity: String(v.inventoryQuantity ?? 0),
       }));
 
@@ -349,7 +341,7 @@ export const productRouter = createTRPCRouter({
             position: 1,
           })
           .returning();
-        defaultVariant = newVariant!;
+        defaultVariant = newVariant;
       }
 
       return {
@@ -369,82 +361,82 @@ export const productRouter = createTRPCRouter({
   /**
    * Update a product
    */
-  update: protectedProcedure
-    .input(updateProductSchema)
-    .mutation(async ({ ctx, input }) => {
-      if (ctx.session.user.role !== "admin") {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Admin access required",
-        });
-      }
+  update: protectedProcedure.input(updateProductSchema).mutation(async ({ ctx, input }) => {
+    if (ctx.session.user.role !== "admin") {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Admin access required",
+      });
+    }
 
-      const {
-        productId,
-        metadata,
-        tags: tagValues,
-        collections: collectionIds,
-        options: optionsData,
-        variants: variantsData,
-        variant: variantData,
-        ...updateData
-      } = input;
+    const {
+      productId,
+      metadata,
+      tags: tagValues,
+      collections: collectionIds,
+      options: optionsData,
+      variants: variantsData,
+      variant: variantData,
+      ...updateData
+    } = input;
 
-      // Remove undefined values from top-level fields
-      const cleanedData: Record<string, unknown> = Object.fromEntries(
-        Object.entries(updateData).filter(([, v]) => v !== undefined)
+    // Remove undefined values from top-level fields
+    const cleanedData: Record<string, unknown> = Object.fromEntries(
+      Object.entries(updateData).filter(([, v]) => v !== undefined)
+    );
+
+    // Handle metadata separately - only include if it has actual values
+    if (metadata) {
+      const cleanedMetadata = Object.fromEntries(
+        Object.entries(metadata).filter(([, v]) => v !== undefined)
       );
-
-      // Handle metadata separately - only include if it has actual values
-      if (metadata) {
-        const cleanedMetadata = Object.fromEntries(
-          Object.entries(metadata).filter(([, v]) => v !== undefined)
-        );
-        // Only add metadata if it has at least one value
-        if (Object.keys(cleanedMetadata).length > 0) {
-          cleanedData.metadata = cleanedMetadata;
-        }
+      // Only add metadata if it has at least one value
+      if (Object.keys(cleanedMetadata).length > 0) {
+        cleanedData.metadata = cleanedMetadata;
       }
+    }
 
-      // Handle tags if provided
-      if (tagValues !== undefined) {
-        // Delete existing product tags
-        await db.delete(productTags).where(eq(productTags.productId, productId));
+    // Handle tags if provided
+    if (tagValues !== undefined) {
+      // Delete existing product tags
+      await db.delete(productTags).where(eq(productTags.productId, productId));
 
-        // If there are new tags to add
-        if (tagValues.length > 0) {
-          // Filter out empty strings
-          const validTagValues = tagValues.filter((v) => v.trim().length > 0);
+      // If there are new tags to add
+      if (tagValues.length > 0) {
+        // Filter out empty strings
+        const validTagValues = tagValues.filter((v) => v.trim().length > 0);
 
-          if (validTagValues.length > 0) {
-            // Upsert tags (create if they don't exist)
-            const tagRecords = await Promise.all(
-              validTagValues.map(async (value) => {
-                const normalizedValue = value.trim().toLowerCase();
+        if (validTagValues.length > 0) {
+          // Upsert tags (create if they don't exist)
+          const tagRecords = await Promise.all(
+            validTagValues.map(async (value) => {
+              const normalizedValue = value.trim().toLowerCase();
 
-                // Check if tag exists
-                const [existingTag] = await db
-                  .select()
-                  .from(tags)
-                  .where(eq(tags.value, normalizedValue));
+              // Check if tag exists
+              const [existingTag] = await db
+                .select()
+                .from(tags)
+                .where(eq(tags.value, normalizedValue));
 
-                if (existingTag) {
-                  return existingTag;
-                }
+              if (existingTag) {
+                return existingTag;
+              }
 
-                // Create new tag
-                const [newTag] = await db
-                  .insert(tags)
-                  .values({ value: normalizedValue })
-                  .returning();
+              // Create new tag
+              const [newTag] = await db.insert(tags).values({ value: normalizedValue }).returning();
 
-                return newTag!;
-              })
-            );
+              return newTag;
+            })
+          );
 
-            // Create product-tag associations
+          // Create product-tag associations (filter out any undefined tags)
+          const validTagRecords = tagRecords.filter(
+            (tag): tag is NonNullable<typeof tag> => tag !== undefined
+          );
+
+          if (validTagRecords.length > 0) {
             await db.insert(productTags).values(
-              tagRecords.map((tag) => ({
+              validTagRecords.map((tag) => ({
                 productId,
                 tagId: tag.id,
               }))
@@ -452,227 +444,225 @@ export const productRouter = createTRPCRouter({
           }
         }
       }
+    }
 
-      // Handle collections if provided
-      if (collectionIds !== undefined) {
-        // Delete existing product collections
-        await db
-          .delete(productCollections)
-          .where(eq(productCollections.productId, productId));
+    // Handle collections if provided
+    if (collectionIds !== undefined) {
+      // Delete existing product collections
+      await db.delete(productCollections).where(eq(productCollections.productId, productId));
 
-        // If there are collections to add
-        if (collectionIds.length > 0) {
-          await db.insert(productCollections).values(
-            collectionIds.map((collectionId) => ({
-              productId,
-              collectionId,
-            }))
-          );
+      // If there are collections to add
+      if (collectionIds.length > 0) {
+        await db.insert(productCollections).values(
+          collectionIds.map((collectionId) => ({
+            productId,
+            collectionId,
+          }))
+        );
+      }
+    }
+
+    // Handle options and variants if provided
+    if (optionsData !== undefined) {
+      // Delete existing options (cascades to option values and variant option values)
+      await db.delete(productOptions).where(eq(productOptions.productId, productId));
+
+      // Create option name to ID mapping for variants
+      const optionNameToId: Record<string, string> = {};
+      const optionValueToId: Record<string, Record<string, string>> = {};
+
+      // Create new options and their values
+      for (let i = 0; i < optionsData.length; i++) {
+        const option = optionsData[i];
+        if (!option) continue;
+
+        // Create the option
+        const [createdOption] = await db
+          .insert(productOptions)
+          .values({
+            productId,
+            name: option.name,
+            position: i + 1,
+          })
+          .returning();
+
+        if (createdOption) {
+          optionNameToId[option.name] = createdOption.id;
+          optionValueToId[option.name] = {};
+
+          // Create option values
+          for (let j = 0; j < option.values.length; j++) {
+            const value = option.values[j];
+            if (!value) continue;
+
+            const [createdValue] = await db
+              .insert(productOptionValues)
+              .values({
+                optionId: createdOption.id,
+                value,
+                position: j + 1,
+              })
+              .returning();
+
+            if (createdValue) {
+              const optionValuesMap = optionValueToId[option.name];
+              if (optionValuesMap) {
+                optionValuesMap[value] = createdValue.id;
+              }
+            }
+          }
         }
       }
 
-      // Handle options and variants if provided
-      if (optionsData !== undefined) {
-        // Delete existing options (cascades to option values and variant option values)
-        await db.delete(productOptions).where(eq(productOptions.productId, productId));
+      // Handle variants if provided along with options
+      if (variantsData !== undefined && variantsData.length > 0) {
+        // Delete existing variants
+        await db.delete(productVariants).where(eq(productVariants.productId, productId));
 
-        // Create option name to ID mapping for variants
-        const optionNameToId: Record<string, string> = {};
-        const optionValueToId: Record<string, Record<string, string>> = {};
+        // Create new variants
+        for (let i = 0; i < variantsData.length; i++) {
+          const variant = variantsData[i];
+          if (!variant) continue;
 
-        // Create new options and their values
-        for (let i = 0; i < optionsData.length; i++) {
-          const option = optionsData[i];
-          if (!option) continue;
+          // Generate variant title from option values
+          const title = Object.values(variant.optionValues).join(" / ") || "Default";
 
-          // Create the option
-          const [createdOption] = await db
-            .insert(productOptions)
+          const [createdVariant] = await db
+            .insert(productVariants)
             .values({
               productId,
-              name: option.name,
+              title,
+              price: variant.price || "0",
+              compareAtPrice: variant.compareAtPrice ?? null,
+              sku: variant.sku ?? null,
+              inventoryQuantity: variant.quantity || 0,
+              optionValues: variant.optionValues,
               position: i + 1,
             })
             .returning();
 
-          if (createdOption) {
-            optionNameToId[option.name] = createdOption.id;
-            optionValueToId[option.name] = {};
-
-            // Create option values
-            for (let j = 0; j < option.values.length; j++) {
-              const value = option.values[j];
-              if (!value) continue;
-
-              const [createdValue] = await db
-                .insert(productOptionValues)
-                .values({
-                  optionId: createdOption.id,
-                  value,
-                  position: j + 1,
-                })
-                .returning();
-
-              if (createdValue) {
-                optionValueToId[option.name]![value] = createdValue.id;
+          // Create variant-option-value associations
+          if (createdVariant) {
+            for (const [optionName, optionValue] of Object.entries(variant.optionValues)) {
+              const optionValueId = optionValueToId[optionName]?.[optionValue];
+              if (optionValueId) {
+                await db.insert(variantOptionValues).values({
+                  variantId: createdVariant.id,
+                  optionValueId,
+                });
               }
             }
           }
         }
-
-        // Handle variants if provided along with options
-        if (variantsData !== undefined && variantsData.length > 0) {
-          // Delete existing variants
-          await db.delete(productVariants).where(eq(productVariants.productId, productId));
-
-          // Create new variants
-          for (let i = 0; i < variantsData.length; i++) {
-            const variant = variantsData[i];
-            if (!variant) continue;
-
-            // Generate variant title from option values
-            const title = Object.values(variant.optionValues).join(" / ") || "Default";
-
-            const [createdVariant] = await db
-              .insert(productVariants)
-              .values({
-                productId,
-                title,
-                price: variant.price || "0",
-                compareAtPrice: variant.compareAtPrice || null,
-                sku: variant.sku || null,
-                inventoryQuantity: variant.quantity || 0,
-                optionValues: variant.optionValues,
-                position: i + 1,
-              })
-              .returning();
-
-            // Create variant-option-value associations
-            if (createdVariant) {
-              for (const [optionName, optionValue] of Object.entries(variant.optionValues)) {
-                const optionValueId = optionValueToId[optionName]?.[optionValue];
-                if (optionValueId) {
-                  await db.insert(variantOptionValues).values({
-                    variantId: createdVariant.id,
-                    optionValueId,
-                  });
-                }
-              }
-            }
-          }
-        } else if (optionsData.length === 0 || !optionsData.some(o => o.values.length > 0)) {
-          // No options or no values = ensure default variant exists
-          const existingVariants = await db
-            .select()
-            .from(productVariants)
-            .where(eq(productVariants.productId, productId));
-
-          if (existingVariants.length === 0) {
-            await db.insert(productVariants).values({
-              productId,
-              title: "Default Title",
-              price: "0",
-              optionValues: {},
-              position: 1,
-            });
-          }
-        }
-      }
-
-      // Handle default variant fields if provided (when no options exist)
-      if (variantData && !variantsData) {
-        // Get the default variant
-        let [defaultVariant] = await db
+      } else if (optionsData.length === 0 || !optionsData.some((o) => o.values.length > 0)) {
+        // No options or no values = ensure default variant exists
+        const existingVariants = await db
           .select()
           .from(productVariants)
-          .where(eq(productVariants.productId, productId))
-          .orderBy(productVariants.position)
-          .limit(1);
+          .where(eq(productVariants.productId, productId));
 
-        // Create default variant if it doesn't exist
-        if (!defaultVariant) {
-          [defaultVariant] = await db
-            .insert(productVariants)
-            .values({
-              productId,
-              title: "Default Title",
-              price: variantData.price || "0",
-              optionValues: {},
-              position: 1,
-            })
-            .returning();
-        }
-
-        // Build variant update data
-        const variantUpdateData: Record<string, unknown> = {};
-        if (variantData.price !== undefined) {
-          variantUpdateData.price = variantData.price;
-        }
-        if (variantData.compareAtPrice !== undefined) {
-          variantUpdateData.compareAtPrice = variantData.compareAtPrice || null;
-        }
-        if (variantData.sku !== undefined) {
-          variantUpdateData.sku = variantData.sku || null;
-        }
-        if (variantData.barcode !== undefined) {
-          variantUpdateData.barcode = variantData.barcode || null;
-        }
-        if (variantData.inventoryQuantity !== undefined) {
-          variantUpdateData.inventoryQuantity = variantData.inventoryQuantity;
-        }
-        if (variantData.inventoryTracked !== undefined) {
-          variantUpdateData.inventoryTracked = variantData.inventoryTracked;
-        }
-        if (variantData.chargeTax !== undefined) {
-          variantUpdateData.chargeTax = variantData.chargeTax;
-        }
-        if (variantData.continueSellingWhenOutOfStock !== undefined) {
-          variantUpdateData.continueSellingWhenOutOfStock =
-            variantData.continueSellingWhenOutOfStock;
-        }
-
-        // Update variant if there are fields to update
-        if (Object.keys(variantUpdateData).length > 0 && defaultVariant) {
-          await db
-            .update(productVariants)
-            .set(variantUpdateData)
-            .where(eq(productVariants.id, defaultVariant.id));
-        }
-      }
-
-      // Only update product if there are fields to update
-      if (Object.keys(cleanedData).length > 0) {
-        const [updated] = await db
-          .update(products)
-          .set(cleanedData)
-          .where(eq(products.id, productId))
-          .returning();
-
-        if (!updated) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "Product not found",
+        if (existingVariants.length === 0) {
+          await db.insert(productVariants).values({
+            productId,
+            title: "Default Title",
+            price: "0",
+            optionValues: {},
+            position: 1,
           });
         }
+      }
+    }
 
-        return updated;
+    // Handle default variant fields if provided (when no options exist)
+    if (variantData && !variantsData) {
+      // Get the default variant
+      let [defaultVariant] = await db
+        .select()
+        .from(productVariants)
+        .where(eq(productVariants.productId, productId))
+        .orderBy(productVariants.position)
+        .limit(1);
+
+      // Create default variant if it doesn't exist
+      if (!defaultVariant) {
+        [defaultVariant] = await db
+          .insert(productVariants)
+          .values({
+            productId,
+            title: "Default Title",
+            price: variantData.price ?? "0",
+            optionValues: {},
+            position: 1,
+          })
+          .returning();
       }
 
-      // If only tags were updated, fetch and return the product
-      const [product] = await db
-        .select()
-        .from(products)
-        .where(eq(products.id, productId));
+      // Build variant update data
+      const variantUpdateData: Record<string, unknown> = {};
+      if (variantData.price !== undefined) {
+        variantUpdateData.price = variantData.price;
+      }
+      if (variantData.compareAtPrice !== undefined) {
+        variantUpdateData.compareAtPrice = variantData.compareAtPrice || null;
+      }
+      if (variantData.sku !== undefined) {
+        variantUpdateData.sku = variantData.sku || null;
+      }
+      if (variantData.barcode !== undefined) {
+        variantUpdateData.barcode = variantData.barcode || null;
+      }
+      if (variantData.inventoryQuantity !== undefined) {
+        variantUpdateData.inventoryQuantity = variantData.inventoryQuantity;
+      }
+      if (variantData.inventoryTracked !== undefined) {
+        variantUpdateData.inventoryTracked = variantData.inventoryTracked;
+      }
+      if (variantData.chargeTax !== undefined) {
+        variantUpdateData.chargeTax = variantData.chargeTax;
+      }
+      if (variantData.continueSellingWhenOutOfStock !== undefined) {
+        variantUpdateData.continueSellingWhenOutOfStock = variantData.continueSellingWhenOutOfStock;
+      }
 
-      if (!product) {
+      // Update variant if there are fields to update
+      if (Object.keys(variantUpdateData).length > 0 && defaultVariant) {
+        await db
+          .update(productVariants)
+          .set(variantUpdateData)
+          .where(eq(productVariants.id, defaultVariant.id));
+      }
+    }
+
+    // Only update product if there are fields to update
+    if (Object.keys(cleanedData).length > 0) {
+      const [updated] = await db
+        .update(products)
+        .set(cleanedData)
+        .where(eq(products.id, productId))
+        .returning();
+
+      if (!updated) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Product not found",
         });
       }
 
-      return product;
-    }),
+      return updated;
+    }
+
+    // If only tags were updated, fetch and return the product
+    const [product] = await db.select().from(products).where(eq(products.id, productId));
+
+    if (!product) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Product not found",
+      });
+    }
+
+    return product;
+  }),
 
   /**
    * Delete a product
@@ -749,7 +739,7 @@ export const productRouter = createTRPCRouter({
       },
     });
 
-    return incomplete || null;
+    return incomplete ?? null;
   }),
 
   /**
@@ -773,23 +763,17 @@ export const productRouter = createTRPCRouter({
 
         // Tag filter
         if (input.filter?.tagIds && input.filter.tagIds.length > 0) {
-          additionalConditions.push(
-            buildTagFilterSubquery(input.filter.tagIds)
-          );
+          additionalConditions.push(buildTagFilterSubquery(input.filter.tagIds));
         }
 
         // Excluded tag filter
         if (input.filter?.excludedTagIds && input.filter.excludedTagIds.length > 0) {
-          additionalConditions.push(
-            buildTagFilterSubquery(input.filter.excludedTagIds)
-          );
+          additionalConditions.push(buildTagFilterSubquery(input.filter.excludedTagIds));
         }
 
         // Collection filter
         if (input.filter?.collectionIds && input.filter.collectionIds.length > 0) {
-          additionalConditions.push(
-            buildCollectionFilterSubquery(input.filter.collectionIds)
-          );
+          additionalConditions.push(buildCollectionFilterSubquery(input.filter.collectionIds));
         }
 
         // Price range filter
@@ -841,23 +825,24 @@ export const productRouter = createTRPCRouter({
             with: {
               variants: {
                 orderBy: (variants, { asc }) => [asc(variants.position)],
-                columns: includeFullDetails
-                  ? undefined
-                  : {
-                    id: true,
-                    price: true,
-                    compareAtPrice: true,
-                    inventoryQuantity: true,
-                    inventoryTracked: true,
-                    continueSellingWhenOutOfStock: true,
-                  },
+                columns:
+                  includeFullDetails ? undefined : (
+                    {
+                      id: true,
+                      price: true,
+                      compareAtPrice: true,
+                      inventoryQuantity: true,
+                      inventoryTracked: true,
+                      continueSellingWhenOutOfStock: true,
+                    }
+                  ),
               },
               images: {
                 orderBy: (images, { asc }) => [asc(images.position)],
                 limit: includeFullDetails ? undefined : 1,
               },
-              ...(includeFullDetails
-                ? {
+              ...(includeFullDetails ?
+                {
                   options: {
                     orderBy: (options, { asc }) => [asc(options.position)],
                     with: {
@@ -877,7 +862,7 @@ export const productRouter = createTRPCRouter({
                     },
                   },
                 }
-                : {
+              : {
                   productTags: {
                     with: {
                       tag: true,
@@ -886,10 +871,7 @@ export const productRouter = createTRPCRouter({
                 }),
             },
           }),
-          db.$count(
-            products,
-            whereConditions.length > 0 ? and(...whereConditions) : undefined
-          ),
+          db.$count(products, whereConditions.length > 0 ? and(...whereConditions) : undefined),
         ]);
 
         // Transform the data
@@ -897,11 +879,11 @@ export const productRouter = createTRPCRouter({
           ...product,
           tags: product.productTags?.map((pt) => pt.tag.value) ?? [],
           collections:
-            "productCollections" in product
-              ? (product as typeof product & { productCollections: Array<{ collection: unknown }> }).productCollections?.map(
-                (pc) => pc.collection
-              ) ?? []
-              : [],
+            "productCollections" in product ?
+              ((
+                product as typeof product & { productCollections: { collection: unknown }[] }
+              ).productCollections?.map((pc) => pc.collection) ?? [])
+            : [],
           productTags: undefined,
           productCollections: undefined,
         }));
@@ -914,10 +896,6 @@ export const productRouter = createTRPCRouter({
           totalPages: Math.ceil(totalCount / input.limit),
         };
       } catch (error) {
-        console.error("[products|list|error]", {
-          error: error instanceof Error ? error.message : String(error),
-          stack: error instanceof Error ? error.stack : "No stack trace",
-        });
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to fetch products",
@@ -940,16 +918,12 @@ export const productRouter = createTRPCRouter({
 
         // Tag filter (by value for storefront)
         if (input.filter?.tags && input.filter.tags.length > 0) {
-          additionalConditions.push(
-            buildTagValueFilterSubquery(input.filter.tags)
-          );
+          additionalConditions.push(buildTagValueFilterSubquery(input.filter.tags));
         }
 
         // Collection filter
         if (input.filter?.collectionIds && input.filter.collectionIds.length > 0) {
-          additionalConditions.push(
-            buildCollectionFilterSubquery(input.filter.collectionIds)
-          );
+          additionalConditions.push(buildCollectionFilterSubquery(input.filter.collectionIds));
         }
 
         // Price range filter
@@ -1059,10 +1033,6 @@ export const productRouter = createTRPCRouter({
           totalPages: Math.ceil(totalCount / input.limit),
         };
       } catch (error) {
-        console.error("[products|storefront|error]", {
-          error: error instanceof Error ? error.message : String(error),
-          stack: error instanceof Error ? error.stack : "No stack trace",
-        });
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to fetch products",
@@ -1118,9 +1088,11 @@ export const productRouter = createTRPCRouter({
       if (!optionMap.has(option.name)) {
         optionMap.set(option.name, new Set());
       }
-      const valuesSet = optionMap.get(option.name)!;
-      for (const value of option.values) {
-        valuesSet.add(value.value);
+      const valuesSet = optionMap.get(option.name);
+      if (valuesSet) {
+        for (const value of option.values) {
+          valuesSet.add(value.value);
+        }
       }
     }
 
@@ -1177,99 +1149,94 @@ export const productRouter = createTRPCRouter({
    * Global search for products and collections (public - no auth required)
    * Used by the global search dialog (Cmd+K)
    */
-  globalSearch: publicProcedure
-    .input(z.string().optional())
-    .query(async ({ input }) => {
-      const searchTerm = input?.trim();
+  globalSearch: publicProcedure.input(z.string().optional()).query(async ({ input }) => {
+    const searchTerm = input?.trim();
 
-      if (!searchTerm || searchTerm.length < 2) {
-        return {
-          products: [],
-          collections: [],
-        };
-      }
+    if (!searchTerm || searchTerm.length < 2) {
+      return {
+        products: [],
+        collections: [],
+      };
+    }
 
-      try {
-        // Search products by title or description (only published, active products)
-        const productsResult = await db.query.products.findMany({
-          where: and(
-            or(
-              ilike(products.title, `%${searchTerm}%`),
-              ilike(products.description, `%${searchTerm}%`)
-            ),
-            eq(products.published, true),
-            eq(products.status, "active")
+    try {
+      // Search products by title or description (only published, active products)
+      const productsResult = await db.query.products.findMany({
+        where: and(
+          or(
+            ilike(products.title, `%${searchTerm}%`),
+            ilike(products.description, `%${searchTerm}%`)
           ),
-          columns: {
-            id: true,
-            title: true,
-            handle: true,
-            productType: true,
-          },
-          with: {
-            variants: {
-              limit: 1,
-              orderBy: (variants, { asc }) => [asc(variants.position)],
-              columns: {
-                price: true,
-              },
-            },
-            images: {
-              limit: 1,
-              orderBy: (images, { asc }) => [asc(images.position)],
-              columns: {
-                url: true,
-                alt: true,
-              },
+          eq(products.published, true),
+          eq(products.status, "active")
+        ),
+        columns: {
+          id: true,
+          title: true,
+          handle: true,
+          productType: true,
+        },
+        with: {
+          variants: {
+            limit: 1,
+            orderBy: (variants, { asc }) => [asc(variants.position)],
+            columns: {
+              price: true,
             },
           },
-          limit: 10,
-        });
+          images: {
+            limit: 1,
+            orderBy: (images, { asc }) => [asc(images.position)],
+            columns: {
+              url: true,
+              alt: true,
+            },
+          },
+        },
+        limit: 10,
+      });
 
-        // Search collections by title
-        const collectionsResult = await db.query.collections.findMany({
-          where: ilike(collections.title, `%${searchTerm}%`),
-          columns: {
-            id: true,
-            title: true,
-            handle: true,
-          },
-          with: {
-            productCollections: {
-              columns: {
-                productId: true,
-              },
+      // Search collections by title
+      const collectionsResult = await db.query.collections.findMany({
+        where: ilike(collections.title, `%${searchTerm}%`),
+        columns: {
+          id: true,
+          title: true,
+          handle: true,
+        },
+        with: {
+          productCollections: {
+            columns: {
+              productId: true,
             },
           },
-          limit: 5,
-        });
+        },
+        limit: 5,
+      });
 
-        return {
-          products: productsResult.map((p) => ({
-            id: p.id,
-            title: p.title,
-            handle: p.handle,
-            productType: p.productType,
-            price: p.variants[0]?.price ?? null,
-            image: p.images[0] ?? null,
-          })),
-          collections: collectionsResult.map((c) => ({
-            id: c.id,
-            title: c.title,
-            handle: c.handle,
-            productCount: c.productCollections.length,
-          })),
-        };
-      } catch (error) {
-        console.error("[products|globalSearch|error]", {
-          error: error instanceof Error ? error.message : String(error),
-        });
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to perform global search",
-        });
-      }
-    }),
+      return {
+        products: productsResult.map((p) => ({
+          id: p.id,
+          title: p.title,
+          handle: p.handle,
+          productType: p.productType,
+          price: p.variants[0]?.price ?? null,
+          image: p.images[0] ?? null,
+        })),
+        collections: collectionsResult.map((c) => ({
+          id: c.id,
+          title: c.title,
+          handle: c.handle,
+          productCount: c.productCollections.length,
+        })),
+      };
+    } catch (error) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: `Failed to perform global search ${error as string}`,
+      });
+    }
+  }),
 
   /**
    * Get a single product by ID for storefront (public - no auth required)
@@ -1323,31 +1290,26 @@ export const productRouter = createTRPCRouter({
         const hasInStockVariant = product.variants.some(
           (v) =>
             (v.inventoryQuantity ?? 0) > 0 ||
-            v.continueSellingWhenOutOfStock ||
-            !v.inventoryTracked
+            (v.continueSellingWhenOutOfStock ?? false) ||
+            (v.inventoryTracked ?? true)
         );
 
         // Get price info from first variant
         const firstVariant = product.variants[0];
         const price = firstVariant?.price ? parseFloat(firstVariant.price) : 0;
-        const compareAtPrice = firstVariant?.compareAtPrice
-          ? parseFloat(firstVariant.compareAtPrice)
-          : undefined;
+        const compareAtPrice =
+          firstVariant?.compareAtPrice ? parseFloat(firstVariant.compareAtPrice) : undefined;
 
         // Transform images to expected format
         const images = product.images.map((img) => ({
           id: img.id,
           src: img.url,
-          alt: img.alt || product.title,
+          alt: img.alt ?? product.title,
         }));
 
         // Transform options to colors/sizes format with stock info
-        const colorOption = product.options.find(
-          (o) => o.name.toLowerCase() === "color"
-        );
-        const sizeOption = product.options.find(
-          (o) => o.name.toLowerCase() === "size"
-        );
+        const colorOption = product.options.find((o) => o.name.toLowerCase() === "color");
+        const sizeOption = product.options.find((o) => o.name.toLowerCase() === "size");
 
         // Helper to check if an option value is in stock
         const isOptionValueInStock = (optionName: string, optionValue: string) => {
@@ -1356,28 +1318,30 @@ export const productRouter = createTRPCRouter({
             if (variantOptions[optionName] !== optionValue) return false;
             return (
               (v.inventoryQuantity ?? 0) > 0 ||
-              v.continueSellingWhenOutOfStock ||
+              (v.continueSellingWhenOutOfStock ?? false) ||
               !v.inventoryTracked
             );
           });
         };
 
-        const colors = colorOption
-          ? colorOption.values.map((v) => ({
-            id: v.id,
-            name: v.value,
-            value: v.value, // Could be enhanced with color hex codes stored in metadata
-            inStock: isOptionValueInStock("Color", v.value),
-          }))
+        const colors =
+          colorOption ?
+            colorOption.values.map((v) => ({
+              id: v.id,
+              name: v.value,
+              value: v.value, // Could be enhanced with color hex codes stored in metadata
+              inStock: isOptionValueInStock("Color", v.value),
+            }))
           : [];
 
-        const sizes = sizeOption
-          ? sizeOption.values.map((v) => ({
-            id: v.id,
-            name: v.value,
-            value: v.value,
-            inStock: isOptionValueInStock("Size", v.value),
-          }))
+        const sizes =
+          sizeOption ?
+            sizeOption.values.map((v) => ({
+              id: v.id,
+              name: v.value,
+              value: v.value,
+              inStock: isOptionValueInStock("Size", v.value),
+            }))
           : [];
 
         // Transform tags
@@ -1387,13 +1351,13 @@ export const productRouter = createTRPCRouter({
           id: product.id,
           handle: product.handle,
           title: product.title,
-          description: product.description || "",
+          description: product.description ?? "",
           price,
           originalPrice: compareAtPrice,
           inStock: hasInStockVariant,
           stockCount: totalInventory,
-          sku: firstVariant?.sku || undefined,
-          brand: product.vendor || undefined,
+          sku: firstVariant?.sku ?? undefined,
+          brand: product.vendor ?? undefined,
           images,
           colors,
           sizes,
@@ -1403,14 +1367,12 @@ export const productRouter = createTRPCRouter({
             id: v.id,
             sku: v.sku,
             price: v.price ? parseFloat(v.price) : 0,
-            compareAtPrice: v.compareAtPrice
-              ? parseFloat(v.compareAtPrice)
-              : undefined,
+            compareAtPrice: v.compareAtPrice ? parseFloat(v.compareAtPrice) : undefined,
             inventoryQuantity: v.inventoryQuantity ?? 0,
             optionValues: v.optionValues as Record<string, string>,
             inStock:
               (v.inventoryQuantity ?? 0) > 0 ||
-              v.continueSellingWhenOutOfStock ||
+              (v.continueSellingWhenOutOfStock ?? false) ||
               !v.inventoryTracked,
           })),
           // Options for generic option handling
@@ -1428,9 +1390,7 @@ export const productRouter = createTRPCRouter({
         if (error instanceof TRPCError) {
           throw error;
         }
-        console.error("[products|getByIdPublic|error]", {
-          error: error instanceof Error ? error.message : String(error),
-        });
+
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to fetch product",

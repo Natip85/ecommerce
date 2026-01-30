@@ -74,6 +74,7 @@ export const ProductCard = ({
     <div
       className={cn(
         "border-border bg-card hover:shadow-foreground/5 group relative flex h-full flex-col overflow-hidden rounded-xl border transition-all duration-300 hover:shadow-xl",
+        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
         (href || onClick) && "cursor-pointer",
         className
       )}
@@ -132,7 +133,6 @@ export const ProductCardImage = ({
   badge,
   discount,
   inStock = true,
-  onQuickView,
   onAddToCart,
   onWishlist,
 }: ProductCardImageProps) => {
@@ -170,16 +170,10 @@ export const ProductCardImage = ({
     onAddToCart?.();
   };
 
-  const handleQuickView = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onQuickView?.();
-  };
-
   return (
     <div className="bg-muted relative aspect-square overflow-hidden">
       <Image
-        src={src || "/placeholder.svg"}
+        src={src ?? "/placeholder.svg"}
         alt={alt}
         fill
         className={cn("object-cover transition-transform duration-500", isHovered && "scale-110")}
@@ -289,7 +283,7 @@ export const ProductCardContent = ({
       {/* Rating */}
       <div className="mb-2 flex items-center gap-1.5">
         <div className="flex items-center">
-          {[...Array(5)].map((_, i) => (
+          {Array.from({ length: 5 }).map((_, i) => (
             <Star
               key={i}
               className={cn(
@@ -333,7 +327,7 @@ export type ProductCardFooterProps = {
 
 // Helper to generate cart item ID (matches cart store logic)
 const getCartItemId = (productId: string, variantId?: string) =>
-  `${productId}-${variantId || "default"}`;
+  `${productId}-${variantId ?? "default"}`;
 
 // Quantity control component for when item is in cart
 const CartQuantityControl = ({

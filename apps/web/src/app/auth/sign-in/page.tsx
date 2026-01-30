@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
-import AuthTabs from "@/features/auth/auth-tabs";
+import { AuthTabs } from "@/features/auth/auth-tabs";
 
 export default function AuthPage() {
   return (

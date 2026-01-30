@@ -13,7 +13,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getVariantTitle } from "@/validation";
 
 type VariantsTableProps = {
   options: ProductOption[];
@@ -153,7 +152,7 @@ export function VariantsTable({
                     </span>
                     <Input
                       type="text"
-                      value={variant.price || ""}
+                      value={variant.price ?? ""}
                       onChange={(e) => updateVariant(index, "price", e.target.value)}
                       placeholder="0.00"
                       className="h-8 pl-5"
@@ -168,7 +167,7 @@ export function VariantsTable({
                     </span>
                     <Input
                       type="text"
-                      value={variant.compareAtPrice || ""}
+                      value={variant.compareAtPrice ?? ""}
                       onChange={(e) => updateVariant(index, "compareAtPrice", e.target.value)}
                       placeholder="0.00"
                       className="h-8 pl-5"
@@ -179,7 +178,7 @@ export function VariantsTable({
                 <TableCell>
                   <Input
                     type="text"
-                    value={variant.sku || ""}
+                    value={variant.sku ?? ""}
                     onChange={(e) => updateVariant(index, "sku", e.target.value)}
                     placeholder="SKU"
                     className="h-8"

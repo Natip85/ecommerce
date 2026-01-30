@@ -24,10 +24,6 @@ export default async function ProfilePage() {
 
   return (
     <div className="container mx-auto flex flex-1 flex-col gap-4 py-6 pr-4.5 pl-6">
-      {/* <Breadcrumbs
-        pages={createSettingsBreadcrumbs("/settings/profile", "Profile")}
-      /> */}
-
       <div className="mb-8">
         <div className="flex items-center space-x-4">
           <div className="bg-muted flex size-16 items-center justify-center overflow-hidden rounded-full">

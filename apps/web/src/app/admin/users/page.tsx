@@ -9,9 +9,6 @@ import { PageTitle } from "@/features/admin/page-title";
 import { UserRow } from "@/features/admin/user-row";
 import { adminUsersBreadcrumbs } from "@/lib/breadcrumbs";
 
-// import { UsersHeader } from "@/features/admin/users/header";
-// import { UserRow } from "@/features/admin/users/user-row";
-
 export default async function UsersPage() {
   const session = await auth.api.getSession({ headers: await headers() });
 

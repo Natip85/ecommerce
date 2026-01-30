@@ -48,7 +48,7 @@ export const DataTable = <TData, TValue>({
 }: DataTableProps<TData, TValue>) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [internalColumnVisibility, setInternalColumnVisibility] = useState<VisibilityState>({});
+  const [_internalColumnVisibility, setInternalColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   // Use external column visibility if provided, otherwise use internal state

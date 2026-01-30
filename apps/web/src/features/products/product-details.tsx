@@ -10,11 +10,11 @@ import { cartStore, useCartStore, useWishlistStore, wishlistStore } from "@/stor
 import { useTRPC } from "@/trpc";
 import { ProductDetailsComponents } from "./product-details-components";
 
-interface ProductDetailsProps {
+type ProductDetailsProps = {
   id: string;
-}
+};
 
-export default function ProductDetails({ id }: ProductDetailsProps) {
+export function ProductDetails({ id }: ProductDetailsProps) {
   const router = useRouter();
   const trpc = useTRPC();
   const {
@@ -150,7 +150,7 @@ function ProductDetailsSkeleton() {
         <div className="flex flex-col gap-4">
           <div className="bg-muted aspect-square animate-pulse rounded-2xl" />
           <div className="flex gap-3">
-            {[...Array(4)].map((_, i) => (
+            {Array.from({ length: 4 }).map((_, i) => (
               <div
                 key={i}
                 className="bg-muted h-20 w-20 animate-pulse rounded-lg"

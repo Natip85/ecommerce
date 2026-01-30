@@ -9,7 +9,7 @@ import "../index.css";
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 
-import Providers from "@/components/providers";
+import { Providers } from "@/components/providers";
 import { ourFileRouter } from "./api/uploadthing/core";
 
 async function UploadThingSSR() {

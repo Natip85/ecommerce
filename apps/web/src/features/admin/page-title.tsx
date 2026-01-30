@@ -26,7 +26,7 @@ export function PageTitle({ title, children, subTitle, className, statusBadge, .
           />
           {statusBadge && <Badge>{statusBadge}</Badge>}
         </div>
-        {children && <div className="flex flex-shrink-0 items-center gap-3">{children}</div>}
+        {children && <div className="flex shrink-0 items-center gap-3">{children}</div>}
       </div>
       {subTitle && <PageSubtitle className="line-clamp-3 max-w-3/5">{subTitle}</PageSubtitle>}
     </div>

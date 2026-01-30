@@ -24,11 +24,13 @@ export const ourFileRouter: FileRouter = {
       const session = await auth.api.getSession({ headers: await headers() });
 
       if (!session?.user) {
+        // eslint-disable-next-line @typescript-eslint/only-throw-error
         throw new UploadThingError("Unauthorized");
       }
 
       // Only admins can upload product images
       if (session.user.role !== "admin") {
+        // eslint-disable-next-line @typescript-eslint/only-throw-error
         throw new UploadThingError("Admin access required");
       }
 
@@ -38,6 +40,7 @@ export const ourFileRouter: FileRouter = {
       };
     })
     .onUploadComplete(async ({ metadata, file }) => {
+      // eslint-disable-next-line no-console
       console.log("Product image upload complete:", {
         userId: metadata.userId,
         productId: metadata.productId,
@@ -45,12 +48,16 @@ export const ourFileRouter: FileRouter = {
       });
 
       if (!metadata.userId) {
+        // eslint-disable-next-line no-console
         console.error("User ID is required", { metadata, file });
+        // eslint-disable-next-line @typescript-eslint/only-throw-error
         throw new UploadThingError("User ID is required");
       }
 
       if (!metadata.productId) {
+        // eslint-disable-next-line no-console
         console.error("Product ID is required", { metadata, file });
+        // eslint-disable-next-line @typescript-eslint/only-throw-error
         throw new UploadThingError("Product ID is required");
       }
 
@@ -81,12 +88,14 @@ export const ourFileRouter: FileRouter = {
       const session = await auth.api.getSession({ headers: await headers() });
 
       if (!session?.user) {
+        // eslint-disable-next-line @typescript-eslint/only-throw-error
         throw new UploadThingError("Unauthorized");
       }
 
       return { userId: session.user.id };
     })
-    .onUploadComplete(async ({ metadata, file }) => {
+    .onUploadComplete(({ metadata, file }) => {
+      // eslint-disable-next-line no-console
       console.log("Image upload complete for userId:", metadata.userId);
 
       return {
@@ -109,6 +118,7 @@ export const ourFileRouter: FileRouter = {
       const session = await auth.api.getSession({ headers: await headers() });
 
       if (!session?.user) {
+        // eslint-disable-next-line @typescript-eslint/only-throw-error
         throw new UploadThingError("Unauthorized");
       }
 
@@ -117,7 +127,8 @@ export const ourFileRouter: FileRouter = {
         currentImage: session.user.image,
       };
     })
-    .onUploadComplete(async ({ metadata, file }) => {
+    .onUploadComplete(({ metadata, file }) => {
+      // eslint-disable-next-line no-console
       console.log("Profile image upload complete for userId:", metadata.userId);
 
       // TODO: Update user profile image in database

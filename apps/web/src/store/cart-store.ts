@@ -63,7 +63,7 @@ export type CartStore = CartState & CartActions;
  * Generate a composite ID for a cart item
  */
 function generateItemId(productId: string, variantId?: string): string {
-  return `${productId}-${variantId || "default"}`;
+  return `${productId}-${variantId ?? "default"}`;
 }
 
 // =============================================================================

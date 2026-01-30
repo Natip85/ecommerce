@@ -1,11 +1,9 @@
-import { db } from "@ecommerce/db";
-import {
-  collections,
-  productCollections,
-} from "@ecommerce/db/schema/product";
 import { TRPCError } from "@trpc/server";
-import { and, count as drizzleCount, desc, eq, ilike, asc } from "drizzle-orm";
+import { and, asc, desc, count as drizzleCount, eq, ilike } from "drizzle-orm";
 import { z } from "zod";
+
+import { db } from "@ecommerce/db";
+import { collections, productCollections } from "@ecommerce/db/schema/product";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
@@ -41,40 +39,38 @@ export const collectionRouter = createTRPCRouter({
   /**
    * Create a new collection
    */
-  create: protectedProcedure
-    .input(createCollectionSchema)
-    .mutation(async ({ ctx, input }) => {
-      if (ctx.session.user.role !== "admin") {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Admin access required",
-        });
-      }
-
-      // Check if handle already exists
-      const existingCollection = await db.query.collections.findFirst({
-        where: eq(collections.handle, input.handle),
+  create: protectedProcedure.input(createCollectionSchema).mutation(async ({ ctx, input }) => {
+    if (ctx.session.user.role !== "admin") {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Admin access required",
       });
+    }
 
-      if (existingCollection) {
-        throw new TRPCError({
-          code: "CONFLICT",
-          message: "A collection with this handle already exists",
-        });
-      }
+    // Check if handle already exists
+    const existingCollection = await db.query.collections.findFirst({
+      where: eq(collections.handle, input.handle),
+    });
 
-      const [collection] = await db
-        .insert(collections)
-        .values({
-          title: input.title,
-          handle: input.handle,
-          description: input.description,
-          published: input.published ?? false,
-        })
-        .returning();
+    if (existingCollection) {
+      throw new TRPCError({
+        code: "CONFLICT",
+        message: "A collection with this handle already exists",
+      });
+    }
 
-      return collection;
-    }),
+    const [collection] = await db
+      .insert(collections)
+      .values({
+        title: input.title,
+        handle: input.handle,
+        description: input.description,
+        published: input.published ?? false,
+      })
+      .returning();
+
+    return collection;
+  }),
 
   /**
    * Get a collection by ID
@@ -130,54 +126,50 @@ export const collectionRouter = createTRPCRouter({
   /**
    * Update a collection
    */
-  update: protectedProcedure
-    .input(updateCollectionSchema)
-    .mutation(async ({ ctx, input }) => {
-      if (ctx.session.user.role !== "admin") {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Admin access required",
-        });
-      }
+  update: protectedProcedure.input(updateCollectionSchema).mutation(async ({ ctx, input }) => {
+    if (ctx.session.user.role !== "admin") {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Admin access required",
+      });
+    }
 
-      const { collectionId, ...updateData } = input;
+    const { collectionId, ...updateData } = input;
 
-      // Check if collection exists
-      const existing = await db.query.collections.findFirst({
-        where: eq(collections.id, collectionId),
+    // Check if collection exists
+    const existing = await db.query.collections.findFirst({
+      where: eq(collections.id, collectionId),
+    });
+
+    if (!existing) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Collection not found",
+      });
+    }
+
+    // If handle is being updated, check for uniqueness
+    if (updateData.handle && updateData.handle !== existing.handle) {
+      const handleExists = await db.query.collections.findFirst({
+        where: and(eq(collections.handle, updateData.handle)),
       });
 
-      if (!existing) {
+      if (handleExists && handleExists.id !== collectionId) {
         throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Collection not found",
+          code: "CONFLICT",
+          message: "A collection with this handle already exists",
         });
       }
+    }
 
-      // If handle is being updated, check for uniqueness
-      if (updateData.handle && updateData.handle !== existing.handle) {
-        const handleExists = await db.query.collections.findFirst({
-          where: and(
-            eq(collections.handle, updateData.handle),
-          ),
-        });
+    const [updated] = await db
+      .update(collections)
+      .set(updateData)
+      .where(eq(collections.id, collectionId))
+      .returning();
 
-        if (handleExists && handleExists.id !== collectionId) {
-          throw new TRPCError({
-            code: "CONFLICT",
-            message: "A collection with this handle already exists",
-          });
-        }
-      }
-
-      const [updated] = await db
-        .update(collections)
-        .set(updateData)
-        .where(eq(collections.id, collectionId))
-        .returning();
-
-      return updated;
-    }),
+    return updated;
+  }),
 
   /**
    * Delete a collection
@@ -264,9 +256,7 @@ export const collectionRouter = createTRPCRouter({
       const conditions = [];
 
       if (filter?.search) {
-        conditions.push(
-          ilike(collections.title, `%${filter.search}%`)
-        );
+        conditions.push(ilike(collections.title, `%${filter.search}%`));
       }
 
       if (filter?.published === "yes") {
@@ -281,10 +271,11 @@ export const collectionRouter = createTRPCRouter({
       let orderBy: ReturnType<typeof desc>[] = [desc(collections.createdAt)];
       if (sort && sort.length > 0) {
         orderBy = sort.map((s) => {
-          const column = s.field === "title" ? collections.title :
-            s.field === "createdAt" ? collections.createdAt :
-              s.field === "updatedAt" ? collections.updatedAt :
-                collections.createdAt;
+          const column =
+            s.field === "title" ? collections.title
+            : s.field === "createdAt" ? collections.createdAt
+            : s.field === "updatedAt" ? collections.updatedAt
+            : collections.createdAt;
           return s.direction === "asc" ? asc(column) : desc(column);
         });
       }

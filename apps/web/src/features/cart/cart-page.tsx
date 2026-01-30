@@ -49,9 +49,9 @@ export function CartPageContent() {
     () =>
       cartItems.map((item) => ({
         id: item.id,
-        image: item.imageUrl || "",
+        image: item.imageUrl ?? "",
         title: item.title,
-        description: item.description || "",
+        description: item.description ?? "",
         variantOptions: item.variantOptions,
         price: item.price,
         originalPrice: item.compareAtPrice,
@@ -71,7 +71,7 @@ export function CartPageContent() {
   };
 
   const handleSaveForLater = (id: string) => {
-    console.log("Save for later:", id);
+    return `Save for later: ${id}`;
   };
 
   // Calculate summary values
@@ -195,7 +195,7 @@ export function CartPageContent() {
               tax={tax}
               itemCount={itemCount}
               onCheckout={() => router.push("/checkout")}
-              onApplyPromo={(code) => console.log("Promo code:", code)}
+              // onApplyPromo={(code) => console.log("Promo code:", code)}
             />
           </div>
         </div>

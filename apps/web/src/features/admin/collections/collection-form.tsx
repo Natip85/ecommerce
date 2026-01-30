@@ -67,6 +67,7 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
 
   // Fetch collection data (only in edit mode)
   const { data: collection, isLoading: isLoadingCollection } = useQuery({
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     ...trpc.collection.getById.queryOptions({ collectionId: collectionId! }),
     enabled: !isCreateMode,
   });
@@ -75,10 +76,10 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
   const { mutateAsync: createCollection, isPending: isCreating } = useMutation(
     trpc.collection.create.mutationOptions({
       onSuccess: (newCollection) => {
-        queryClient.invalidateQueries({
+        void queryClient.invalidateQueries({
           queryKey: trpc.collection.list.queryKey(),
         });
-        queryClient.invalidateQueries({
+        void queryClient.invalidateQueries({
           queryKey: trpc.product.listCollections.queryKey(),
         });
         toast.success("Collection created");
@@ -96,15 +97,15 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
   const { mutateAsync: updateCollection, isPending: isUpdating } = useMutation(
     trpc.collection.update.mutationOptions({
       onSuccess: () => {
-        queryClient.invalidateQueries({
+        void queryClient.invalidateQueries({
           queryKey: trpc.collection.getById.queryKey({
-            collectionId: collectionId!,
+            collectionId: collectionId,
           }),
         });
-        queryClient.invalidateQueries({
+        void queryClient.invalidateQueries({
           queryKey: trpc.collection.list.queryKey(),
         });
-        queryClient.invalidateQueries({
+        void queryClient.invalidateQueries({
           queryKey: trpc.product.listCollections.queryKey(),
         });
         toast.success("Collection saved");
@@ -121,10 +122,10 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
   const { mutateAsync: deleteCollection, isPending: isDeleting } = useMutation(
     trpc.collection.delete.mutationOptions({
       onSuccess: () => {
-        queryClient.invalidateQueries({
+        void queryClient.invalidateQueries({
           queryKey: trpc.collection.list.queryKey(),
         });
-        queryClient.invalidateQueries({
+        void queryClient.invalidateQueries({
           queryKey: trpc.product.listCollections.queryKey(),
         });
         toast.success("Collection deleted");
@@ -173,8 +174,8 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
       form.reset({
         title: collection.title || "",
         handle: collection.handle || "",
-        description: collection.description || "",
-        published: collection.published || false,
+        description: collection.description ?? "",
+        published: collection.published ?? false,
       });
     }
   }, [collection, form, isCreateMode]);
@@ -184,7 +185,7 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
       await createCollection({
         title: data.title,
         handle: data.handle,
-        description: data.description || undefined,
+        description: data.description ?? undefined,
         published: data.published,
       });
     } else {
@@ -192,13 +193,14 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
         collectionId: collectionId,
         title: data.title,
         handle: data.handle,
-        description: data.description || undefined,
+        description: data.description ?? undefined,
         published: data.published,
       });
     }
   }
 
   async function handleDelete() {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     await deleteCollection({ collectionId: collectionId! });
     setShowDeleteDialog(false);
   }
@@ -235,7 +237,7 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
     );
   }
 
-  const pageTitle = isCreateMode ? "New Collection" : collection?.title || "Edit Collection";
+  const pageTitle = isCreateMode ? "New Collection" : (collection?.title ?? "Edit Collection");
   const breadcrumbs =
     isCreateMode ?
       [
@@ -243,7 +245,7 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
         { href: "/admin/collections", label: "Collections" },
         { href: "/admin/collections/new", label: "New Collection" },
       ]
-    : createAdminCollectionDetailBreadcrumbs(collectionId, collection?.title || "Edit Collection");
+    : createAdminCollectionDetailBreadcrumbs(collectionId, collection?.title ?? "Edit Collection");
 
   return (
     <Form {...form}>
@@ -416,7 +418,7 @@ export function CollectionForm({ collectionId }: CollectionFormProps) {
                             {product.image?.url ?
                               <Image
                                 src={product.image.url}
-                                alt={product.image.alt || product.title}
+                                alt={product.image.alt ?? product.title}
                                 fill
                                 className="object-cover"
                               />

@@ -1,6 +1,3 @@
-import { db } from "@ecommerce/db";
-import * as schema from "@ecommerce/db/schema/auth";
-import { env } from "@ecommerce/env/server";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
@@ -8,10 +5,13 @@ import { lastLoginMethod } from "better-auth/plugins";
 import { admin as adminPlugin } from "better-auth/plugins/admin";
 import { twoFactor } from "better-auth/plugins/two-factor";
 
+import { db } from "@ecommerce/db";
+import * as schema from "@ecommerce/db/schema/auth";
+import { env } from "@ecommerce/env/server";
+
 import { sendDeleteAccountVerificationEmail } from "./emails/delete-account-verification";
 import { sendEmailVerificationEmail } from "./emails/email-verification";
 import { sendPasswordResetEmail } from "./emails/password-reset-email";
-
 
 export const auth = betterAuth({
   appName: "My Better T App",
@@ -58,12 +58,7 @@ export const auth = betterAuth({
       maxAge: 60 * 1, // 1 minutes
     },
   },
-  plugins: [
-    nextCookies(),
-    twoFactor(),
-    adminPlugin(),
-    lastLoginMethod(),
-  ],
+  plugins: [nextCookies(), twoFactor(), adminPlugin(), lastLoginMethod()],
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: schema,

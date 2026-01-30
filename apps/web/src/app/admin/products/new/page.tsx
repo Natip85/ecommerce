@@ -23,8 +23,8 @@ export default function NewProductPage() {
     trpc.product.create.mutationOptions({
       onSuccess: (product) => {
         // Invalidate the list cache
-        queryClient.invalidateQueries({ queryKey: ["product", "list"] });
-        queryClient.invalidateQueries({ queryKey: ["product", "getIncompleteProduct"] });
+        void queryClient.invalidateQueries({ queryKey: ["product", "list"] });
+        void queryClient.invalidateQueries({ queryKey: ["product", "getIncompleteProduct"] });
 
         // Redirect to edit page
         router.replace(`/admin/products/${product.id}`);

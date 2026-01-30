@@ -14,7 +14,7 @@ export function FormattedTitle({ title, className, ...props }: FormattedTitlePro
   return (
     <h2
       {...props}
-      className={cn("break-words", className)}
+      className={cn("wrap-break-word", className)}
     >
       {formatTitle(title)}
     </h2>
