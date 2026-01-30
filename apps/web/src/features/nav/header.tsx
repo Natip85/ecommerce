@@ -13,7 +13,7 @@ import { useCartStore } from "@/store";
 import { NavUser } from "./nav-user";
 
 const navigation = [
-  { name: "Shop", href: "/shop" },
+  { name: "Shop", href: "/shop?filterOpen=new" },
   { name: "About", href: "/about" },
 ];
 

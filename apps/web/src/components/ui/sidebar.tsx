@@ -400,6 +400,7 @@ function Sidebar({
   children,
   lightBg = false,
   onMobileClose,
+  belowHeader = false,
   ...props
 }: React.ComponentProps<"div"> & {
   side?: "left" | "right";
@@ -407,6 +408,8 @@ function Sidebar({
   collapsible?: "offcanvas" | "icon" | "none";
   lightBg?: boolean;
   onMobileClose?: () => void;
+  /** When true, positions the sidebar below the header (top-16) instead of full viewport height */
+  belowHeader?: boolean;
 }) {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar(side);
 
@@ -449,7 +452,9 @@ function Sidebar({
           data-mobile="true"
           className={cn(
             "bg-background! text-foreground p-0 [&>button]:hidden",
-            sideWidthVariants({ side })
+            sideWidthVariants({ side }),
+            // When below header, add top padding to account for header overlay
+            belowHeader && "pt-16"
           )}
           style={
             {
@@ -501,6 +506,8 @@ function Sidebar({
             side,
           }),
           state === "expanded" && sideWidthVariants({ side }),
+          // When below header, override inset-y-0 with top-16 and adjust height
+          belowHeader && "top-16 h-[calc(100svh-4rem)]",
           className
         )}
         {...props}

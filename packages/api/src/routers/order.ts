@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import type { NewOrder, NewOrderItem } from "@ecommerce/db/schema/order";
 import { orderItems, orders } from "@ecommerce/db/schema/order";
-import { products, productVariants } from "@ecommerce/db/schema/product";
+import { productImages, products, productVariants } from "@ecommerce/db/schema/product";
 
 import { stripe, toCents } from "../lib/stripe";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
@@ -89,6 +89,31 @@ export const orderRouter = createTRPCRouter({
       const productMap = new Map(dbProducts.map((p) => [p.id, p]));
       const variantMap = new Map(dbVariants.map((v) => [v.id, v]));
 
+      // Fetch product images (first image for each product)
+      const dbImages = await ctx.db
+        .select({
+          productId: productImages.productId,
+          variantId: productImages.variantId,
+          url: productImages.url,
+        })
+        .from(productImages)
+        .where(inArray(productImages.productId, productIds));
+
+      // Create maps for quick lookup (productId -> first image URL, variantId -> image URL)
+      const productImageMap = new Map<string, string>();
+      const variantImageMap = new Map<string, string>();
+
+      for (const img of dbImages) {
+        // Set product image if not already set (first image wins based on query order)
+        if (!productImageMap.has(img.productId)) {
+          productImageMap.set(img.productId, img.url);
+        }
+        // Set variant image if variant is specified
+        if (img.variantId && !variantImageMap.has(img.variantId)) {
+          variantImageMap.set(img.variantId, img.url);
+        }
+      }
+
       // Validate items and calculate totals
       let subtotal = 0;
       const validatedItems: {
@@ -97,6 +122,7 @@ export const orderRouter = createTRPCRouter({
         productTitle: string;
         variantTitle?: string;
         sku?: string;
+        imageUrl?: string;
         priceInCents: number;
         quantity: number;
         optionValues?: Record<string, string>;
@@ -145,12 +171,17 @@ export const orderRouter = createTRPCRouter({
           const priceInCents = toCents(Number(variant.price));
           subtotal += priceInCents * item.quantity;
 
+          // Get image URL: prefer variant-specific image, fall back to product image
+          const imageUrl =
+            variantImageMap.get(item.variantId) ?? productImageMap.get(item.productId);
+
           validatedItems.push({
             productId: item.productId,
             variantId: item.variantId,
             productTitle: product.title,
             variantTitle: variant.title ?? undefined,
             sku: variant.sku ?? undefined,
+            imageUrl,
             priceInCents,
             quantity: item.quantity,
             optionValues: variant.optionValues as Record<string, string> | undefined,
@@ -192,12 +223,17 @@ export const orderRouter = createTRPCRouter({
           const priceInCents = toCents(Number(defaultVariant.price));
           subtotal += priceInCents * item.quantity;
 
+          // Get image URL: prefer variant-specific image, fall back to product image
+          const imageUrl =
+            variantImageMap.get(defaultVariant.id) ?? productImageMap.get(item.productId);
+
           validatedItems.push({
             productId: item.productId,
             variantId: defaultVariant.id,
             productTitle: product.title,
             variantTitle: defaultVariant.title ?? undefined,
             sku: defaultVariant.sku ?? undefined,
+            imageUrl,
             priceInCents,
             quantity: item.quantity,
             optionValues: defaultVariant.optionValues as Record<string, string> | undefined,
@@ -258,6 +294,7 @@ export const orderRouter = createTRPCRouter({
         productTitle: item.productTitle,
         variantTitle: item.variantTitle ?? null,
         sku: item.sku ?? null,
+        imageUrl: item.imageUrl ?? null,
         priceAtPurchase: item.priceInCents,
         quantity: item.quantity,
         total: item.priceInCents * item.quantity,
@@ -308,6 +345,53 @@ export const orderRouter = createTRPCRouter({
         });
       }
 
+      // For items that don't have an imageUrl stored (legacy orders),
+      // fetch images from the product images table
+      const itemsNeedingImages = order.items.filter((item) => !item.imageUrl && item.productId);
+
+      if (itemsNeedingImages.length > 0) {
+        const productIds = [
+          ...new Set(
+            itemsNeedingImages.map((item) => item.productId).filter((id): id is string => !!id)
+          ),
+        ];
+
+        const images = await ctx.db
+          .select({
+            productId: productImages.productId,
+            variantId: productImages.variantId,
+            url: productImages.url,
+          })
+          .from(productImages)
+          .where(inArray(productImages.productId, productIds));
+
+        // Create lookup maps
+        const productImageMap = new Map<string, string>();
+        const variantImageMap = new Map<string, string>();
+
+        for (const img of images) {
+          if (!productImageMap.has(img.productId)) {
+            productImageMap.set(img.productId, img.url);
+          }
+          if (img.variantId && !variantImageMap.has(img.variantId)) {
+            variantImageMap.set(img.variantId, img.url);
+          }
+        }
+
+        // Return order with augmented items
+        return {
+          ...order,
+          items: order.items.map((item) => ({
+            ...item,
+            imageUrl:
+              item.imageUrl ??
+              (item.variantId && variantImageMap.get(item.variantId)) ??
+              (item.productId && productImageMap.get(item.productId)) ??
+              null,
+          })),
+        };
+      }
+
       return order;
     }),
 
@@ -322,6 +406,60 @@ export const orderRouter = createTRPCRouter({
         items: true,
       },
     });
+
+    // For items that don't have an imageUrl stored (legacy orders),
+    // fetch images from the product images table
+    const productIdsNeedingImages = new Set<string>();
+    const variantIdsNeedingImages = new Set<string>();
+
+    for (const order of userOrders) {
+      for (const item of order.items) {
+        if (!item.imageUrl && item.productId) {
+          productIdsNeedingImages.add(item.productId);
+          if (item.variantId) {
+            variantIdsNeedingImages.add(item.variantId);
+          }
+        }
+      }
+    }
+
+    // If there are items needing images, fetch them
+    if (productIdsNeedingImages.size > 0) {
+      const images = await ctx.db
+        .select({
+          productId: productImages.productId,
+          variantId: productImages.variantId,
+          url: productImages.url,
+        })
+        .from(productImages)
+        .where(inArray(productImages.productId, [...productIdsNeedingImages]));
+
+      // Create lookup maps
+      const productImageMap = new Map<string, string>();
+      const variantImageMap = new Map<string, string>();
+
+      for (const img of images) {
+        if (!productImageMap.has(img.productId)) {
+          productImageMap.set(img.productId, img.url);
+        }
+        if (img.variantId && !variantImageMap.has(img.variantId)) {
+          variantImageMap.set(img.variantId, img.url);
+        }
+      }
+
+      // Augment items with image URLs
+      return userOrders.map((order) => ({
+        ...order,
+        items: order.items.map((item) => ({
+          ...item,
+          imageUrl:
+            item.imageUrl ??
+            (item.variantId && variantImageMap.get(item.variantId)) ??
+            (item.productId && productImageMap.get(item.productId)) ??
+            null,
+        })),
+      }));
+    }
 
     return userOrders;
   }),

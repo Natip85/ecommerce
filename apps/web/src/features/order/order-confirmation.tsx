@@ -84,7 +84,7 @@ export function OrderConfirmationContent({ orderId }: OrderConfirmationContentPr
               try again.
             </p>
             <Button asChild>
-              <Link href="/shop">Continue Shopping</Link>
+              <Link href="/shop?filterOpen=new">Continue Shopping</Link>
             </Button>
           </div>
         </div>
@@ -248,7 +248,7 @@ export function OrderConfirmationContent({ orderId }: OrderConfirmationContentPr
               asChild
               className="flex-1"
             >
-              <Link href="/shop">
+              <Link href="/shop?filterOpen=new">
                 <ShoppingBag className="mr-2 h-4 w-4" />
                 Continue Shopping
               </Link>

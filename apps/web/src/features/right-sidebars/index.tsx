@@ -71,7 +71,7 @@ export const RightSidebarContainer = () => {
 
   return (
     <RightSidebar
-      className="h-svh"
+      className="h-full"
       onClose={() => {
         void setSidebarParams(null);
       }}
@@ -84,7 +84,7 @@ export const RightSidebarContainer = () => {
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: 300, opacity: 0 }}
             transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-            className="flex h-svh flex-col"
+            className="flex h-full flex-col"
           >
             {sidebarParams.infoId && <ProductInfoSidebar />}
             {sidebarParams.filterOpen && !sidebarParams.filterSaving && <ProductFilterSidebar />}

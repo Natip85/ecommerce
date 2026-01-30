@@ -11,12 +11,18 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   return (
     <HydrateClient>
       <SidebarProvider defaultLeftOpen={false}>
-        <div className="flex h-svh flex-1 flex-col overflow-y-auto">
+        <div className="flex h-svh w-full flex-col">
+          {/* Header outside the sidebar flex relationship - stays full width */}
           <Header />
-          {children}
-          <Footer />
+          {/* Content area below header - this flex row is affected by sidebar */}
+          <div className="flex min-h-0 flex-1">
+            <div className="flex-1 overflow-y-auto">
+              {children}
+              <Footer />
+            </div>
+            <RightSidebarContainer />
+          </div>
         </div>
-        <RightSidebarContainer />
         <Suspense>
           <GlobalSearch />
         </Suspense>

@@ -145,7 +145,7 @@ export function ShopSidebar() {
     searchParams.filter?.onSale;
 
   return (
-    <aside className="hidden w-44 shrink-0 md:block">
+    <aside className="w-38 shrink-0 md:w-44">
       <div className="sticky top-20 space-y-6">
         {/* Shop by section */}
         <div>

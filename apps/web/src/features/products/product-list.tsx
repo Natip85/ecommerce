@@ -65,7 +65,12 @@ export const ProductList = () => {
 
   return (
     <div>
-      <div className="mb-5 flex items-center justify-between gap-3 px-3">
+      <div
+        className={cn(
+          "bg-background/95 supports-backdrop-filter:bg-background/60 sticky top-0 z-10 mb-5 flex gap-3 px-3 py-3 backdrop-blur",
+          width >= GRID_2_COLS ? "flex-row items-center justify-between" : "flex-col items-start"
+        )}
+      >
         {data?.total !== undefined && (
           <div className="flex items-center gap-2">
             <p>Results: </p>
@@ -123,7 +128,7 @@ export const ProductList = () => {
             <ListRendererList>
               <ListRendererListItem type={"grid"}>
                 <div
-                  className="grid gap-2"
+                  className="grid gap-4"
                   style={{
                     gridTemplateColumns: `repeat(${gridCols}, minmax(0, 1fr))`,
                   }}

@@ -104,7 +104,7 @@ export function CartPageContent() {
               className="gap-2"
               asChild
             >
-              <Link href="/shop">
+              <Link href="/shop?filterOpen=new">
                 <Package className="h-4 w-4" />
                 Continue Shopping
               </Link>
@@ -123,7 +123,7 @@ export function CartPageContent() {
         {/* Header */}
         <div className="mb-8">
           <Link
-            href="/shop"
+            href="/shop?filterOpen=new"
             className="text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-2 text-sm transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />

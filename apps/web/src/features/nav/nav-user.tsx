@@ -79,9 +79,9 @@ export function NavUser() {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="#">
+            <Link href="/history">
               <History />
-              History{" "}
+              History
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
