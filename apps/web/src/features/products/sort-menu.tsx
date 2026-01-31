@@ -85,7 +85,7 @@ export function SortMenu() {
           className="justify-between gap-2"
         >
           <SortDesc className="h-5 w-5 shrink-0" />
-          {currentLabel}
+          <span className="hidden md:inline">{currentLabel}</span>
           {isNonDefaultSort && <Badge className="h-4 px-1.5 text-[10px]">1</Badge>}
         </Button>
       </PopoverTrigger>
