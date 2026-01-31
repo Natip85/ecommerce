@@ -89,8 +89,8 @@ export const ProductList = () => {
             onClick={() => toggleFilterOpen("new")}
             className="flex transition-all duration-300 ease-in-out"
           >
-            <Filter className="size-4 md:mr-3" />
-            <span className="hidden md:inline">Filters</span>
+            <Filter className="mr-3 size-4" />
+            Filters
             <ChevronDown
               className={cn(
                 "size-4 transition-transform duration-200",
